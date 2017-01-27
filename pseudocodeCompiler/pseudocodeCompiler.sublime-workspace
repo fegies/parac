@@ -4,208 +4,224 @@
 		"selected_items":
 		[
 			[
-				"normal",
-				"normaliseExpression"
+				"variable_dr",
+				"variable_deref"
 			],
 			[
-				"pars",
-				"parsePSC"
+				"variable_d",
+				"variable_deref\t(variable.h)"
 			],
 			[
-				"norma",
-				"normaliseAst"
+				"variable_de",
+				"variable_decrement_Refs"
 			],
 			[
-				"int",
-				"interfiles"
+				"InstrType_ArihM",
+				"InstrType_ArithMul\t(interpreter.c)"
 			],
 			[
-				"len",
-				"length\t(AstTransform.hs)"
+				"exe",
+				"execStack_print"
 			],
 			[
-				"checkR",
-				"checkReturnStatement"
+				"exec",
+				"execStack_print"
 			],
 			[
-				"chec",
-				"checkRetunStatement"
+				"InstrType_O",
+				"InstrType_ObjMemberAcc\t(interpreter.c)"
 			],
 			[
-				"che",
-				"checkRetunStatement"
+				"cont",
+				"continue"
 			],
 			[
-				"ser",
-				"serializeExpression"
+				"VARI",
+				"VARIABLE_TYPE_INT"
 			],
 			[
-				"Instr",
-				"InstrBlockLeave"
+				"InstrType_b",
+				"InstrType_BlockLeave\t(interpreter.c)"
 			],
 			[
-				"InstrB",
-				"InstrBlockEnter"
+				"InstrType_B",
+				"InstrType_BlockEnter\t(interpreter.c)"
 			],
 			[
-				"seri",
-				"serializeStatement"
+				"InstrType_Comp",
+				"InstrType_CompareLt\t(interpreter.c)"
 			],
 			[
-				"InstB",
-				"InstrBlockLeave"
+				"variableString_get",
+				"variableString_getBytes\t(variableString.h)"
 			],
 			[
-				"put",
-				"putWord8"
+				"variableFun",
+				"variableFunction_new\t(function.h)"
 			],
 			[
-				"InstrObj",
-				"InstrObjMemberAccess"
+				"addit",
+				"additionalData\t(interpreter.c)"
 			],
 			[
-				"InstrLog",
-				"InstrLogicOr\t(Instructions.hs)"
+				"InstrTypLoo",
+				"InstrType_VarLookup\t(interpreter.c)"
 			],
 			[
-				"InstrCLe",
-				"InstrCompareLeq\t(Instructions.hs)"
+				"instri",
+				"instruction.h\t(function.h)"
 			],
 			[
-				"InstrComp",
-				"InstrCompareLt\t(Instructions.hs)"
+				"nameStorp",
+				"nameStore_print"
 			],
 			[
-				"InstrF",
-				"InstrFunctionCall\t(Instructions.hs)"
+				"nameStoreP",
+				"nameStore_print\t(nameStore.c)"
 			],
 			[
-				"toB",
-				"toByecode"
+				"_nam",
+				"_nameStore_print"
 			],
 			[
-				"norm",
-				"normaliseAst"
+				"InstrTypePu",
+				"InstrType_PushConstInt\t(codeLoader.c)"
 			],
 			[
-				"toy",
-				"toBytes"
+				"InstrTypeF",
+				"InstrType_FunctionCall\t(interpreter.c)"
 			],
 			[
-				"no",
-				"normaliseExpression"
+				"addition",
+				"additionalData\t(codeLoader.c)"
 			],
 			[
-				"normaliseSt",
-				"normaliseStatement"
+				"nameStore",
+				"nameStore_node"
 			],
 			[
-				"Instrp",
-				"InstrPushConstStr"
+				"_nameStore",
+				"_nameStore_decrefs"
 			],
 			[
-				"ExpressionLo",
-				"ExpressionLogicNot"
+				"execSt",
+				"execStack_pop"
 			],
 			[
-				"ExpressionCom",
-				"ExpressionCompareNeq\t(PseudocodeParser.y)"
+				"named",
+				"nameStore_decrefs\t(nameStore.h)"
 			],
 			[
-				"ar",
-				"argstolist"
+				"InstrTyp_Blo",
+				"InstrType_BlockLeave\t(instruction.h)"
 			],
 			[
-				"Expressionl",
-				"ExpressionLogicNot\t(PseudocodeParser.y)"
+				"InstrTypeBl",
+				"InstrType_BlockEnter\t(instruction.h)"
 			],
 			[
-				"ExressionLog",
-				"ExpressionLogicAnd\t(PseudocodeParser.y)"
+				"InstrType_Log",
+				"InstrType_LogicAnd\t(instruction.h)"
 			],
 			[
-				"Expr",
-				"Expression"
+				"ent",
+				"entries"
 			],
 			[
-				"ExpressionCm",
-				"ExpressionCompareNeq\t(Ast.hs)"
+				"add",
+				"additionalData"
 			],
 			[
-				"TokenC",
-				"TokenComma\t(Tokens.hs)"
+				"ex",
+				"execStack_pop"
 			],
 			[
-				"Stat",
-				"StatementWhile"
+				"ret",
+				"retval"
 			],
 			[
-				"Cont",
-				"ContstantInt\t(Ast.hs)"
+				"entr",
+				"entrypoint\t(function.h)"
 			],
 			[
-				"TokenCb",
-				"TokenCBClose\t(PseudocodeParser.y)"
+				"data",
+				"datastructures"
 			],
 			[
-				"ExprCo",
-				"ExprCollection\t(Ast.hs)"
+				"load",
+				"loadBytecode\t(codeLoader.c)"
 			],
 			[
-				"ToknCB",
-				"TokenCBClose\t(Tokens.hs)"
+				"VA",
+				"VARIABLE_TYPE_FUNCTION\t(variable.h)"
 			],
 			[
-				"TokenEq",
-				"TokenEqualSign\t(PseudocodeParser.y)"
+				"variabl",
+				"variable_new\t(array.c)"
 			],
 			[
-				"Exp",
-				"ExpConst"
+				"vari",
+				"variableFunction_new\t(codeLoader.c)"
 			],
 			[
-				"St",
-				"Statement"
+				"variabF",
+				"variableFunction_new\t(function.h)"
 			],
 			[
-				"Empt",
-				"EmptyStatement"
+				"InstrType_Pu",
+				"InstrType_PushConstInt\t(instruction.h)"
 			],
 			[
-				"Statem",
-				"StatementBlock"
+				"InstrType_pu",
+				"InstrType_PushConstInt\t(instruction.h)"
 			],
 			[
-				"ST",
-				"StatementBlock"
+				"bytes",
+				"bytesToInt\t(codeLoader.c)"
 			],
 			[
-				"get",
-				"getCurrentBlock"
+				"size",
+				"sizeof"
 			],
 			[
-				"start",
-				"startsWith"
+				"by",
+				"bytepos"
 			],
 			[
-				"Epm",
-				"EmptyBlock"
+				"inst",
+				"instrarr"
+			],
+			[
+				"mem",
+				"memcpy\t(main.c)"
+			],
+			[
+				"instr",
+				"instructions"
+			],
+			[
+				"newbuf",
+				"newbufsize"
+			],
+			[
+				"new",
+				"newbuf"
+			],
+			[
+				"red",
+				"readbytes"
+			],
+			[
+				"ma",
+				"malloc"
 			],
 			[
 				"name",
 				"nameStore_get"
 			],
 			[
-				"exe",
-				"execStack_pop"
-			],
-			[
 				"variableString_s",
 				"variableString_setContents\t(variableString.c)"
-			],
-			[
-				"exec",
-				"execStack_push"
 			],
 			[
 				"execS",
@@ -244,14 +260,6 @@
 				"argnames"
 			],
 			[
-				"entr",
-				"entryPoint"
-			],
-			[
-				"vari",
-				"variable_new\t(class.c)"
-			],
-			[
 				"byt",
 				"bytefrom"
 			],
@@ -272,24 +280,12 @@
 				"refcount"
 			],
 			[
-				"variableString_get",
-				"variableString_getBytes\t(object.c)"
-			],
-			[
-				"VARI",
-				"VARIABLE_TYPE_STRING"
-			],
-			[
 				"VAR",
 				"VARIABLESTRING_FLAGS_COW"
 			],
 			[
 				"V",
 				"VARIABLE_TYPE_STRING"
-			],
-			[
-				"ent",
-				"entrycount"
 			],
 			[
 				"ojb",
@@ -308,10 +304,6 @@
 				"type\tunsigned char type"
 			],
 			[
-				"by",
-				"bytecount"
-			],
-			[
 				"b",
 				"bytecount"
 			],
@@ -326,14 +318,6 @@
 			[
 				"variable",
 				"variableString"
-			],
-			[
-				"variabl",
-				"variableString"
-			],
-			[
-				"VA",
-				"VARIABLE_TYPE_STRING"
 			],
 			[
 				"VARIAB",
@@ -369,6 +353,10 @@
 			],
 			[
 				"pare",
+				"parseFormel"
+			],
+			[
+				"pars",
 				"parseFormel"
 			],
 			[
@@ -440,6 +428,10 @@
 				"substring(...)\tString"
 			],
 			[
+				"get",
+				"getContent( path : String )\tString"
+			],
+			[
 				"Fi",
 				"FileSystem\tclass"
 			],
@@ -470,6 +462,10 @@
 			[
 				"ab",
 				"abstract"
+			],
+			[
+				"int",
+				"interface"
 			],
 			[
 				"T",
@@ -514,45 +510,15 @@
 			[
 				"_",
 				"_SESSION"
+			],
+			[
+				"call",
+				"callstackEntry"
 			]
 		]
 	},
 	"buffers":
 	[
-		{
-			"file": "src/Main.hs",
-			"settings":
-			{
-				"buffer_size": 1777,
-				"encoding": "UTF-8",
-				"line_ending": "Unix"
-			}
-		},
-		{
-			"file": "src/ToBytecode.hs",
-			"settings":
-			{
-				"buffer_size": 2148,
-				"line_ending": "Unix"
-			}
-		},
-		{
-			"file": "src/AstTransform.hs",
-			"settings":
-			{
-				"buffer_size": 6819,
-				"encoding": "UTF-8",
-				"line_ending": "Unix"
-			}
-		},
-		{
-			"file": "src/Ast.hs",
-			"settings":
-			{
-				"buffer_size": 1844,
-				"line_ending": "Unix"
-			}
-		}
 	],
 	"build_system": "Packages/Java/JavaC.sublime-build",
 	"build_system_choices":
@@ -677,37 +643,25 @@
 	"build_varint": "",
 	"command_palette":
 	{
-		"height": 240.0,
+		"height": 400.0,
 		"last_filter": "",
 		"selected_items":
 		[
+			[
+				"men",
+				"View: Toggle Menu"
+			],
+			[
+				"",
+				"EasyClangComplete: Settings"
+			],
 			[
 				"meun",
 				"View: Toggle Menu"
 			],
 			[
-				"space",
-				"Indentation: Convert to Spaces"
-			],
-			[
 				"menu",
 				"View: Toggle Menu"
-			],
-			[
-				"ins",
-				"Package Control: Install Package"
-			],
-			[
-				"inde",
-				"Indentation: Reindent Lines"
-			],
-			[
-				"proje",
-				"Project: Close"
-			],
-			[
-				"inst",
-				"Package Control: Install Package"
 			],
 			[
 				"setting",
@@ -734,16 +688,16 @@
 				"Project: Save As"
 			],
 			[
+				"inst",
+				"Package Control: Install Package"
+			],
+			[
 				"refr",
 				"Project: Refresh Folders"
 			],
 			[
 				"inded",
 				"Indentation: Reindent Lines"
-			],
-			[
-				"men",
-				"View: Toggle Menu"
 			],
 			[
 				"latex",
@@ -876,10 +830,6 @@
 			[
 				"vme",
 				"View: Toggle Menu"
-			],
-			[
-				"",
-				"Package Control: Install Package"
 			]
 		],
 		"width": 493.0
@@ -906,59 +856,75 @@
 	},
 	"expanded_folders":
 	[
-		"/home/felix/programming/haskell/pseudocodeCompiler",
-		"/home/felix/programming/haskell/pseudocodeCompiler/src"
+		"/home/felix/programming/haskell/pseudocodeCompiler/pseudocodeCompiler"
 	],
 	"file_history":
 	[
-		"/home/felix/programming/haskell/pseudocodeCompiler/src/ToBytecode.hs",
-		"/home/felix/programming/haskell/pseudocodeCompiler/pseudocodeCompiler.cabal",
-		"/home/felix/programming/haskell/pseudocodeCompiler/src/AstTransform.hs",
-		"/home/felix/programming/haskell/pseudocodeCompiler/src/Ast.hs",
-		"/home/felix/programming/haskell/pseudocodeCompiler/file.psbc",
-		"/home/felix/programming/haskell/pseudocodeCompiler/ToBytecode.hs",
-		"/home/felix/programming/haskell/pseudocodeCompiler/Main.hs",
-		"/home/felix/programming/haskell/pseudocodeCompiler/Instructions.hs",
-		"/home/felix/programming/haskell/pseudocodeCompiler/F.hs",
-		"/home/felix/programming/haskell/pseudocodeCompiler/Ast.hs",
-		"/home/felix/programming/haskell/pseudocodeCompiler/source.psc",
-		"/home/felix/programming/haskell/pseudocodeCompiler/AstTransform.hs",
-		"/home/felix/programming/haskell/pseudocodeCompiler/PseudocodeParser.y",
-		"/home/felix/programming/haskell/pseudocodeCompiler/source2.psc",
-		"/home/felix/programming/haskell/pseudocodeCompiler/Lexer.x",
-		"/home/felix/programming/haskell/pseudocodeCompiler/Tokens.hs",
-		"/home/felix/programming/haskell/pseudocodeCompiler/PseudocodeParser.info",
-		"/home/felix/documents/sem2/übungen/diskreteStrukturen/weihnachtsserie/weihnachtsserie.tex",
-		"/home/felix/programming/haskell/pseudocodeCompiler/Lexer.hs",
-		"/home/felix/programming/haskell/pseudocodeCompiler/PseudocodeParser.hs",
-		"/home/felix/programming/haskell/pseudocodeCompiler/Parse.hs",
-		"/home/felix/programming/haskell/dnf.hs",
-		"/home/felix/programming/haskell/pseudocodeCompiler/parser.y",
-		"/home/felix/programming/haskell/pseudocodeCompiler/ast.hs",
-		"/home/felix/programming/haskell/pseudocodeCompiler/learning.hs",
-		"/home/felix/programming/cpp/pseudocodeInterpreter/src/function.c",
 		"/home/felix/programming/cpp/pseudocodeInterpreter/src/main.c",
+		"/home/felix/programming/cpp/pseudocodeInterpreter/src/interpreter.c",
+		"/home/felix/programming/cpp/pseudocodeInterpreter/src/instruction.c",
+		"/home/felix/programming/cpp/pseudocodeInterpreter/src/standartLibrary/print.c",
+		"/home/felix/programming/cpp/pseudocodeInterpreter/src/codeLoader/codeLoader.c",
+		"/home/felix/programming/cpp/pseudocodeInterpreter/include/codeLoader/codeLoader.h",
+		"/home/felix/programming/cpp/pseudocodeInterpreter/include/codeLoader/byteops.h",
+		"/home/felix/programming/cpp/pseudocodeInterpreter/include/datastructures/variableString.h",
+		"/home/felix/programming/cpp/pseudocodeInterpreter/include/operation.h",
+		"/home/felix/programming/cpp/pseudocodeInterpreter/include/standartLibrary.h",
+		"/home/felix/programming/cpp/pseudocodeInterpreter/include/constants.h",
+		"/home/felix/programming/cpp/pseudocodeInterpreter/include/interpreter.h",
+		"/home/felix/programming/cpp/pseudocodeInterpreter/include/instruction.h",
+		"/home/felix/programming/cpp/pseudocodeInterpreter/include/globals.h",
+		"/home/felix/programming/cpp/pseudocodeInterpreter/include/boolean.h",
+		"/home/felix/programming/cpp/pseudocodeInterpreter/include/datastructures/object.h",
+		"/home/felix/programming/cpp/pseudocodeInterpreter/include/datastructures/variable.h",
+		"/home/felix/programming/cpp/pseudocodeInterpreter/include/datastructures/nameStore.h",
+		"/home/felix/programming/cpp/pseudocodeInterpreter/include/datastructures/function.h",
+		"/home/felix/programming/cpp/pseudocodeInterpreter/include/datastructures/execStack.h",
+		"/home/felix/programming/cpp/pseudocodeInterpreter/include/datastructures/class.h",
+		"/home/felix/programming/cpp/pseudocodeInterpreter/include/datastructures/array.h",
+		"/home/felix/programming/cpp/pseudocodeInterpreter/pseudocode/bubblesort.psc",
+		"/home/felix/programming/cpp/pseudocodeInterpreter/src/datastructures/nameStore.c",
+		"/home/felix/programming/cpp/pseudocodeInterpreter/src/operation.c",
+		"/home/felix/programming/cpp/pseudocodeInterpreter/documentation/languageDefinition.txt",
+		"/home/felix/programming/cpp/pseudocodeInterpreter/documentation/interpretation.txt",
+		"/home/felix/programming/cpp/pseudocodeInterpreter/documentation/functions.txt",
+		"/home/felix/programming/cpp/pseudocodeInterpreter/.gitignore",
+		"/home/felix/programming/cpp/pseudocodeInterpreter/src/codeLoader/byteops.c",
+		"/home/felix/programming/cpp/pseudocodeInterpreter/src/datastructures/array.c",
+		"/home/felix/programming/cpp/pseudocodeInterpreter/src/datastructures/class.c",
+		"/home/felix/programming/cpp/pseudocodeInterpreter/src/datastructures/execStack.c",
+		"/home/felix/programming/cpp/pseudocodeInterpreter/src/datastructures/function.c",
+		"/home/felix/programming/cpp/pseudocodeInterpreter/src/datastructures/variable.c",
+		"/home/felix/programming/cpp/pseudocodeInterpreter/src/datastructures/object.c",
+		"/home/felix/programming/cpp/pseudocodeInterpreter/src/datastructures/variableString.c",
+		"/home/felix/programming/cpp/pseudocodeInterpreter/src/standartLibrary/standartLibrary.c",
+		"/home/felix/programming/cpp/pseudocodeInterpreter/src/boolean.c",
+		"/home/felix/programming/cpp/pseudocodeInterpreter/include/standartLibrary/standartLibrary.c",
+		"/home/felix/programming/cpp/pseudocodeInterpreter/include/standartLibrary/print.c",
+		"/home/felix/programming/cpp/pseudocodeInterpreter/program.psc",
+		"/home/felix/programming/haskell/pseudocodeCompiler/src/ToBytecode.hs",
+		"/home/felix/programming/cpp/pseudocodeInterpreter/include/codeLoader.h",
+		"/home/felix/programming/cpp/pseudocodeInterpreter/.clang_complete",
+		"/home/felix/programming/cpp/pseudocodeInterpreter/pseudocodeInterpreter.sublime-project",
+		"/home/felix/programming/cpp/pseudocodeInterpreter/src/codeLoader.c",
+		"/home/felix/programming/cpp/pseudocodeInterpreter/src/variable.c",
+		"/home/felix/programming/cpp/pseudocodeInterpreter/src/codeLoader.h",
+		"/home/felix/programming/cpp/pseudocodeInterpreter/src/function.c",
 		"/home/felix/programming/cpp/pseudocodeInterpreter/src/class.c",
 		"/home/felix/programming/cpp/pseudocodeInterpreter/src/variableString.c",
-		"/home/felix/programming/cpp/pseudocodeInterpreter/src/variable.c",
 		"/home/felix/programming/cpp/pseudocodeInterpreter/src/array.c",
-		"/home/felix/programming/cpp/pseudocodeInterpreter/src/boolean.c",
 		"/home/felix/programming/cpp/pseudocodeInterpreter/src/execStack.c",
 		"/home/felix/programming/cpp/pseudocodeInterpreter/src/nameStore.c",
-		"/home/felix/programming/cpp/pseudocodeInterpreter/src/operation.c",
 		"/home/felix/programming/cpp/pseudocodeInterpreter/src/object.c",
-		"/home/felix/programming/cpp/pseudocodeInterpreter/program.psc",
-		"/home/felix/programming/cpp/pseudocodeInterpreter/include/constants.h",
-		"/home/felix/programming/cpp/pseudocodeInterpreter/pseudocodeInterpreter.sublime-project",
 		"/home/felix/programming/cpp/pseudocodeInterpreter/makefile",
 		"/srv/http/Taijiseite/v15/pages/main.php",
-		"/home/felix/programming/cpp/pseudocodeInterpreter/documentation/languageDefinition.txt",
 		"/home/felix/programming/cpp/pseudocodeInterpreter/src/localVariableContainer.c",
 		"/home/felix/programming/java/proguebung/sem2/7/PalindromeCounter.java",
 		"/home/felix/programming/java/proguebung/sem2/7/Container.java",
 		"/home/felix/programming/java/proguebung/sem2/7/StringCounter.java",
 		"/srv/http/Taijiseite/v15/pages/termine.php",
 		"/srv/http/Taijiseite/v15/methods/register.php",
+		"/home/felix/programming/haskell/dnf.hs",
 		"/home/felix/documents/sem2/übungen/rechnerstrukturen/3/loes.tex",
 		"/home/felix/documents/sem2/übungen/rechnerstrukturen/3/sub/a1.tex",
 		"/home/felix/documents/sem2/übungen/rechnerstrukturen/3/Rechnerstrukturen/a1_2.tex",
@@ -974,11 +940,13 @@
 		"/srv/http/Taijiseite/v15/scripts/connectToDatabase.php",
 		"/srv/http/Taijiseite/v15/.htaccess",
 		"/srv/http/Taijiseite/v15/templates/navigation.php",
+		"/home/felix/documents/sem2/übungen/diskreteStrukturen/weihnachtsserie/weihnachtsserie.tex",
 		"/home/felix/.config/sublime-text-3/Packages/User/LaTeXTools.sublime-settings",
 		"/home/felix/.config/sublime-text-3/Packages/LaTeXTools/LaTeXTools.sublime-settings",
 		"/home/felix/programming/cpp/dnfmaker/src/main.cpp",
 		"/home/felix/programming/cpp/dnfmaker/src/optree.cpp",
 		"/home/felix/programming/cpp/dnfmaker/include/optree.h",
+		"/home/felix/programming/haskell/pseudocodeCompiler/learning.hs",
 		"/home/felix/programming/haskell/normalf.hs",
 		"/srv/http/legalq/src/Main.hx",
 		"/srv/http/legalq/build.hxml",
@@ -1019,26 +987,7 @@
 		"/home/felix/programming/java/proguebung/sem2/5/colour.java",
 		"/home/felix/programming/java/proguebung/sem2/4/Dateien/UniMember.java",
 		"/home/felix/programming/java/proguebung/sem2/4/Dateien/Test.java",
-		"/home/felix/programming/java/proguebung/sem2/4/Dateien/Student.java",
-		"/home/felix/programming/java/proguebung/sem2/4/Dateien/Staff.java",
-		"/home/felix/programming/java/proguebung/sem2/4/Dateien/Assistant.java",
-		"/home/felix/programming/java/proguebung/sem2/4/Dateien/Kommentar.txt",
-		"/home/felix/programming/java/proguebung/sem2/4/Dateien/Professor.java",
-		"/srv/http/perlenseite/forms/addBead.php",
-		"/home/felix/programming/java/proguebung/sem2/3/Dateien/Elem.java",
-		"/home/felix/programming/java/proguebung/sem2/3/Dateien/Queue3.java",
-		"/home/felix/programming/java/proguebung/sem2/3/Dateien/inputs",
-		"/home/felix/programming/java/proguebung/sem2/3/Dateien/Queue2.java",
-		"/home/felix/Downloads/scintilla/lexlib/OptionSet.h",
-		"/home/felix/Downloads/scintilla/lexers/LexCPP.cxx",
-		"/home/felix/Downloads/scintilla/include/SciLexer.h",
-		"/home/felix/programming/java/proguebung/sem2/3/*.java",
-		"/home/felix/documents/sem2/übungen/diskreteStrukturen/3/u3.tex",
-		"/home/felix/Downloads/scintilla/scripts/FileGenerator.py",
-		"/home/felix/Downloads/scintilla/lexers/LexJSON.cxx",
-		"/home/felix/other/exploit/exploit.c",
-		"/home/felix/other/exploit/shell_injection.c",
-		"/home/felix/other/exploit/killtest.c"
+		"/home/felix/programming/java/proguebung/sem2/4/Dateien/Student.java"
 	],
 	"find":
 	{
@@ -1049,6 +998,7 @@
 		"height": 97.0,
 		"where_history":
 		[
+			"<current file>,<open folders>",
 			"<current file>",
 			"<current file>,/home/felix/Downloads/scintilla",
 			"<current file>",
@@ -1064,10 +1014,18 @@
 		"case_sensitive": false,
 		"find_history":
 		[
-			"normaliseLoops",
-			"flattenRepeat",
-			"transformFor",
-			"','",
+			" bytes+bytepos ",
+			"#include \"byteops.h\"",
+			"#include \"execStack.h\"",
+			"#include \"array.h\"",
+			"#include \"object.h\"",
+			"#include \"class.h\"",
+			"#include \"variableString.h\"",
+			"#include \"datastructures/variable\"",
+			"#include \"variable.h\"",
+			"#include \"nameStore.h\"",
+			"#include \"byteops.h\"",
+			"#include \"",
 			"ArrayList",
 			"\")\n",
 			"getHxtmlString",
@@ -1112,8 +1070,15 @@
 		"regex": false,
 		"replace_history":
 		[
-			"normaliseStatements",
-			"normaliseLoops",
+			"#include \"codeLoader/byteops.h\"",
+			"#include \"datastructures/execStack.h\"",
+			"#include \"datastructures/array.h\"",
+			"#include \"datastructures/object.h\"",
+			"#include \"datastructures/class.h\"",
+			"#include \"datastructures/variableString.h\"",
+			"#include \"datastructures/variable.h\"",
+			"#include \"datastructures/variable\"",
+			"#include \"datastructures/nameStore.h\"",
 			"LinkedList",
 			"processHaxeTags",
 			"$colorcode",
@@ -1139,141 +1104,14 @@
 	"groups":
 	[
 		{
-			"selected": 2,
 			"sheets":
 			[
-				{
-					"buffer": 0,
-					"file": "src/Main.hs",
-					"semi_transient": false,
-					"settings":
-					{
-						"buffer_size": 1777,
-						"regions":
-						{
-						},
-						"selection":
-						[
-							[
-								623,
-								623
-							]
-						],
-						"settings":
-						{
-							"syntax": "Packages/Haskell/Haskell.sublime-syntax",
-							"tab_size": 2,
-							"translate_tabs_to_spaces": true
-						},
-						"translation.x": 0.0,
-						"translation.y": 0.0,
-						"zoom_level": 1.0
-					},
-					"stack_index": 1,
-					"type": "text"
-				},
-				{
-					"buffer": 1,
-					"file": "src/ToBytecode.hs",
-					"semi_transient": true,
-					"settings":
-					{
-						"buffer_size": 2148,
-						"regions":
-						{
-						},
-						"selection":
-						[
-							[
-								1365,
-								1365
-							]
-						],
-						"settings":
-						{
-							"syntax": "Packages/Haskell/Haskell.sublime-syntax",
-							"tab_size": 4,
-							"translate_tabs_to_spaces": true
-						},
-						"translation.x": 0.0,
-						"translation.y": 0.0,
-						"zoom_level": 1.0
-					},
-					"stack_index": 2,
-					"type": "text"
-				},
-				{
-					"buffer": 2,
-					"file": "src/AstTransform.hs",
-					"semi_transient": false,
-					"settings":
-					{
-						"buffer_size": 6819,
-						"regions":
-						{
-						},
-						"selection":
-						[
-							[
-								2683,
-								2683
-							]
-						],
-						"settings":
-						{
-							"syntax": "Packages/Haskell/Haskell.sublime-syntax",
-							"tab_size": 4,
-							"translate_tabs_to_spaces": true
-						},
-						"translation.x": 0.0,
-						"translation.y": 393.0,
-						"zoom_level": 1.0
-					},
-					"stack_index": 0,
-					"type": "text"
-				}
-			]
-		},
-		{
-			"selected": 0,
-			"sheets":
-			[
-				{
-					"buffer": 3,
-					"file": "src/Ast.hs",
-					"semi_transient": false,
-					"settings":
-					{
-						"buffer_size": 1844,
-						"regions":
-						{
-						},
-						"selection":
-						[
-							[
-								0,
-								0
-							]
-						],
-						"settings":
-						{
-							"syntax": "Packages/Haskell/Haskell.sublime-syntax",
-							"tab_size": 4,
-							"translate_tabs_to_spaces": true
-						},
-						"translation.x": 0.0,
-						"translation.y": 0.0,
-						"zoom_level": 1.0
-					},
-					"stack_index": 3,
-					"type": "text"
-				}
 			]
 		}
 	],
 	"incremental_find":
 	{
-		"height": 23.0
+		"height": 22.0
 	},
 	"input":
 	{
@@ -1288,18 +1126,11 @@
 				0,
 				1,
 				1
-			],
-			[
-				1,
-				0,
-				2,
-				1
 			]
 		],
 		"cols":
 		[
 			0.0,
-			0.609994086339,
 			1.0
 		],
 		"rows":
@@ -1308,7 +1139,7 @@
 			1.0
 		]
 	},
-	"menu_visible": false,
+	"menu_visible": true,
 	"output.exec":
 	{
 		"height": 98.0
@@ -1329,7 +1160,7 @@
 	"project": "pseudocodeCompiler.sublime-project",
 	"replace":
 	{
-		"height": 42.0
+		"height": 40.0
 	},
 	"save_all_on_build": true,
 	"select_file":

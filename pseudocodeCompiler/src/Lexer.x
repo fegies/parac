@@ -53,7 +53,7 @@ tokens :-
   "--"            { \s -> TokenArithDec }
   \,              { \s -> TokenComma }
   \.              { \s -> TokenDot }
-  \"$alpha+"      { \s -> TokenStringLit (reverse . tail . reverse . tail $ s) }
+  \".+\"      { \s -> TokenStringLit (reverse . tail . reverse . tail $ s) }
   '!'             { \s -> TokenLogicNot }
   $digit+         { \s -> TokenInt (read s) }
   $alpha+ 				{ \s -> TokenWord s}
