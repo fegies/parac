@@ -1,11 +1,11 @@
-cabal: Entering directory '/tmp/cabal-tmp-6243/pretty-hex-1.0'
+cabal: Entering directory '/tmp/cabal-tmp-14402/pretty-hex-1.0'
 Configuring pretty-hex-1.0...
 Building pretty-hex-1.0...
 Preprocessing library pretty-hex-1.0...
-[1 of 1] Compiling Hexdump          ( Hexdump.hs, dist/dist-sandbox-d30a7449/build/Hexdump.o )
+[1 of 1] Compiling Hexdump          ( Hexdump.hs, dist/dist-sandbox-bbe4069b/build/Hexdump.o )
 Creating package registration file:
-/tmp/pkgConf-pretty-hex-17833686901102520059.0
+/tmp/pkgConf-pretty-hex-15965166491189641421.0
 Installing library in
-/home/felix/programming/haskell/pseudocodeCompiler/.cabal-sandbox/lib/x86_64-linux-ghc-8.0.1/pretty-hex-1.0-BVTw9j72jpaIPNqTZKIvEW
+/home/felix/programming/haskell/pseudocodeCompiler/pseudocodeCompiler/.cabal-sandbox/lib/x86_64-linux-ghc-8.0.1/pretty-hex-1.0-BVTw9j72jpaIPNqTZKIvEW
 Registering pretty-hex-1.0...
-cabal: Leaving directory '/tmp/cabal-tmp-6243/pretty-hex-1.0'
+cabal: Leaving directory '/tmp/cabal-tmp-14402/pretty-hex-1.0'
