@@ -1,7 +1,0 @@
-A small library for generating hexdumps.
-
-   > :module +Text.Hexdump
-   > hexdump 0 "this is a test"
-
-"00000000: 74 68 69 73 20 69 73 20  61 20 74 65 73 74       | this is a test\n"
-
