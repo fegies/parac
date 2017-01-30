@@ -106,10 +106,10 @@ happyIn18 x = Happy_GHC_Exts.unsafeCoerce# x
 happyOut18 :: (HappyAbsSyn ) -> ([Expression])
 happyOut18 x = Happy_GHC_Exts.unsafeCoerce# x
 {-# INLINE happyOut18 #-}
-happyInTok :: (Token) -> (HappyAbsSyn )
+happyInTok :: (LexToken) -> (HappyAbsSyn )
 happyInTok x = Happy_GHC_Exts.unsafeCoerce# x
 {-# INLINE happyInTok #-}
-happyOutTok :: (HappyAbsSyn ) -> (Token)
+happyOutTok :: (HappyAbsSyn ) -> (LexToken)
 happyOutTok x = Happy_GHC_Exts.unsafeCoerce# x
 {-# INLINE happyOutTok #-}
 
@@ -275,7 +275,7 @@ happyReduction_11 (happy_x_6 `HappyStk`
 	happy_x_2 `HappyStk`
 	happy_x_1 `HappyStk`
 	happyRest)
-	 = case happyOutTok happy_x_2 of { (TokenWord happy_var_2) -> 
+	 = case happyOutTok happy_x_2 of { (PToken pos (TokenWord happy_var_2)) -> 
 	case happyOut9 happy_x_4 of { happy_var_4 -> 
 	case happyOut5 happy_x_6 of { happy_var_6 -> 
 	happyIn7
@@ -289,7 +289,7 @@ happyReduction_12 (happy_x_5 `HappyStk`
 	happy_x_2 `HappyStk`
 	happy_x_1 `HappyStk`
 	happyRest)
-	 = case happyOutTok happy_x_2 of { (TokenWord happy_var_2) -> 
+	 = case happyOutTok happy_x_2 of { (PToken pos (TokenWord happy_var_2)) -> 
 	case happyOut8 happy_x_4 of { happy_var_4 -> 
 	happyIn7
 		 (StatementClassDeclaration happy_var_2 happy_var_4
@@ -311,7 +311,7 @@ happyReduction_14  =  happyIn8
 happyReduce_15 = happySpecReduce_2  4# happyReduction_15
 happyReduction_15 happy_x_2
 	happy_x_1
-	 =  case happyOutTok happy_x_1 of { (TokenWord happy_var_1) -> 
+	 =  case happyOutTok happy_x_1 of { (PToken pos (TokenWord happy_var_1)) -> 
 	happyIn8
 		 (happy_var_1:[]
 	)}
@@ -321,7 +321,7 @@ happyReduction_16 happy_x_3
 	happy_x_2
 	happy_x_1
 	 =  case happyOut8 happy_x_1 of { happy_var_1 -> 
-	case happyOutTok happy_x_2 of { (TokenWord happy_var_2) -> 
+	case happyOutTok happy_x_2 of { (PToken pos (TokenWord happy_var_2)) -> 
 	happyIn8
 		 (happy_var_1 ++ happy_var_2:[]
 	)}}
@@ -333,7 +333,7 @@ happyReduction_17  =  happyIn9
 
 happyReduce_18 = happySpecReduce_1  5# happyReduction_18
 happyReduction_18 happy_x_1
-	 =  case happyOutTok happy_x_1 of { (TokenWord happy_var_1) -> 
+	 =  case happyOutTok happy_x_1 of { (PToken pos (TokenWord happy_var_1)) -> 
 	happyIn9
 		 (happy_var_1:[]
 	)}
@@ -343,7 +343,7 @@ happyReduction_19 happy_x_3
 	happy_x_2
 	happy_x_1
 	 =  case happyOut9 happy_x_1 of { happy_var_1 -> 
-	case happyOutTok happy_x_3 of { (TokenWord happy_var_3) -> 
+	case happyOutTok happy_x_3 of { (PToken pos (TokenWord happy_var_3)) -> 
 	happyIn9
 		 (happy_var_1 ++ happy_var_3:[]
 	)}}
@@ -442,7 +442,7 @@ happyReduction_25 (happy_x_8 `HappyStk`
 
 happyReduce_26 = happySpecReduce_1  8# happyReduction_26
 happyReduction_26 happy_x_1
-	 =  case happyOutTok happy_x_1 of { (TokenStringLit happy_var_1) -> 
+	 =  case happyOutTok happy_x_1 of { (PToken pos (TokenStringLit happy_var_1)) -> 
 	happyIn12
 		 (ExpressionConstant (ConstantString happy_var_1)
 	)}
@@ -476,14 +476,14 @@ happyReduction_29 happy_x_3
 	happy_x_2
 	happy_x_1
 	 =  case happyOut12 happy_x_1 of { happy_var_1 -> 
-	case happyOutTok happy_x_3 of { (TokenWord happy_var_3) -> 
+	case happyOutTok happy_x_3 of { (PToken pos (TokenWord happy_var_3)) -> 
 	happyIn12
 		 (ExpressionObjectMembAccess happy_var_1 happy_var_3
 	)}}
 
 happyReduce_30 = happySpecReduce_1  8# happyReduction_30
 happyReduction_30 happy_x_1
-	 =  case happyOutTok happy_x_1 of { (TokenInt happy_var_1) -> 
+	 =  case happyOutTok happy_x_1 of { (PToken pos (TokenInt happy_var_1)) -> 
 	happyIn12
 		 (ExpressionConstant (ConstantInt happy_var_1)
 	)}
@@ -528,14 +528,14 @@ happyReduction_35 happy_x_1
 happyReduce_36 = happySpecReduce_2  8# happyReduction_36
 happyReduction_36 happy_x_2
 	happy_x_1
-	 =  case happyOutTok happy_x_2 of { (TokenWord happy_var_2) -> 
+	 =  case happyOutTok happy_x_2 of { (PToken pos (TokenWord happy_var_2)) -> 
 	happyIn12
 		 (ExpressionObjectNew happy_var_2
 	)}
 
 happyReduce_37 = happySpecReduce_1  8# happyReduction_37
 happyReduction_37 happy_x_1
-	 =  case happyOutTok happy_x_1 of { (TokenWord happy_var_1) -> 
+	 =  case happyOutTok happy_x_1 of { (PToken pos (TokenWord happy_var_1)) -> 
 	happyIn12
 		 (ExpressionVar happy_var_1
 	)}
@@ -739,51 +739,51 @@ happyNewToken action sts stk [] =
 happyNewToken action sts stk (tk:tks) =
 	let cont i = happyDoAction i tk action sts stk tks in
 	case tk of {
-	TokenIf -> cont 1#;
-	TokenThen -> cont 2#;
-	TokenElse -> cont 3#;
-	TokenFi -> cont 4#;
-	TokenWhile -> cont 5#;
-	TokenDo -> cont 6#;
-	TokenOd -> cont 7#;
-	TokenRepeat -> cont 8#;
-	TokenUntil -> cont 9#;
-	TokenFor -> cont 10#;
-	TokenTo -> cont 11#;
-	TokenDownto -> cont 12#;
-	TokenFunction -> cont 13#;
-	TokenReturn -> cont 14#;
-	TokenClass -> cont 15#;
-	TokenNew -> cont 16#;
-	TokenSemicolon -> cont 17#;
-	TokenComma -> cont 18#;
-	TokenDot -> cont 19#;
-	TokenRBOpen -> cont 20#;
-	TokenRBClose -> cont 21#;
-	TokenCBOpen -> cont 22#;
-	TokenCBClose -> cont 23#;
-	TokenSBOpen -> cont 24#;
-	TokenSBClose -> cont 25#;
-	TokenLeftarrow -> cont 26#;
-	TokenCompEq -> cont 27#;
-	TokenCompNeq -> cont 28#;
-	TokenCompLt -> cont 29#;
-	TokenCompLeq -> cont 30#;
-	TokenCompGt -> cont 31#;
-	TokenCompGeq -> cont 32#;
-	TokenArithPlus -> cont 33#;
-	TokenArithMinus -> cont 34#;
-	TokenArithMul -> cont 35#;
-	TokenArithDiv -> cont 36#;
-	TokenArithMod -> cont 37#;
-	TokenArithInc -> cont 38#;
-	TokenArithDec -> cont 39#;
-	TokenLogicAnd -> cont 40#;
-	TokenLogicOr -> cont 41#;
-	TokenLogicNot -> cont 42#;
-	TokenInt happy_dollar_dollar -> cont 43#;
-	TokenWord happy_dollar_dollar -> cont 44#;
-	TokenStringLit happy_dollar_dollar -> cont 45#;
+	PToken pos TokenIf -> cont 1#;
+	PToken pos TokenThen -> cont 2#;
+	PToken pos TokenElse -> cont 3#;
+	PToken pos TokenFi -> cont 4#;
+	PToken pos TokenWhile -> cont 5#;
+	PToken pos TokenDo -> cont 6#;
+	PToken pos TokenOd -> cont 7#;
+	PToken pos TokenRepeat -> cont 8#;
+	PToken pos TokenUntil -> cont 9#;
+	PToken pos TokenFor -> cont 10#;
+	PToken pos TokenTo -> cont 11#;
+	PToken pos TokenDownto -> cont 12#;
+	PToken pos TokenFunction -> cont 13#;
+	PToken pos TokenReturn -> cont 14#;
+	PToken pos TokenClass -> cont 15#;
+	PToken pos TokenNew -> cont 16#;
+	PToken pos TokenSemicolon -> cont 17#;
+	PToken pos TokenComma -> cont 18#;
+	PToken pos TokenDot -> cont 19#;
+	PToken pos TokenRBOpen -> cont 20#;
+	PToken pos TokenRBClose -> cont 21#;
+	PToken pos TokenCBOpen -> cont 22#;
+	PToken pos TokenCBClose -> cont 23#;
+	PToken pos TokenSBOpen -> cont 24#;
+	PToken pos TokenSBClose -> cont 25#;
+	PToken pos TokenLeftarrow -> cont 26#;
+	PToken pos TokenCompEq -> cont 27#;
+	PToken pos TokenCompNeq -> cont 28#;
+	PToken pos TokenCompLt -> cont 29#;
+	PToken pos TokenCompLeq -> cont 30#;
+	PToken pos TokenCompGt -> cont 31#;
+	PToken pos TokenCompGeq -> cont 32#;
+	PToken pos TokenArithPlus -> cont 33#;
+	PToken pos TokenArithMinus -> cont 34#;
+	PToken pos TokenArithMul -> cont 35#;
+	PToken pos TokenArithDiv -> cont 36#;
+	PToken pos TokenArithMod -> cont 37#;
+	PToken pos TokenArithInc -> cont 38#;
+	PToken pos TokenArithDec -> cont 39#;
+	PToken pos TokenLogicAnd -> cont 40#;
+	PToken pos TokenLogicOr -> cont 41#;
+	PToken pos TokenLogicNot -> cont 42#;
+	PToken pos (TokenInt happy_dollar_dollar) -> cont 43#;
+	PToken pos (TokenWord happy_dollar_dollar) -> cont 44#;
+	PToken pos (TokenStringLit happy_dollar_dollar) -> cont 45#;
 	_ -> happyError' (tk:tks)
 	}
 
@@ -811,7 +811,7 @@ happyReturn = (return)
 happyThen1 m k tks = (>>=) m (\a -> k a tks)
 happyReturn1 :: () => a -> b -> HappyIdentity a
 happyReturn1 = \a tks -> (return) a
-happyError' :: () => [(Token)] -> HappyIdentity a
+happyError' :: () => [(LexToken)] -> HappyIdentity a
 happyError' = HappyIdentity . parseError
 
 parsePSC tks = happyRunIdentity happySomeParser where
@@ -820,8 +820,11 @@ parsePSC tks = happyRunIdentity happySomeParser where
 happySeq = happyDontSeq
 
 
-parseError :: [Token] -> a
-parseError a = error $ "parse Error: "++ show a
+reportPos :: LexerPosition -> String
+reportPos (LexPos _ l c) = "line "++ show l ++ ", column " ++ show c
+
+parseError :: [LexToken] -> a
+parseError ((PToken pos _):_) = error $ "parse Error at: "++ reportPos pos
 {-# LINE 1 "templates/GenericTemplate.hs" #-}
 {-# LINE 1 "templates/GenericTemplate.hs" #-}
 {-# LINE 1 "<built-in>" #-}

@@ -5,55 +5,57 @@ import Tokens
 }
 
 %name parsePSC
-%tokentype { Token }
+%tokentype { LexToken }
 %error { parseError }
 
+
+
 %token
-    if      { TokenIf }
-    then    { TokenThen }
-    else    { TokenElse }
-    fi      { TokenFi }
-    while   { TokenWhile }
-    do      { TokenDo }
-    od      { TokenOd }
-    repeat  { TokenRepeat }
-    until   { TokenUntil }
-    for     { TokenFor }
-    to      { TokenTo }
-    downto  { TokenDownto }
-    function { TokenFunction }
-    return  { TokenReturn }
-    "class" { TokenClass }
-    new     { TokenNew }
-    ';'     { TokenSemicolon}
-    ','     { TokenComma }
-    '.'     { TokenDot }
-    '('     { TokenRBOpen }
-    ')'     { TokenRBClose }
-    '{'     { TokenCBOpen }
-    '}'     { TokenCBClose }
-    '['     { TokenSBOpen }
-    ']'     { TokenSBClose }
-    "<-"    { TokenLeftarrow }
-    "=="    { TokenCompEq }
-    "!="    { TokenCompNeq }
-    '<'     { TokenCompLt }
-    "<="    { TokenCompLeq }
-    '>'     { TokenCompGt }
-    ">="    { TokenCompGeq }
-    '+'     { TokenArithPlus }
-    '-'     { TokenArithMinus }
-    '*'     { TokenArithMul }
-    '/'     { TokenArithDiv }
-    '%'     { TokenArithMod }
-    "++"    { TokenArithInc }
-    "--"    { TokenArithDec }
-    "&&"    { TokenLogicAnd }
-    "||"    { TokenLogicOr }
-    '!'     { TokenLogicNot }
-    int     { TokenInt $$ }
-    word    { TokenWord $$ }
-    stringlit{ TokenStringLit $$ }
+    if        { PToken pos TokenIf }
+    then      { PToken pos TokenThen }
+    else      { PToken pos TokenElse }
+    fi        { PToken pos TokenFi }
+    while     { PToken pos TokenWhile }
+    do        { PToken pos TokenDo }
+    od        { PToken pos TokenOd }
+    repeat    { PToken pos TokenRepeat }
+    until     { PToken pos TokenUntil }
+    for       { PToken pos TokenFor }
+    to        { PToken pos TokenTo }
+    downto    { PToken pos TokenDownto }
+    function  { PToken pos TokenFunction }
+    return    { PToken pos TokenReturn }
+    "class"   { PToken pos TokenClass }
+    new       { PToken pos TokenNew }
+    ';'       { PToken pos TokenSemicolon}
+    ','       { PToken pos TokenComma }
+    '.'       { PToken pos TokenDot }
+    '('       { PToken pos TokenRBOpen }
+    ')'       { PToken pos TokenRBClose }
+    '{'       { PToken pos TokenCBOpen }
+    '}'       { PToken pos TokenCBClose }
+    '['       { PToken pos TokenSBOpen }
+    ']'       { PToken pos TokenSBClose }
+    "<-"      { PToken pos TokenLeftarrow }
+    "=="      { PToken pos TokenCompEq }
+    "!="      { PToken pos TokenCompNeq }
+    '<'       { PToken pos TokenCompLt }
+    "<="      { PToken pos TokenCompLeq }
+    '>'       { PToken pos TokenCompGt }
+    ">="      { PToken pos TokenCompGeq }
+    '+'       { PToken pos TokenArithPlus }
+    '-'       { PToken pos TokenArithMinus }
+    '*'       { PToken pos TokenArithMul }
+    '/'       { PToken pos TokenArithDiv }
+    '%'       { PToken pos TokenArithMod }
+    "++"      { PToken pos TokenArithInc }
+    "--"      { PToken pos TokenArithDec }
+    "&&"      { PToken pos TokenLogicAnd }
+    "||"      { PToken pos TokenLogicOr }
+    '!'       { PToken pos TokenLogicNot }
+    int       { PToken pos (TokenInt $$) }
+    word      { PToken pos (TokenWord $$) }
+    stringlit { PToken pos (TokenStringLit $$) }
 
 %left ','
 %right "<-"
@@ -162,8 +164,12 @@ Farglist :: { [Expression] }
     | Farglist ',' Expression { $3 : $1 }
 
 {
-parseError :: [Token] -> a
-parseError a = error $ "parse Error: "++ show a
+
+reportPos :: LexerPosition -> String
+reportPos (LexPos _ l c) = "line "++ show l ++ ", column " ++ show c
+
+parseError :: [LexToken] -> a
+parseError ((PToken pos _):_) = error $ "parse Error at: "++ reportPos pos
 
 
 }

@@ -93,7 +93,7 @@ import GlaExts
 
 
 {-# LINE 9 "<command-line>" #-}
-{-# LINE 1 "/tmp/ghc712_0/ghc_2.h" #-}
+{-# LINE 1 "/tmp/ghc730_0/ghc_2.h" #-}
 
 
 
@@ -321,7 +321,25 @@ type Byte = Word8
 -- -----------------------------------------------------------------------------
 -- The input type
 
-{-# LINE 79 "templates/wrappers.hs" #-}
+
+type AlexInput = (AlexPosn,     -- current position,
+                  Char,         -- previous char
+                  [Byte],       -- pending bytes on current char
+                  String)       -- current input string
+
+ignorePendingBytes :: AlexInput -> AlexInput
+ignorePendingBytes (p,c,_ps,s) = (p,c,[],s)
+
+alexInputPrevChar :: AlexInput -> Char
+alexInputPrevChar (_p,c,_bs,_s) = c
+
+alexGetByte :: AlexInput -> Maybe (Byte,AlexInput)
+alexGetByte (p,c,(b:bs),s) = Just (b,(p,c,bs,s))
+alexGetByte (_,_,[],[]) = Nothing
+alexGetByte (p,_,[],(c:s))  = let p' = alexMove p c
+                                  (b:bs) = utf8Encode c
+                              in p' `seq`  Just (b, (p', c, bs, s))
+
 
 {-# LINE 102 "templates/wrappers.hs" #-}
 
@@ -339,7 +357,18 @@ type Byte = Word8
 -- `move_pos' calculates the new position after traversing a given character,
 -- assuming the usual eight character tab stops.
 
-{-# LINE 161 "templates/wrappers.hs" #-}
+
+data AlexPosn = AlexPn !Int !Int !Int
+        deriving (Eq,Show)
+
+alexStartPos :: AlexPosn
+alexStartPos = AlexPn 0 1 1
+
+alexMove :: AlexPosn -> Char -> AlexPosn
+alexMove (AlexPn a l c) '\t' = AlexPn (a+1)  l     (((c+alex_tab_size-1) `div` alex_tab_size)*alex_tab_size+1)
+alexMove (AlexPn a l _) '\n' = AlexPn (a+1) (l+1)   1
+alexMove (AlexPn a l c) _    = AlexPn (a+1)  l     (c+1)
+
 
 -- -----------------------------------------------------------------------------
 -- Default monad
@@ -356,28 +385,7 @@ type Byte = Word8
 -- -----------------------------------------------------------------------------
 -- Basic wrapper
 
-
-type AlexInput = (Char,[Byte],String)
-
-alexInputPrevChar :: AlexInput -> Char
-alexInputPrevChar (c,_,_) = c
-
--- alexScanTokens :: String -> [token]
-alexScanTokens str = go ('\n',[],str)
-  where go inp@(_,_bs,s) =
-          case alexScan inp 0 of
-                AlexEOF -> []
-                AlexError _ -> error "lexical error"
-                AlexSkip  inp' _ln     -> go inp'
-                AlexToken inp' len act -> act (take len s) : go inp'
-
-alexGetByte :: AlexInput -> Maybe (Byte,AlexInput)
-alexGetByte (c,(b:bs),s) = Just (b,(c,bs,s))
-alexGetByte (_,[],[])    = Nothing
-alexGetByte (_,[],(c:s)) = case utf8Encode c of
-                             (b:bs) -> Just (b, (c, bs, s))
-                             [] -> Nothing
-
+{-# LINE 402 "templates/wrappers.hs" #-}
 
 
 -- -----------------------------------------------------------------------------
@@ -393,7 +401,16 @@ alexGetByte (_,[],(c:s)) = case utf8Encode c of
 
 -- Adds text positions to the basic model.
 
-{-# LINE 455 "templates/wrappers.hs" #-}
+
+--alexScanTokens :: String -> [token]
+alexScanTokens str = go (alexStartPos,'\n',[],str)
+  where go inp@(pos,_,_,str) =
+          case alexScan inp 0 of
+                AlexEOF -> []
+                AlexError ((AlexPn _ line column),_,_,_) -> error $ "lexical error at line " ++ (show line) ++ ", column " ++ (show column)
+                AlexSkip  inp' _ln     -> go inp'
+                AlexToken inp' len act -> act pos (take len str) : go inp'
+
 
 
 -- -----------------------------------------------------------------------------
@@ -427,55 +444,58 @@ alex_actions = array (0::Int,87) [(86,alex_action_1),(85,alex_action_2),(84,alex
 
 {-# LINE 61 "src/Lexer.x" #-}
 
--- Each action has type :: String -> Token
+-- Each action has type :: AlexPosn String -> LexToken
+
+toPos :: AlexPosn -> LexerPosition
+toPos (AlexPn off line column ) = LexPos off line column
 
 lexer = alexScanTokens
 
-alex_action_1 =  \s -> TokenIf 
-alex_action_2 =  \s -> TokenThen 
-alex_action_3 =  \s -> TokenElse 
-alex_action_4 =  \s -> TokenFi 
-alex_action_5 =  \s -> TokenWhile 
-alex_action_6 =  \s -> TokenDo 
-alex_action_7 =  \s -> TokenOd 
-alex_action_8 =  \s -> TokenRepeat 
-alex_action_9 =  \s -> TokenUntil 
-alex_action_10 =  \s -> TokenFor 
-alex_action_11 =  \s -> TokenTo 
-alex_action_12 =  \s -> TokenDownto 
-alex_action_13 =  \s -> TokenReturn 
-alex_action_14 =  \s -> TokenFunction 
-alex_action_15 =  \s -> TokenClass
-alex_action_16 =  \s -> TokenNew 
-alex_action_17 =  \s -> TokenSemicolon 
-alex_action_18 =  \s -> TokenRBOpen 
-alex_action_19 =  \s -> TokenRBClose 
-alex_action_20 =  \s -> TokenCBOpen 
-alex_action_21 =  \s -> TokenCBClose 
-alex_action_22 =  \s -> TokenSBOpen 
-alex_action_23 =  \s -> TokenSBClose 
-alex_action_24 =  \s -> TokenLeftarrow 
-alex_action_25 =  \s -> TokenCompEq 
-alex_action_26 =  \s -> TokenCompNeq 
-alex_action_27 =  \s -> TokenCompGeq 
-alex_action_28 =  \s -> TokenCompLeq 
-alex_action_29 =  \s -> TokenLogicAnd 
-alex_action_30 =  \s -> TokenLogicOr 
-alex_action_31 =  \s -> TokenCompGt 
-alex_action_32 =  \s -> TokenCompLt 
-alex_action_33 =  \s -> TokenArithPlus 
-alex_action_34 =  \s -> TokenArithMinus 
-alex_action_35 =  \s -> TokenArithMul 
-alex_action_36 =  \s -> TokenArithDiv 
-alex_action_37 =  \s -> TokenArithMod 
-alex_action_38 =  \s -> TokenArithInc 
-alex_action_39 =  \s -> TokenArithDec 
-alex_action_40 =  \s -> TokenComma 
-alex_action_41 =  \s -> TokenDot 
-alex_action_42 =  \s -> TokenStringLit (reverse . tail . reverse . tail $ s) 
-alex_action_43 =  \s -> TokenLogicNot 
-alex_action_44 =  \s -> TokenInt (read s) 
-alex_action_45 =  \s -> TokenWord s
+alex_action_1 =  \p s -> PToken (toPos p) TokenIf 
+alex_action_2 =  \p s -> PToken (toPos p) TokenThen 
+alex_action_3 =  \p s -> PToken (toPos p) TokenElse 
+alex_action_4 =  \p s -> PToken (toPos p) TokenFi 
+alex_action_5 =  \p s -> PToken (toPos p) TokenWhile 
+alex_action_6 =  \p s -> PToken (toPos p) TokenDo 
+alex_action_7 =  \p s -> PToken (toPos p) TokenOd 
+alex_action_8 =  \p s -> PToken (toPos p) TokenRepeat 
+alex_action_9 =  \p s -> PToken (toPos p) TokenUntil 
+alex_action_10 =  \p s -> PToken (toPos p) TokenFor 
+alex_action_11 =  \p s -> PToken (toPos p) TokenTo 
+alex_action_12 =  \p s -> PToken (toPos p) TokenDownto 
+alex_action_13 =  \p s -> PToken (toPos p) TokenReturn 
+alex_action_14 =  \p s -> PToken (toPos p) TokenFunction 
+alex_action_15 =  \p s -> PToken (toPos p) TokenClass
+alex_action_16 =  \p s -> PToken (toPos p) TokenNew 
+alex_action_17 =  \p s -> PToken (toPos p) TokenSemicolon 
+alex_action_18 =  \p s -> PToken (toPos p) TokenRBOpen 
+alex_action_19 =  \p s -> PToken (toPos p) TokenRBClose 
+alex_action_20 =  \p s -> PToken (toPos p) TokenCBOpen 
+alex_action_21 =  \p s -> PToken (toPos p) TokenCBClose 
+alex_action_22 =  \p s -> PToken (toPos p) TokenSBOpen 
+alex_action_23 =  \p s -> PToken (toPos p) TokenSBClose 
+alex_action_24 =  \p s -> PToken (toPos p) TokenLeftarrow 
+alex_action_25 =  \p s -> PToken (toPos p) TokenCompEq 
+alex_action_26 =  \p s -> PToken (toPos p) TokenCompNeq 
+alex_action_27 =  \p s -> PToken (toPos p) TokenCompGeq 
+alex_action_28 =  \p s -> PToken (toPos p) TokenCompLeq 
+alex_action_29 =  \p s -> PToken (toPos p) TokenLogicAnd 
+alex_action_30 =  \p s -> PToken (toPos p) TokenLogicOr 
+alex_action_31 =  \p s -> PToken (toPos p) TokenCompGt 
+alex_action_32 =  \p s -> PToken (toPos p) TokenCompLt 
+alex_action_33 =  \p s -> PToken (toPos p) TokenArithPlus 
+alex_action_34 =  \p s -> PToken (toPos p) TokenArithMinus 
+alex_action_35 =  \p s -> PToken (toPos p) TokenArithMul 
+alex_action_36 =  \p s -> PToken (toPos p) TokenArithDiv 
+alex_action_37 =  \p s -> PToken (toPos p) TokenArithMod 
+alex_action_38 =  \p s -> PToken (toPos p) TokenArithInc 
+alex_action_39 =  \p s -> PToken (toPos p) TokenArithDec 
+alex_action_40 =  \p s -> PToken (toPos p) TokenComma 
+alex_action_41 =  \p s -> PToken (toPos p) TokenDot 
+alex_action_42 =  \p s -> PToken (toPos p) $ TokenStringLit (reverse . tail . reverse . tail $ s) 
+alex_action_43 =  \p s -> PToken (toPos p) TokenLogicNot 
+alex_action_44 =  \p s -> PToken (toPos p) $ TokenInt (read s) 
+alex_action_45 =  \p s -> PToken (toPos p) $ TokenWord s
 {-# LINE 1 "templates/GenericTemplate.hs" #-}
 {-# LINE 1 "templates/GenericTemplate.hs" #-}
 {-# LINE 1 "<built-in>" #-}

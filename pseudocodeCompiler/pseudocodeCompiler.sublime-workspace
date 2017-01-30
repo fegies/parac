@@ -643,10 +643,14 @@
 	"build_varint": "",
 	"command_palette":
 	{
-		"height": 400.0,
+		"height": 240.0,
 		"last_filter": "",
 		"selected_items":
 		[
+			[
+				"meun",
+				"View: Toggle Menu"
+			],
 			[
 				"men",
 				"View: Toggle Menu"
@@ -654,10 +658,6 @@
 			[
 				"",
 				"EasyClangComplete: Settings"
-			],
-			[
-				"meun",
-				"View: Toggle Menu"
 			],
 			[
 				"menu",
@@ -856,7 +856,8 @@
 	},
 	"expanded_folders":
 	[
-		"/home/felix/programming/haskell/pseudocodeCompiler/pseudocodeCompiler"
+		"/home/felix/programming/haskell/pseudocodeCompiler/pseudocodeCompiler",
+		"/home/felix/programming/haskell/pseudocodeCompiler/pseudocodeCompiler/src"
 	],
 	"file_history":
 	[
@@ -1139,7 +1140,7 @@
 			1.0
 		]
 	},
-	"menu_visible": true,
+	"menu_visible": false,
 	"output.exec":
 	{
 		"height": 98.0
