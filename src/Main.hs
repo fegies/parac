@@ -44,31 +44,3 @@ interpretFile f = do
     putStrLn $ "\n--Instructions--\n\n" ++ show instr
     putStrLn "\n--Bytecode\n\n"
     putStrLn . prettyHex . BL.toStrict $ bytecode
-
-pfs =parsePSC . lexer $ t
-
-s = "\
-  \a <- \"hi\";\n\
-  \while 1==1; do\n\
-  \{\n\
-  \    print(a);\n\
-  \    sleep(1);\n\
-  \}\n\
-  \od\n"
-
-b = "print(a); sleep(1);"
-
-c = "\"hi\" ;"
-
-t = "if 1==1 ; then {a <- (b == (c(d,e)) );}  fi"
-
-e = "i <- 0; while i <= 5; do {print(i); a[i]<- b++; i <- i + 1; } od"
-
-f = "repeat { i++; a[i] <- 4; } until i == 40;"
-
-g = "function f (a,b,c) { print(a); print(b); } print( f (a) );"
-
-h = "for i <- 0 to a; do print(i); od"
-
-j = "for i <- 0 downto b; do { sleep(1); } od"
-i = normaliseAst . parsePSC . lexer
