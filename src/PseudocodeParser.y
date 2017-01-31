@@ -11,51 +11,51 @@ import Tokens
 
 
 %token
-    if        { PToken pos TokenIf }
-    then      { PToken pos TokenThen }
-    else      { PToken pos TokenElse }
-    fi        { PToken pos TokenFi }
-    while     { PToken pos TokenWhile }
-    do        { PToken pos TokenDo }
-    od        { PToken pos TokenOd }
-    repeat    { PToken pos TokenRepeat }
-    until     { PToken pos TokenUntil }
-    for       { PToken pos TokenFor }
-    to        { PToken pos TokenTo }
-    downto    { PToken pos TokenDownto }
-    function  { PToken pos TokenFunction }
-    return    { PToken pos TokenReturn }
-    "class"   { PToken pos TokenClass }
-    new       { PToken pos TokenNew }
-    ';'       { PToken pos TokenSemicolon}
-    ','       { PToken pos TokenComma }
-    '.'       { PToken pos TokenDot }
-    '('       { PToken pos TokenRBOpen }
-    ')'       { PToken pos TokenRBClose }
-    '{'       { PToken pos TokenCBOpen }
-    '}'       { PToken pos TokenCBClose }
-    '['       { PToken pos TokenSBOpen }
-    ']'       { PToken pos TokenSBClose }
-    "<-"      { PToken pos TokenLeftarrow }
-    "=="      { PToken pos TokenCompEq }
-    "!="      { PToken pos TokenCompNeq }
-    '<'       { PToken pos TokenCompLt }
-    "<="      { PToken pos TokenCompLeq }
-    '>'       { PToken pos TokenCompGt }
-    ">="      { PToken pos TokenCompGeq }
-    '+'       { PToken pos TokenArithPlus }
-    '-'       { PToken pos TokenArithMinus }
-    '*'       { PToken pos TokenArithMul }
-    '/'       { PToken pos TokenArithDiv }
-    '%'       { PToken pos TokenArithMod }
-    "++"      { PToken pos TokenArithInc }
-    "--"      { PToken pos TokenArithDec }
-    "&&"      { PToken pos TokenLogicAnd }
-    "||"      { PToken pos TokenLogicOr }
-    '!'       { PToken pos TokenLogicNot }
-    int       { PToken pos (TokenInt $$) }
-    word      { PToken pos (TokenWord $$) }
-    stringlit { PToken pos (TokenStringLit $$) }
+    if        { ( pos, TokenIf ) }
+    then      { ( pos, TokenThen ) }
+    else      { ( pos, TokenElse ) }
+    fi        { ( pos, TokenFi ) }
+    while     { ( pos, TokenWhile ) }
+    do        { ( pos, TokenDo ) }
+    od        { ( pos, TokenOd ) }
+    repeat    { ( pos, TokenRepeat ) }
+    until     { ( pos, TokenUntil ) }
+    for       { ( pos, TokenFor ) }
+    to        { ( pos, TokenTo ) }
+    downto    { ( pos, TokenDownto ) }
+    function  { ( pos, TokenFunction ) }
+    return    { ( pos, TokenReturn ) }
+    "class"   { ( pos, TokenClass ) }
+    new       { ( pos, TokenNew ) }
+    ';'       { ( pos, TokenSemicolon) }
+    ','       { ( pos, TokenComma ) }
+    '.'       { ( pos, TokenDot ) }
+    '('       { ( pos, TokenRBOpen ) }
+    ')'       { ( pos, TokenRBClose ) }
+    '{'       { ( pos, TokenCBOpen ) }
+    '}'       { ( pos, TokenCBClose ) }
+    '['       { ( pos, TokenSBOpen ) }
+    ']'       { ( pos, TokenSBClose ) }
+    "<-"      { ( pos, TokenLeftarrow ) }
+    "=="      { ( pos, TokenCompEq ) }
+    "!="      { ( pos, TokenCompNeq ) }
+    '<'       { ( pos, TokenCompLt ) }
+    "<="      { ( pos, TokenCompLeq ) }
+    '>'       { ( pos, TokenCompGt ) }
+    ">="      { ( pos, TokenCompGeq ) }
+    '+'       { ( pos, TokenArithPlus ) }
+    '-'       { ( pos, TokenArithMinus ) }
+    '*'       { ( pos, TokenArithMul ) }
+    '/'       { ( pos, TokenArithDiv ) }
+    '%'       { ( pos, TokenArithMod ) }
+    "++"      { ( pos, TokenArithInc ) }
+    "--"      { ( pos, TokenArithDec ) }
+    "&&"      { ( pos, TokenLogicAnd ) }
+    "||"      { ( pos, TokenLogicOr ) }
+    '!'       { ( pos, TokenLogicNot ) }
+    int       { ( pos, (TokenInt $$) ) }
+    word      { ( pos, (TokenWord $$) ) }
+    stringlit { ( pos, (TokenStringLit $$) ) }
 
 %left ','
 %right "<-"
@@ -166,10 +166,10 @@ Farglist :: { [Expression] }
 {
 
 reportPos :: LexerPosition -> String
-reportPos (LexPos _ l c) = "line "++ show l ++ ", column " ++ show c
+reportPos (_, l, c) = "line "++ show l ++ ", column " ++ show c
 
 parseError :: [LexToken] -> a
-parseError ((PToken pos _):_) = error $ "parse Error at: "++ reportPos pos
+parseError ((pos,_):_) = error $ "parse Error at: "++ reportPos pos
 
 
 }

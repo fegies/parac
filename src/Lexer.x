@@ -12,57 +12,57 @@ $alpha = [a-zA-Z]		-- alphabetic characters
 tokens :-
 
   $white+			  	;
-  if				  	  { \p s -> PToken (toPos p) TokenIf }
-  then					  { \p s -> PToken (toPos p) TokenThen }
-  else 					  { \p s -> PToken (toPos p) TokenElse }
-  fi			   		  { \p s -> PToken (toPos p) TokenFi }
-  while 			    { \p s -> PToken (toPos p) TokenWhile }
-  do 				   	  { \p s -> PToken (toPos p) TokenDo }
-  od				  	  { \p s -> PToken (toPos p) TokenOd }
-  repeat          { \p s -> PToken (toPos p) TokenRepeat }
-  until           { \p s -> PToken (toPos p) TokenUntil }
-  for             { \p s -> PToken (toPos p) TokenFor }
-  to              { \p s -> PToken (toPos p) TokenTo }
-  downto          { \p s -> PToken (toPos p) TokenDownto }
-  return          { \p s -> PToken (toPos p) TokenReturn }
-  function        { \p s -> PToken (toPos p) TokenFunction }
-  "class"         { \p s -> PToken (toPos p) TokenClass}
-  new             { \p s -> PToken (toPos p) TokenNew }
-  \;				  	  { \p s -> PToken (toPos p) TokenSemicolon }
-  \(    		      { \p s -> PToken (toPos p) TokenRBOpen }
-  \)				  	  { \p s -> PToken (toPos p) TokenRBClose }
-  \{				  	  { \p s -> PToken (toPos p) TokenCBOpen }
-  \}				  	  { \p s -> PToken (toPos p) TokenCBClose }
-  \[              { \p s -> PToken (toPos p) TokenSBOpen }
-  \]              { \p s -> PToken (toPos p) TokenSBClose }
-  "<-"					  { \p s -> PToken (toPos p) TokenLeftarrow }
-  ==              { \p s -> PToken (toPos p) TokenCompEq }
-  "!="            { \p s -> PToken (toPos p) TokenCompNeq }
-  ">="            { \p s -> PToken (toPos p) TokenCompGeq }
-  "<="            { \p s -> PToken (toPos p) TokenCompLeq }
-  "&&"            { \p s -> PToken (toPos p) TokenLogicAnd }
-  "||"            { \p s -> PToken (toPos p) TokenLogicOr }
-  \>              { \p s -> PToken (toPos p) TokenCompGt }
-  \<              { \p s -> PToken (toPos p) TokenCompLt }
-  \+              { \p s -> PToken (toPos p) TokenArithPlus }
-  \-              { \p s -> PToken (toPos p) TokenArithMinus }
-  \*              { \p s -> PToken (toPos p) TokenArithMul }
-  \/              { \p s -> PToken (toPos p) TokenArithDiv }
-  \%              { \p s -> PToken (toPos p) TokenArithMod }
-  "++"            { \p s -> PToken (toPos p) TokenArithInc }
-  "--"            { \p s -> PToken (toPos p) TokenArithDec }
-  \,              { \p s -> PToken (toPos p) TokenComma }
-  \.              { \p s -> PToken (toPos p) TokenDot }
-  \".+\"          { \p s -> PToken (toPos p) $ TokenStringLit (reverse . tail . reverse . tail $ s) }
-  '!'             { \p s -> PToken (toPos p) TokenLogicNot }
-  $digit+         { \p s -> PToken (toPos p) $ TokenInt (read s) }
-  $alpha+ 				{ \p s -> PToken (toPos p) $ TokenWord s}
+  if				  	  { \p s -> ( toPos p , TokenIf ) }
+  then					  { \p s -> ( toPos p , TokenThen ) }
+  else 					  { \p s -> ( toPos p , TokenElse ) }
+  fi			   		  { \p s -> ( toPos p , TokenFi ) }
+  while 			    { \p s -> ( toPos p , TokenWhile ) }
+  do 				   	  { \p s -> ( toPos p , TokenDo ) }
+  od				  	  { \p s -> ( toPos p , TokenOd ) }
+  repeat          { \p s -> ( toPos p , TokenRepeat ) }
+  until           { \p s -> ( toPos p , TokenUntil ) }
+  for             { \p s -> ( toPos p , TokenFor ) }
+  to              { \p s -> ( toPos p , TokenTo ) }
+  downto          { \p s -> ( toPos p , TokenDownto ) }
+  return          { \p s -> ( toPos p , TokenReturn ) }
+  function        { \p s -> ( toPos p , TokenFunction ) }
+  "class"         { \p s -> ( toPos p , TokenClass ) }
+  new             { \p s -> ( toPos p , TokenNew ) }
+  \;				  	  { \p s -> ( toPos p , TokenSemicolon ) }
+  \(    		      { \p s -> ( toPos p , TokenRBOpen ) }
+  \)				  	  { \p s -> ( toPos p , TokenRBClose ) }
+  \{				  	  { \p s -> ( toPos p , TokenCBOpen ) }
+  \}				  	  { \p s -> ( toPos p , TokenCBClose ) }
+  \[              { \p s -> ( toPos p , TokenSBOpen ) }
+  \]              { \p s -> ( toPos p , TokenSBClose ) }
+  "<-"					  { \p s -> ( toPos p , TokenLeftarrow ) }
+  ==              { \p s -> ( toPos p , TokenCompEq ) }
+  "!="            { \p s -> ( toPos p , TokenCompNeq ) }
+  ">="            { \p s -> ( toPos p , TokenCompGeq ) }
+  "<="            { \p s -> ( toPos p , TokenCompLeq ) }
+  "&&"            { \p s -> ( toPos p , TokenLogicAnd ) }
+  "||"            { \p s -> ( toPos p , TokenLogicOr ) }
+  \>              { \p s -> ( toPos p , TokenCompGt ) }
+  \<              { \p s -> ( toPos p , TokenCompLt ) }
+  \+              { \p s -> ( toPos p , TokenArithPlus ) }
+  \-              { \p s -> ( toPos p , TokenArithMinus ) }
+  \*              { \p s -> ( toPos p , TokenArithMul ) }
+  \/              { \p s -> ( toPos p , TokenArithDiv ) }
+  \%              { \p s -> ( toPos p , TokenArithMod ) }
+  "++"            { \p s -> ( toPos p , TokenArithInc ) }
+  "--"            { \p s -> ( toPos p , TokenArithDec ) }
+  \,              { \p s -> ( toPos p , TokenComma ) }
+  \.              { \p s -> ( toPos p , TokenDot ) }
+  \".+\"          { \p s -> ( toPos p , TokenStringLit $ reverse . tail . reverse . tail $ s ) }
+  '!'             { \p s -> ( toPos p , TokenLogicNot ) }
+  $digit+         { \p s -> ( toPos p , TokenInt $ read s ) }
+  $alpha+ 				{ \p s -> ( toPos p , TokenWord s ) }
 
 {
 -- Each action has type :: AlexPosn String -> LexToken
 
 toPos :: AlexPosn -> LexerPosition
-toPos (AlexPn off line column ) = LexPos off line column
+toPos (AlexPn off line column ) = (off, line, column)
 
 lexer = alexScanTokens
 }

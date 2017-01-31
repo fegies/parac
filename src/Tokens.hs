@@ -1,12 +1,12 @@
 module Tokens where
 
-data LexToken = PToken LexerPosition Token deriving (Show)
+type LexToken = (LexerPosition,Token)
 
-data LexerPosition = LexPos
-    Int --absolute offset
-    Int --line
+type LexerPosition = (
+    Int, --absolute offset
+    Int, --line
     Int --column
-    deriving (Show)
+    )
 
 data Token
     = TokenIf -- Keywords
