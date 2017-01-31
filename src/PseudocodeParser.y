@@ -168,8 +168,13 @@ Farglist :: { [Expression] }
 reportPos :: LexerPosition -> String
 reportPos (_, l, c) = "line "++ show l ++ ", column " ++ show c
 
+reportError :: Token -> String
+reportError TokenOd = "did you forget closing braces?"
+reportError a = "unexpected token: "++show a
+
 parseError :: [LexToken] -> a
-parseError ((pos,_):_) = error $ "parse Error at: "++ reportPos pos
+parseError ((pos,tok):_) = error $ "parse Error at: "++ reportPos pos ++ "\n"
+    ++ reportError tok
 
 
 }
