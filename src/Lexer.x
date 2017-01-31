@@ -6,19 +6,19 @@ import Tokens
 
 %wrapper "posn"
 
-$digit = 0-9			-- digits
-$alpha = [a-zA-Z]		-- alphabetic characters
+$digit = 0-9      -- digits
+$alpha = [a-zA-Z]   -- alphabetic characters
 
 tokens :-
 
-  $white+			  	;
-  if				  	  { \p s -> ( toPos p , TokenIf ) }
-  then					  { \p s -> ( toPos p , TokenThen ) }
-  else 					  { \p s -> ( toPos p , TokenElse ) }
-  fi			   		  { \p s -> ( toPos p , TokenFi ) }
-  while 			    { \p s -> ( toPos p , TokenWhile ) }
-  do 				   	  { \p s -> ( toPos p , TokenDo ) }
-  od				  	  { \p s -> ( toPos p , TokenOd ) }
+  $white+         ;
+  if              { \p s -> ( toPos p , TokenIf ) }
+  then            { \p s -> ( toPos p , TokenThen ) }
+  else            { \p s -> ( toPos p , TokenElse ) }
+  fi              { \p s -> ( toPos p , TokenFi ) }
+  while           { \p s -> ( toPos p , TokenWhile ) }
+  do              { \p s -> ( toPos p , TokenDo ) }
+  od              { \p s -> ( toPos p , TokenOd ) }
   repeat          { \p s -> ( toPos p , TokenRepeat ) }
   until           { \p s -> ( toPos p , TokenUntil ) }
   for             { \p s -> ( toPos p , TokenFor ) }
@@ -28,14 +28,14 @@ tokens :-
   function        { \p s -> ( toPos p , TokenFunction ) }
   "class"         { \p s -> ( toPos p , TokenClass ) }
   new             { \p s -> ( toPos p , TokenNew ) }
-  \;				  	  { \p s -> ( toPos p , TokenSemicolon ) }
-  \(    		      { \p s -> ( toPos p , TokenRBOpen ) }
-  \)				  	  { \p s -> ( toPos p , TokenRBClose ) }
-  \{				  	  { \p s -> ( toPos p , TokenCBOpen ) }
-  \}				  	  { \p s -> ( toPos p , TokenCBClose ) }
+  \;              { \p s -> ( toPos p , TokenSemicolon ) }
+  \(              { \p s -> ( toPos p , TokenRBOpen ) }
+  \)              { \p s -> ( toPos p , TokenRBClose ) }
+  \{              { \p s -> ( toPos p , TokenCBOpen ) }
+  \}              { \p s -> ( toPos p , TokenCBClose ) }
   \[              { \p s -> ( toPos p , TokenSBOpen ) }
   \]              { \p s -> ( toPos p , TokenSBClose ) }
-  "<-"					  { \p s -> ( toPos p , TokenLeftarrow ) }
+  "<-"            { \p s -> ( toPos p , TokenLeftarrow ) }
   ==              { \p s -> ( toPos p , TokenCompEq ) }
   "!="            { \p s -> ( toPos p , TokenCompNeq ) }
   ">="            { \p s -> ( toPos p , TokenCompGeq ) }
@@ -56,7 +56,7 @@ tokens :-
   \".+\"          { \p s -> ( toPos p , TokenStringLit $ reverse . tail . reverse . tail $ s ) }
   '!'             { \p s -> ( toPos p , TokenLogicNot ) }
   $digit+         { \p s -> ( toPos p , TokenInt $ read s ) }
-  $alpha+ 				{ \p s -> ( toPos p , TokenWord s ) }
+  $alpha+         { \p s -> ( toPos p , TokenWord s ) }
 
 {
 -- Each action has type :: AlexPosn String -> LexToken
