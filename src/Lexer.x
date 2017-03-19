@@ -2,6 +2,7 @@
 module Lexer (lexer) where
 
 import Tokens
+import HexMod
 }
 
 %wrapper "posn"
@@ -53,10 +54,12 @@ tokens :-
   "--"            { \p s -> ( toPos p , TokenArithDec ) }
   \,              { \p s -> ( toPos p , TokenComma ) }
   \.              { \p s -> ( toPos p , TokenDot ) }
+  \$              { \p s -> ( toPos p , TokenDollar )}
   \".+\"          { \p s -> ( toPos p , TokenStringLit $ reverse . tail . reverse . tail $ s ) }
   '!'             { \p s -> ( toPos p , TokenLogicNot ) }
   $digit+         { \p s -> ( toPos p , TokenInt $ read s ) }
   $alpha+         { \p s -> ( toPos p , TokenWord s ) }
+  @$digit+        { \p s -> ( toPos p , TokenInstr $ readHex . tail $ s)}
 
 {
 -- Each action has type :: AlexPosn String -> LexToken

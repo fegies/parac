@@ -53,6 +53,8 @@ import Tokens
     "&&"      { ( pos, TokenLogicAnd ) }
     "||"      { ( pos, TokenLogicOr ) }
     '!'       { ( pos, TokenLogicNot ) }
+    '$'       { ( pos, TokenDollar ) }
+    inlineinst{ ( pos, TokenInstr $$) }
     int       { ( pos, (TokenInt $$) ) }
     word      { ( pos, (TokenWord $$) ) }
     stringlit { ( pos, (TokenStringLit $$) ) }
@@ -94,6 +96,7 @@ Statement :: { Statement }
     | function word '(' FunctionParams ')' Block{ StatementFunctionDeclaration $2 $4 $6}
     | "class" word '{' ClassParams '}' { StatementClassDeclaration $2 $4}
     | Expression ';' { StatementExpression $1 }
+    | '$' FunctionArguments ';' { StatementExpressionList $2 }
 
 ClassParams :: { [String] }
     : {-empty -} { [] }
@@ -121,6 +124,7 @@ Expression :: { Expression }
     | Expression '(' FunctionArguments ')' {ExpressionFunctionCall $1 $3}
     | Expression '[' Expression ']' { ExpressionArrayAccess $1 $3 }
     | Expression '.' word { ExpressionObjectMembAccess $1 $3 }
+    | inlineinst { ExpressionInstruction $1 }
     | int { ExpressionConstant (ConstantInt $1) }
     | '(' Expression ')' { $2 }
     | ExpressionArithmetic { $1 }

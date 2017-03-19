@@ -38,6 +38,8 @@ data Instruction
     | InstrBlockLeave
 
     | InstrStackPop --used to discard the to element of the stack.
+
+    | InstrLiteral Integer --used by the inline assembler, just puts the value of the Instruction in there.
     deriving (Show)
 
 

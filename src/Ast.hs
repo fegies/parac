@@ -14,6 +14,7 @@ data Statement
     | StatementClassDeclaration String [String] --name, contents
     | StatementReturn Expression
     | StatementExpression Expression
+    | StatementExpressionList FunctionArguments
     deriving (Show)
 
 
@@ -53,4 +54,5 @@ data Expression
     | ExpressionLogicAnd Expression Expression
     | ExpressionLogicOr Expression Expression
 
+    | ExpressionInstruction Integer
     deriving (Show)

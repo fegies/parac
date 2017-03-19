@@ -37,6 +37,8 @@ toB (InstrPushConstInt int)
     = putWord8 9 >> pint int
 toB (InstrObjNew name)
     = putWord8 12 >> puts name
+toB (InstrLiteral num)
+    = putInt8 $ fromIntegral num
 toB a = putWord8 $
         case a of
             InstrReturn          -> 5
