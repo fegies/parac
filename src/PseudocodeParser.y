@@ -25,6 +25,7 @@ import Tokens
     downto    { ( pos, TokenDownto ) }
     function  { ( pos, TokenFunction ) }
     return    { ( pos, TokenReturn ) }
+    load      { ( pos, TokenLoad ) }
     "class"   { ( pos, TokenClass ) }
     new       { ( pos, TokenNew ) }
     ';'       { ( pos, TokenSemicolon) }
@@ -97,6 +98,7 @@ Statement :: { Statement }
     | "class" word '{' ClassParams '}' { StatementClassDeclaration $2 $4}
     | Expression ';' { StatementExpression $1 }
     | '$' FunctionArguments ';' { StatementExpressionList $2 }
+    | load stringlit ';' { StatementLoad $2 }
 
 ClassParams :: { [String] }
     : {-empty -} { [] }

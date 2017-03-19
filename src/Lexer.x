@@ -29,6 +29,7 @@ tokens :-
   function        { \p s -> ( toPos p , TokenFunction ) }
   "class"         { \p s -> ( toPos p , TokenClass ) }
   new             { \p s -> ( toPos p , TokenNew ) }
+  load            { \p s -> ( toPos p , TokenLoad ) }
   \;              { \p s -> ( toPos p , TokenSemicolon ) }
   \(              { \p s -> ( toPos p , TokenRBOpen ) }
   \)              { \p s -> ( toPos p , TokenRBClose ) }

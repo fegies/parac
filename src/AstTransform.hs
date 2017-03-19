@@ -92,6 +92,8 @@ serializeStatement (StatementExpression exp)
     = serializeExpression exp ++ [InstrStackPop]
 serializeStatement (StatementExpressionList list)
     = concat $ map serializeExpression (reverse list)
+serializeStatement (StatementLoad str)
+    = InstrLoad str : []
 
 argstolist :: Expression -> Expression -> [Instruction]
 argstolist a b = serializeExpression b ++ serializeExpression a

@@ -15,6 +15,7 @@ data Statement
     | StatementReturn Expression
     | StatementExpression Expression
     | StatementExpressionList FunctionArguments
+    | StatementLoad String
     deriving (Show)
 
 

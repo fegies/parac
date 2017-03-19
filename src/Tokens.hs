@@ -25,6 +25,7 @@ data Token
     | TokenClass
     | TokenReturn
     | TokenNew
+    | TokenLoad
     | TokenSemicolon --Symbols
     | TokenComma
     | TokenRBOpen --round brace
