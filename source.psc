@@ -1,3 +1,5 @@
+load "file.pscb";
+
 class a
 {
 	left;
@@ -17,6 +19,7 @@ function serialize( a )
 
 function p( a )
 {
+	$a, @21, b[40], @21;
 	for i <- 0 to a; do
 		print(i);
 	od

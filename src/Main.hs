@@ -18,7 +18,9 @@ parseArgs x = prfiles x
 
 prfiles [] = return ()
 prfiles (x:xs) = do
-    s <- readFile $ x
+    s <- if x == "--"
+        then getContents
+        else readFile x
     let instr = transformToInstructions . normaliseAst . parsePSC . lexer $ s
     BL.putStr . toByecode $ instr
     prfiles xs
