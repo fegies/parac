@@ -154,5 +154,5 @@ serializeExpression (ExpressionLogicOr l r)
 serializeExpression (ExpressionLogicNot e)
     = serializeExpression e ++ [InstrLogicNot]
 
-serializeExpression (ExpressionInstruction num)
-    = [InstrLiteral num]
+serializeExpression (ExpressionInstruction num list)
+    = [InstrLiteral num list]

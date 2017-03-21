@@ -39,7 +39,7 @@ data Instruction
 
     | InstrStackPop --used to discard the to element of the stack.
 
-    | InstrLiteral Integer --used by the inline assembler, just puts the value of the Instruction in there.
+    | InstrLiteral Integer [Integer] --used by the inline assembler, just puts the value of the Instruction in there.
 
     | InstrLoad String --used to load other files
     deriving (Show)

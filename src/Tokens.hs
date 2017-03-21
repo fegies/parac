@@ -56,6 +56,7 @@ data Token
     | TokenLogicOr
     | TokenStringLit String
     | TokenWord String
-    | TokenInstr Integer
     | TokenDollar
+    | TokenInstr Integer
+    | TokenAdditionalData Integer
     deriving (Show)

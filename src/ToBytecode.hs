@@ -3,7 +3,6 @@ module ToBytecode(toByecode) where
 import Instructions
 import qualified Data.ByteString.Lazy as BL
 import Data.Binary.Put
-import Control.Monad
 
 toBs :: [Instruction] -> Put
 toBs [] = putWord8 0
@@ -37,8 +36,9 @@ toB (InstrPushConstInt int)
     = putWord8 9 >> pint int
 toB (InstrObjNew name)
     = putWord8 12 >> puts name
-toB (InstrLiteral num)
-    = putInt8 $ fromIntegral num
+toB (InstrLiteral num list)
+    = (putInt8 $ fromIntegral num)
+    >> (foldl (>>) (pint $ length list) (map (pint . fromIntegral) list))
 toB (InstrLoad str)
     = putWord8 34 >> puts str
 toB a = putWord8 $
@@ -77,4 +77,3 @@ puts a = putStringUtf8 a >> putWord8 0
 toByecode :: [Instruction] -> BL.ByteString
 toByecode a = runPut $ toBs a
 
-main = BL.putStr . runPut . toB $ (InstrFunctionDecl "name" ["arg1","arg2","arg2"] 5)

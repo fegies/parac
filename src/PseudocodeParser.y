@@ -56,6 +56,7 @@ import Tokens
     '!'       { ( pos, TokenLogicNot ) }
     '$'       { ( pos, TokenDollar ) }
     inlineinst{ ( pos, TokenInstr $$) }
+    adddata   { ( pos, TokenAdditionalData $$) }
     int       { ( pos, (TokenInt $$) ) }
     word      { ( pos, (TokenWord $$) ) }
     stringlit { ( pos, (TokenStringLit $$) ) }
@@ -121,12 +122,16 @@ StatementLoop :: { Statement }
     | for Expression to Expression ';' do Block od { StatementForTo $2 $4 $7}
     | for Expression downto Expression ';' do Block od { StatementForDownto $2 $4 $7}
 
+AdditionalDataList :: { [Integer] }
+    : {- empty -} { [] }
+    | AdditionalDataList adddata { $1 ++ [$2] }
+
 Expression :: { Expression }
     : stringlit { ExpressionConstant (ConstantString $1) }
     | Expression '(' FunctionArguments ')' {ExpressionFunctionCall $1 $3}
     | Expression '[' Expression ']' { ExpressionArrayAccess $1 $3 }
     | Expression '.' word { ExpressionObjectMembAccess $1 $3 }
-    | inlineinst { ExpressionInstruction $1 }
+    | inlineinst AdditionalDataList { ExpressionInstruction $1 $2}
     | int { ExpressionConstant (ConstantInt $1) }
     | '(' Expression ')' { $2 }
     | ExpressionArithmetic { $1 }

@@ -55,5 +55,5 @@ data Expression
     | ExpressionLogicAnd Expression Expression
     | ExpressionLogicOr Expression Expression
 
-    | ExpressionInstruction Integer
+    | ExpressionInstruction Integer [Integer]
     deriving (Show)

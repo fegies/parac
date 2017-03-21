@@ -60,7 +60,8 @@ tokens :-
   '!'             { \p s -> ( toPos p , TokenLogicNot ) }
   $digit+         { \p s -> ( toPos p , TokenInt $ read s ) }
   $alpha+         { \p s -> ( toPos p , TokenWord s ) }
-  @$digit+        { \p s -> ( toPos p , TokenInstr $ readHex . tail $ s)}
+  @[0-9a-fA-F]+   { \p s -> ( toPos p , TokenInstr $ readHex . tail $ s)}
+  :[0-9a-fA-F]+   { \p s -> ( toPos p , TokenAdditionalData $ readHex . tail $ s)}
 
 {
 -- Each action has type :: AlexPosn String -> LexToken
