@@ -57,7 +57,7 @@ tokens :-
   \.              { \p s -> ( toPos p , TokenDot ) }
   \$              { \p s -> ( toPos p , TokenDollar )}
   \".+\"          { \p s -> ( toPos p , TokenStringLit $ reverse . tail . reverse . tail $ s ) }
-  '!'             { \p s -> ( toPos p , TokenLogicNot ) }
+  \!              { \p s -> ( toPos p , TokenLogicNot ) }
   $digit+         { \p s -> ( toPos p , TokenInt $ read s ) }
   $alpha+         { \p s -> ( toPos p , TokenWord s ) }
   @[0-9a-fA-F]+   { \p s -> ( toPos p , TokenInstr $ readHex . tail $ s)}
