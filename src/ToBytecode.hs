@@ -11,7 +11,12 @@ toBs (x:xs) = do
     toBs xs
 
 pint :: Int -> Put
-pint a = putInt32be . fromIntegral $ a
+pint = putInt32be . fromIntegral
+
+pbytes :: Integer -> Put
+pbytes a
+    | a < 256 = putWord8 . fromIntegral $ a
+    | otherwise = (putWord8 . fromIntegral) ( a `mod` 256 ) >> pbytes ( a `div` 256 ) 
 
 toB :: Instruction -> Put
 toB (InstrJump a)
@@ -37,8 +42,8 @@ toB (InstrPushConstInt int)
 toB (InstrObjNew name)
     = putWord8 12 >> puts name
 toB (InstrLiteral num list)
-    = (putInt8 $ fromIntegral num)
-    >> (foldl (>>) (pint $ length list) (map (pint . fromIntegral) list))
+    = putInt8 (fromIntegral num)
+    >> foldl (>>) (pint . length $ list) (map (pbytes . fromIntegral) list)
 toB (InstrLoad str)
     = putWord8 34 >> puts str
 toB a = putWord8 $
@@ -66,6 +71,7 @@ toB a = putWord8 $
             InstrBlockEnter      -> 30
             InstrBlockLeave      -> 31
             InstrStackPop        -> 32
+            _                    -> error "Invalid instruction type"
 
 putstrs :: [String] -> Put
 putstrs [] = putWord8 0
