@@ -42,8 +42,7 @@ toB (InstrPushConstInt int)
 toB (InstrObjNew name)
     = putWord8 12 >> puts name
 toB (InstrLiteral num list)
-    = putInt8 (fromIntegral num)
-    >> foldl (>>) (pint . length $ list) (map (pbytes . fromIntegral) list)
+    = foldl (>>) (putInt8 (fromIntegral num)) (map (pbytes . fromIntegral) list)
 toB (InstrLoad str)
     = putWord8 34 >> puts str
 toB a = putWord8 $
