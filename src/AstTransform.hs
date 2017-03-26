@@ -23,35 +23,31 @@ checkExpression a = a
 
 
 normaliseStatements :: [Statement] -> [Statement]
-normaliseStatements [] = []
-normaliseStatements (x:xs) = normaliseStatement x ++ normaliseStatements xs
-
+normaliseStatements = foldr ((++) . normaliseStatement) []
 
 --turn all loops into while loops
 normaliseStatement :: Statement -> [Statement]
 normaliseStatement (StatementForTo (ExpressionAssign to from) expc block)
-    = StatementExpression (ExpressionAssign to from)
-    : StatementWhile (ExpressionCompareLt to expc) (block++[StatementExpression $ ExpressionArithInc to])
-    : []
+    = [StatementExpression (ExpressionAssign to from),
+      StatementWhile (ExpressionCompareLt to expc) (block++[StatementExpression $ ExpressionArithInc to])]
 normaliseStatement (StatementForDownto (ExpressionAssign to from) expc block)
-    = StatementExpression (ExpressionAssign to from)
-    : StatementWhile (ExpressionCompareGt to expc) (block++[StatementExpression $ ExpressionArithDec to])
-    : []
+    = [StatementExpression (ExpressionAssign to from),
+      StatementWhile (ExpressionCompareGt to expc) (block++[StatementExpression $ ExpressionArithDec to])]
 normaliseStatement (StatementExpression exp)
-    = (StatementExpression $ normaliseExpression exp) : []
+    = [StatementExpression $ normaliseExpression exp]
 normaliseStatement (StatementFunctionDeclaration name args block)
-    = StatementFunctionDeclaration name args 
-        (checkReturnStatement . normaliseStatements $ block) : []
+    = [StatementFunctionDeclaration name args
+        (checkReturnStatement . normaliseStatements $ block)]
 normaliseStatement (StatementIf exp th el)
-    = StatementIf (normaliseExpression exp) (normaliseStatements th) (normaliseStatements el) : []
+    = [StatementIf (normaliseExpression exp) (normaliseStatements th) (normaliseStatements el)]
 normaliseStatement a = [a]
 
 --checks if a block ends with a return statement
 --if it does not, adds one to the end.
 checkReturnStatement :: [Statement] -> [Statement]
 checkReturnStatement [] = []
-checkReturnStatement (r @(StatementReturn _) : [] ) = r : []
-checkReturnStatement (x:[]) = x : (StatementReturn EmptyExpression) : []
+checkReturnStatement [r @(StatementReturn _)] = [r]
+checkReturnStatement [x] = [x, StatementReturn EmptyExpression]
 checkReturnStatement (x:xs) = x : checkReturnStatement xs
 
 normaliseExpression :: Expression -> Expression
@@ -59,14 +55,13 @@ normaliseExpression (ExpressionCompareNeq e1 e2) = ExpressionLogicNot( Expressio
 normaliseExpression a = a
 
 transformToInstructions :: Block -> [Instruction]
-transformToInstructions [] = []
-transformToInstructions (x:xs) = (serializeStatement x)++transformToInstructions xs
+transformToInstructions = foldr ((++) . serializeStatement) []
 
 serializeStatement :: Statement -> [Instruction]
 serializeStatement (StatementIf expc bthen belse )
     = let ci = serializeExpression expc
           ei = InstrBlockEnter : transformToInstructions belse ++ [InstrBlockLeave]
-          ti = InstrBlockEnter : transformToInstructions bthen ++ 
+          ti = InstrBlockEnter : transformToInstructions bthen ++
             [InstrBlockLeave,InstrJump (length ei)]
       in ci ++ [InstrConditionalJump (length ti)] ++ ti ++ ei
 serializeStatement (StatementWhile exp block)
@@ -83,37 +78,36 @@ serializeStatement (StatementRepeat block expr)
 serializeStatement (StatementFunctionDeclaration name args block)
     = let ins = transformToInstructions block
           len = length ins
-      in (InstrFunctionDecl name args len) : ins
+      in InstrFunctionDecl name args len : ins
 serializeStatement (StatementClassDeclaration name args)
-    = InstrClassDecl name args : []
+    = [InstrClassDecl name args]
 serializeStatement (StatementReturn exp)
     = serializeExpression exp ++ [InstrReturn]
 serializeStatement (StatementExpression exp)
     = serializeExpression exp ++ [InstrStackPop]
 serializeStatement (StatementExpressionList list)
-    = concat $ map serializeExpression (reverse list)
+    = concatMap serializeExpression (reverse list)
 serializeStatement (StatementLoad str)
-    = InstrLoad str : []
+    = [InstrLoad str]
 
 argstolist :: Expression -> Expression -> [Instruction]
 argstolist a b = serializeExpression b ++ serializeExpression a
 
 serializeExpression :: Expression -> [Instruction]
 serializeExpression EmptyExpression = []
-serializeExpression (ExpressionVar name) = InstrVarLookup name : []
+serializeExpression (ExpressionVar name) = [InstrVarLookup name]
 serializeExpression (ExpressionConstant const)
-    = case const of
+    = [case const of
         ConstantString s -> InstrPushConstStr s
-        ConstantInt i -> InstrPushConstInt $ fromIntegral i
-      : []
+        ConstantInt i -> InstrPushConstInt $ fromIntegral i]
 serializeExpression (ExpressionFunctionCall exp args)
     = let l = case exp of
                 (ExpressionVar s) -> [InstrGlobalLookup s]
                 a -> serializeExpression a
-          r = concat $ map serializeExpression args
+          r = concatMap serializeExpression args
       in r ++ l ++ [InstrFunctionCall]
 serializeExpression (ExpressionObjectNew cla)
-    = InstrObjNew cla : []
+    = [InstrObjNew cla]
 serializeExpression (ExpressionObjectMembAccess obj member)
     = serializeExpression obj ++ [InstrPushConstStr member] ++ [InstrObjMemberAccess]
 serializeExpression (ExpressionArrayAccess exp pos)
