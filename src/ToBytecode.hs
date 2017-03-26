@@ -16,7 +16,7 @@ pint = putInt32be . fromIntegral
 pbytes :: Integer -> Put
 pbytes a
     | a < 256 = putWord8 . fromIntegral $ a
-    | otherwise = (putWord8 . fromIntegral) ( a `mod` 256 ) >> pbytes ( a `div` 256 ) 
+    | otherwise = (putWord8 . fromIntegral) ( a `mod` 256 ) >> pbytes ( a `div` 256 )
 
 toB :: Instruction -> Put
 toB (InstrJump a)
@@ -73,12 +73,10 @@ toB a = putWord8 $
             _                    -> error "Invalid instruction type"
 
 putstrs :: [String] -> Put
-putstrs [] = putWord8 0
-putstrs (x:xs) = puts x >> putstrs xs
+putstrs = foldr ((>>) . puts) (putWord8 0)
 
 puts :: String -> Put
 puts a = putStringUtf8 a >> putWord8 0
 
 toByecode :: [Instruction] -> BL.ByteString
 toByecode a = runPut $ toBs a
-

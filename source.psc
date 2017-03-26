@@ -1,3 +1,3 @@
 
-!b;
-$a, @3e:ffE:12;
+
+a( "Stringlit" );

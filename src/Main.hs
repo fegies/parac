@@ -25,14 +25,13 @@ prfiles (x:xs) = do
     BL.putStr . toByecode $ instr
     prfiles xs
 
-interfiles [] = return ()
-interfiles (x:xs) = interpretFile x >> interfiles xs
+interfiles = foldr ((>>) . interpretFile) (return ())
 
 usage = putStrLn "Usage: pcompile [-d] file[s]"
 
 
 interpretFile f = do
-    s <- readFile $ f
+    s <- readFile f
     let tokens = lexer s
     let ast = parsePSC tokens
     let normast = normaliseAst ast
