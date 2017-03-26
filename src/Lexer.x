@@ -14,18 +14,10 @@ tokens :-
 
   $white+         ;
   if              { \p s -> ( toPos p , TokenIf ) }
-  then            { \p s -> ( toPos p , TokenThen ) }
   else            { \p s -> ( toPos p , TokenElse ) }
-  fi              { \p s -> ( toPos p , TokenFi ) }
   while           { \p s -> ( toPos p , TokenWhile ) }
-  do              { \p s -> ( toPos p , TokenDo ) }
-  od              { \p s -> ( toPos p , TokenOd ) }
-  repeat          { \p s -> ( toPos p , TokenRepeat ) }
-  until           { \p s -> ( toPos p , TokenUntil ) }
-  for             { \p s -> ( toPos p , TokenFor ) }
-  to              { \p s -> ( toPos p , TokenTo ) }
-  downto          { \p s -> ( toPos p , TokenDownto ) }
   return          { \p s -> ( toPos p , TokenReturn ) }
+  var             { \p s -> ( toPos p , TokenVar ) }
   function        { \p s -> ( toPos p , TokenFunction ) }
   "class"         { \p s -> ( toPos p , TokenClass ) }
   new             { \p s -> ( toPos p , TokenNew ) }
@@ -37,7 +29,7 @@ tokens :-
   \}              { \p s -> ( toPos p , TokenCBClose ) }
   \[              { \p s -> ( toPos p , TokenSBOpen ) }
   \]              { \p s -> ( toPos p , TokenSBClose ) }
-  "<-"            { \p s -> ( toPos p , TokenLeftarrow ) }
+  =               { \p s -> ( toPos p , TokenAssign ) }
   ==              { \p s -> ( toPos p , TokenCompEq ) }
   "!="            { \p s -> ( toPos p , TokenCompNeq ) }
   ">="            { \p s -> ( toPos p , TokenCompGeq ) }
@@ -55,13 +47,10 @@ tokens :-
   "--"            { \p s -> ( toPos p , TokenArithDec ) }
   \,              { \p s -> ( toPos p , TokenComma ) }
   \.              { \p s -> ( toPos p , TokenDot ) }
-  \$              { \p s -> ( toPos p , TokenDollar )}
   \".+\"          { \p s -> ( toPos p , TokenStringLit $ reverse . tail . reverse . tail $ s ) }
   \!              { \p s -> ( toPos p , TokenLogicNot ) }
   $digit+         { \p s -> ( toPos p , TokenInt $ read s ) }
   $alpha+         { \p s -> ( toPos p , TokenWord s ) }
-  @[0-9a-fA-F]+   { \p s -> ( toPos p , TokenInstr $ readHex . tail $ s)}
-  :[0-9a-fA-F]+   { \p s -> ( toPos p , TokenAdditionalData $ readHex . tail $ s)}
 
 {
 -- Each action has type :: AlexPosn String -> LexToken
