@@ -14,6 +14,7 @@ data Token
     | TokenWhile
     | TokenFunction
     | TokenClass
+    | TokenVar String
     | TokenReturn
     | TokenNew
     | TokenLoad

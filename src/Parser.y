@@ -1,5 +1,5 @@
 {
-module PseudocodeParser (parse) where
+module Parser (parse) where
 import Ast
 import Tokens
 }
@@ -19,7 +19,7 @@ import Tokens
     load      { ( pos, TokenLoad ) }
     "class"   { ( pos, TokenClass ) }
     new       { ( pos, TokenNew ) }
-    var       { ( pos, TokenVar ) }
+    var       { ( pos, TokenVar $$) }
     ';'       { ( pos, TokenSemicolon) }
     ','       { ( pos, TokenComma ) }
     '.'       { ( pos, TokenDot ) }
@@ -98,15 +98,22 @@ ExpressionDeclaration :: { Expression }
     ;
 
 NonterminatedExpression :: { Expression }
-    : function '(' WordList ')' Block      { ExpressionAnonFunctionDeclaration $3 $5 }
-    | ExpressionIf                         { $1 }
-    | '(' NonterminatedExpression ')'      { $2 }
-    | ExpressionArith                      { $1 }
-    | ExpressionComp                       { $1 }
-    | ExpressionConstant                   { $1 }
-    | ExpressionAssign                     { $1 }
-    | ExpressionLookup                     { $1 }
-    | new word                             { ExpressionNew $2 }
+    : function '(' WordList ')' Block                { ExpressionAnonFunctionDeclaration $3 $5 }
+    | NonterminatedExpression '(' ExpressionList ')' { ExpressionFunctionCall $1 $3 }
+    | ExpressionIf                                   { $1 }
+    | '(' NonterminatedExpression ')'                { $2 }
+    | ExpressionArith                                { $1 }
+    | ExpressionComp                                 { $1 }
+    | ExpressionConstant                             { $1 }
+    | ExpressionAssign                               { $1 }
+    | ExpressionLookup                               { $1 }
+    | new word                                       { ExpressionNew $2 }
+    ;
+
+ExpressionList :: { [Expression] }
+    : NonterminatedExpression { [$1] }
+    | ExpressionList ',' NonterminatedExpression { $1 ++ [$3] }
+    ;
 
 Condition :: { Expression }
     : '(' NonterminatedExpression ')' { $2 }
@@ -114,7 +121,7 @@ Condition :: { Expression }
 
 ExpressionIf :: { Expression }
     : if Condition Block else Block { ExpressionIf $2 $3 $5 }
-    | if Condition Block                           { ExpressionIf $2 $3 EmptyExpression }
+    | if Condition Block                           { ExpressionIf $2 $3 [] }
     ;
 
 ExpressionWhile :: { Expression }
@@ -122,7 +129,7 @@ ExpressionWhile :: { Expression }
     ;
 
 ExpressionArith :: { Expression }
-    : NonterminatedExpression '+' NonterminatedExpression  { ExpressinoArithPlus $1 $3 }
+    : NonterminatedExpression '+' NonterminatedExpression  { ExpressionArithPlus $1 $3 }
     | NonterminatedExpression '-' NonterminatedExpression  { ExpressionArithMinus $1 $3 }
     | NonterminatedExpression '*' NonterminatedExpression  { ExpressionArithMul $1 $3 }
     | NonterminatedExpression '/' NonterminatedExpression  { ExpressionArithDiv $1 $3 }
@@ -130,8 +137,8 @@ ExpressionArith :: { Expression }
     | NonterminatedExpression "++"                         { ExpressionInc $1 }
     | NonterminatedExpression "--"                         { ExpressionDec $1 }
     | '!' NonterminatedExpression                          { ExpressionNot $2 }
-    | NonterminatedExpression "&&" NonterminatedExpression { ExpressinonAnd $1 $3 }
-    | NonterminatedExpression "||" NonterminatedExpression { ExpressinoOr $1 $3 }
+    | NonterminatedExpression "&&" NonterminatedExpression { ExpressionAnd $1 $3 }
+    | NonterminatedExpression "||" NonterminatedExpression { ExpressionOr $1 $3 }
     ;
 
 ExpressionComp :: { Expression }
@@ -159,7 +166,7 @@ WordList :: { [String] }
     ;
 
 Identifier :: { Identifier }
-    : word                                       { IdentifierVariable $1 }
+    : word                                       { IdentifierName $1 }
     | Identifier '.' word                        { IdentifierObjMember $1 $3 }
     | Identifier '[' NonterminatedExpression ']' { IdentifierArray $1 $3 }
     ;
@@ -178,7 +185,6 @@ reportPos :: LexerPosition -> String
 reportPos (_, l, c) = "line "++ show l ++ ", column " ++ show c
 
 reportError :: Token -> String
-reportError TokenOd = "did you forget closing braces?"
 reportError a = "unexpected token: "++show a
 
 parseError :: [LexToken] -> a

@@ -17,7 +17,7 @@ tokens :-
   else            { \p s -> ( toPos p , TokenElse ) }
   while           { \p s -> ( toPos p , TokenWhile ) }
   return          { \p s -> ( toPos p , TokenReturn ) }
-  var             { \p s -> ( toPos p , TokenVar ) }
+  var             { \p s -> ( toPos p , TokenVar s) }
   function        { \p s -> ( toPos p , TokenFunction ) }
   "class"         { \p s -> ( toPos p , TokenClass ) }
   new             { \p s -> ( toPos p , TokenNew ) }
