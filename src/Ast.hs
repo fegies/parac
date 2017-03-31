@@ -36,6 +36,8 @@ data Expression
     | ExpressionGeq Expression Expression
 
     | ExpressionConstant Constant
+
+    | SECheckedExpression Bool Expression
     deriving (Show)
 
 data Identifier

@@ -49,8 +49,12 @@ import Tokens
     int       { ( pos, (TokenInt $$) ) }
     word      { ( pos, (TokenWord $$) ) }
     stringlit { ( pos, (TokenStringLit $$) ) }
+    tainted   { ( pos, (TokenTainted ) ) }
+    pure      { ( pos, (TokenPure) ) }
 
 %nonassoc '{' '}'
+%nonassoc ';'
+%nonassoc pure tainted
 %left ','
 %right '='
 %left "&&" "||"
@@ -88,7 +92,9 @@ TerminatedExpression :: { Expression }
     | ExpressionDeclaration                     { $1 }
     | load stringlit                            { ExpressionLoad $2 }
     | NonterminatedExpression ';'               { $1 }
-    | ExpressionWhile       { $1 }
+    | ExpressionWhile                           { $1 }
+    | pure TerminatedExpression                 { SECheckedExpression True $2 }
+    | tainted TerminatedExpression { SECheckedExpression False $2 }
     ;
 
 ExpressionDeclaration :: { Expression }
@@ -108,6 +114,8 @@ NonterminatedExpression :: { Expression }
     | ExpressionAssign                               { $1 }
     | ExpressionLookup                               { $1 }
     | new word                                       { ExpressionNew $2 }
+    | pure NonterminatedExpression                   { SECheckedExpression True $2 }
+    | tainted NonterminatedExpression                { SECheckedExpression False $2 }
     ;
 
 ExpressionList :: { [Expression] }
@@ -121,7 +129,7 @@ Condition :: { Expression }
 
 ExpressionIf :: { Expression }
     : if Condition Block else Block { ExpressionIf $2 $3 $5 }
-    | if Condition Block                           { ExpressionIf $2 $3 [] }
+    | if Condition Block            { ExpressionIf $2 $3 [] }
     ;
 
 ExpressionWhile :: { Expression }

@@ -47,4 +47,6 @@ data Token
     | TokenLogicOr
     | TokenStringLit String
     | TokenWord String
+    | TokenTainted
+    | TokenPure
     deriving (Show)

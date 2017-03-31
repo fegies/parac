@@ -49,8 +49,10 @@ tokens :-
   \.              { \p s -> ( toPos p , TokenDot ) }
   \".+\"          { \p s -> ( toPos p , TokenStringLit $ reverse . tail . reverse . tail $ s ) }
   \!              { \p s -> ( toPos p , TokenLogicNot ) }
+  pure            { \p s -> ( toPos p , TokenPure ) }
+  tainted         { \p s -> ( toPos p , TokenTainted ) }
   $digit+         { \p s -> ( toPos p , TokenInt $ read s ) }
-  $alpha+         { \p s -> ( toPos p , TokenWord s ) }
+  [$alpha$digit]+ { \p s -> ( toPos p , TokenWord s ) }
 
 {
 -- Each action has type :: AlexPosn String -> LexToken
