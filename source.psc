@@ -1,6 +1,8 @@
 
+if( true )
+{
+a;
+b;
+};
 
-a( "Stringlit" );
-
-pure
-b.l[u];
+c = b( function(a){return a;});

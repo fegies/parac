@@ -17,7 +17,7 @@ import Tokens
     function  { ( pos, TokenFunction ) }
     return    { ( pos, TokenReturn ) }
     load      { ( pos, TokenLoad ) }
-    "class"   { ( pos, TokenClass ) }
+    "typedef" { ( pos, TokenTypedef ) }
     new       { ( pos, TokenNew ) }
     var       { ( pos, TokenVar $$) }
     ';'       { ( pos, TokenSemicolon) }
@@ -52,6 +52,7 @@ import Tokens
     tainted   { ( pos, (TokenTainted ) ) }
     pure      { ( pos, (TokenPure) ) }
 
+%nonassoc EMPTYE
 %nonassoc '{' '}'
 %nonassoc ';'
 %nonassoc pure tainted
@@ -68,23 +69,28 @@ import Tokens
 %left '[' ']'
 %left '(' ')'
 %left "++" "--"
-%right else
 
 %%
 
 
-Program :: { [Expression] }
-    : ExpressionSequence { $1 }
+Program :: { Expression }
+    : NonemptyExpressionSequence { ExpressionBlock $1 }
     ;
 
-ExpressionSequence :: { [Expression] }
-    : {-- empty --}                           { [] }
-    | ExpressionSequence TerminatedExpression { $1 ++ [$2] }
+
+Block :: { Expression }
+    : TerminatedExpression       {  $1 }
+    | BracedSequence {  $1 }
+    | '{' '}'     { EmptyExpression }
     ;
 
-Block :: { [Expression] }
-    : TerminatedExpression       { [$1] }
-    | '{' ExpressionSequence '}' { $2 }
+BracedSequence :: { Expression }
+    : '{' NonemptyExpressionSequence '}' { ExpressionBlock $2 }
+    ;
+
+NonemptyExpressionSequence :: { [Expression] }
+    : TerminatedExpression  { [$1] }
+    | NonemptyExpressionSequence TerminatedExpression { $1 ++ [$2] }
     ;
 
 TerminatedExpression :: { Expression }
@@ -93,14 +99,14 @@ TerminatedExpression :: { Expression }
     | load stringlit                            { ExpressionLoad $2 }
     | NonterminatedExpression ';'               { $1 }
     | ExpressionWhile                           { $1 }
-    | pure TerminatedExpression                 { SECheckedExpression True $2 }
-    | tainted TerminatedExpression { SECheckedExpression False $2 }
+    | pure TerminatedExpression                 { SESetExpression True $2 }
+    | tainted TerminatedExpression              { SESetExpression False $2 }
     ;
 
 ExpressionDeclaration :: { Expression }
     : var word                                  { ExpressionVarDeclaration $2 }
     | function word '(' WordList ')' Block      { ExpressionNamedFunctionDeclaration $2 $4 $6 }
-    | "class" word '{' DeclarationList '}' ';'  { ExpressionClassDeclaration $2 $4 }
+    | "typedef" word '{' DeclarationList '}' ';'{ ExpressionTypedefDeclaration $2 $4 }
     ;
 
 NonterminatedExpression :: { Expression }
@@ -114,8 +120,8 @@ NonterminatedExpression :: { Expression }
     | ExpressionAssign                               { $1 }
     | ExpressionLookup                               { $1 }
     | new word                                       { ExpressionNew $2 }
-    | pure NonterminatedExpression                   { SECheckedExpression True $2 }
-    | tainted NonterminatedExpression                { SECheckedExpression False $2 }
+    | pure NonterminatedExpression                   { SESetExpression True $2 }
+    | tainted NonterminatedExpression                { SESetExpression False $2 }
     ;
 
 ExpressionList :: { [Expression] }
@@ -129,7 +135,7 @@ Condition :: { Expression }
 
 ExpressionIf :: { Expression }
     : if Condition Block else Block { ExpressionIf $2 $3 $5 }
-    | if Condition Block            { ExpressionIf $2 $3 [] }
+    | if Condition Block            { ExpressionIf $2 $3 EmptyExpression }
     ;
 
 ExpressionWhile :: { Expression }
@@ -196,6 +202,7 @@ reportError :: Token -> String
 reportError a = "unexpected token: "++show a
 
 parseError :: [LexToken] -> a
+parseError [] = error "parse error: unexpected eof, did you forget a closing brace or semicolon?"
 parseError ((pos,tok):_) = error $ "parse Error at: "++ reportPos pos ++ "\n"
     ++ reportError tok
 

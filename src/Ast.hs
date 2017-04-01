@@ -9,13 +9,15 @@ data Expression
     | ExpressionAssign Identifier Expression
     | ExpressionFunctionCall Expression [Expression]
 
-    | ExpressionVarDeclaration String
-    | ExpressionNamedFunctionDeclaration String [String] [Expression]
-    | ExpressionClassDeclaration String [Expression]
-    | ExpressionAnonFunctionDeclaration [String] [Expression]
+    | ExpressionBlock [Expression]
 
-    | ExpressionIf Expression [Expression] [Expression]
-    | ExpressionWhile Expression [Expression]
+    | ExpressionVarDeclaration String
+    | ExpressionNamedFunctionDeclaration String [String] Expression
+    | ExpressionTypedefDeclaration String [Expression]
+    | ExpressionAnonFunctionDeclaration [String] Expression
+
+    | ExpressionIf Expression Expression Expression
+    | ExpressionWhile Expression Expression
 
     | ExpressionArithPlus Expression Expression
     | ExpressionArithMinus Expression Expression
@@ -37,7 +39,8 @@ data Expression
 
     | ExpressionConstant Constant
 
-    | SECheckedExpression Bool Expression
+    --the bool is true if the Expression is pure
+    | SESetExpression Bool Expression
     deriving (Show)
 
 data Identifier

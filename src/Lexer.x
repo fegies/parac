@@ -19,7 +19,7 @@ tokens :-
   return          { \p s -> ( toPos p , TokenReturn ) }
   var             { \p s -> ( toPos p , TokenVar s) }
   function        { \p s -> ( toPos p , TokenFunction ) }
-  "class"         { \p s -> ( toPos p , TokenClass ) }
+  "typedef"       { \p s -> ( toPos p , TokenTypedef ) }
   new             { \p s -> ( toPos p , TokenNew ) }
   load            { \p s -> ( toPos p , TokenLoad ) }
   \;              { \p s -> ( toPos p , TokenSemicolon ) }

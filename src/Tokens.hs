@@ -13,7 +13,7 @@ data Token
     | TokenElse
     | TokenWhile
     | TokenFunction
-    | TokenClass
+    | TokenTypedef
     | TokenVar String
     | TokenReturn
     | TokenNew
