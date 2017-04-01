@@ -3,7 +3,8 @@ module Ast where
 data Expression
     = EmptyExpression
     | ExpressionReturn Expression
-    | ExpressionLoad String
+    --the list represents the packages, and the last entry is the file
+    | ExpressionLoad [String] String
     | ExpressionNew String
     | ExpressionLookup Identifier
     | ExpressionAssign Identifier Expression

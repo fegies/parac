@@ -17,7 +17,7 @@ import Tokens
     function  { ( pos, TokenFunction ) }
     return    { ( pos, TokenReturn ) }
     load      { ( pos, TokenLoad ) }
-    "typedef" { ( pos, TokenTypedef ) }
+    typedef   { ( pos, TokenTypedef ) }
     new       { ( pos, TokenNew ) }
     var       { ( pos, TokenVar $$) }
     ';'       { ( pos, TokenSemicolon) }
@@ -52,10 +52,11 @@ import Tokens
     tainted   { ( pos, (TokenTainted ) ) }
     pure      { ( pos, (TokenPure) ) }
 
-%nonassoc EMPTYE
-%nonassoc '{' '}'
-%nonassoc ';'
 %nonassoc pure tainted
+%nonassoc '{' '}'
+%nonassoc return
+%nonassoc if while
+%nonassoc ';'
 %left ','
 %right '='
 %left "&&" "||"
@@ -69,130 +70,117 @@ import Tokens
 %left '[' ']'
 %left '(' ')'
 %left "++" "--"
+%nonassoc else
 
 %%
 
 
 Program :: { Expression }
-    : NonemptyExpressionSequence { ExpressionBlock $1 }
+    : ExpressionSequence { ExpressionBlock $1 }
     ;
 
-
-Block :: { Expression }
-    : TerminatedExpression       {  $1 }
-    | BracedSequence {  $1 }
-    | '{' '}'     { EmptyExpression }
-    ;
-
-BracedSequence :: { Expression }
-    : '{' NonemptyExpressionSequence '}' { ExpressionBlock $2 }
-    ;
-
-NonemptyExpressionSequence :: { [Expression] }
-    : TerminatedExpression  { [$1] }
-    | NonemptyExpressionSequence TerminatedExpression { $1 ++ [$2] }
-    ;
-
-TerminatedExpression :: { Expression }
-    : return NonterminatedExpression ';'        { ExpressionReturn $2 }
-    | ExpressionDeclaration                     { $1 }
-    | load stringlit                            { ExpressionLoad $2 }
-    | NonterminatedExpression ';'               { $1 }
-    | ExpressionWhile                           { $1 }
-    | pure TerminatedExpression                 { SESetExpression True $2 }
-    | tainted TerminatedExpression              { SESetExpression False $2 }
-    ;
-
-ExpressionDeclaration :: { Expression }
-    : var word                                  { ExpressionVarDeclaration $2 }
-    | function word '(' WordList ')' Block      { ExpressionNamedFunctionDeclaration $2 $4 $6 }
-    | "typedef" word '{' DeclarationList '}' ';'{ ExpressionTypedefDeclaration $2 $4 }
-    ;
-
-NonterminatedExpression :: { Expression }
-    : function '(' WordList ')' Block                { ExpressionAnonFunctionDeclaration $3 $5 }
-    | NonterminatedExpression '(' ExpressionList ')' { ExpressionFunctionCall $1 $3 }
-    | ExpressionIf                                   { $1 }
-    | '(' NonterminatedExpression ')'                { $2 }
-    | ExpressionArith                                { $1 }
-    | ExpressionComp                                 { $1 }
-    | ExpressionConstant                             { $1 }
-    | ExpressionAssign                               { $1 }
-    | ExpressionLookup                               { $1 }
-    | new word                                       { ExpressionNew $2 }
-    | pure NonterminatedExpression                   { SESetExpression True $2 }
-    | tainted NonterminatedExpression                { SESetExpression False $2 }
+ExpressionSequence :: { [Expression] }
+    : Expression ';'    { [$1] }
+    | ExpressionSequence Expression ';' { $1 ++ [$2] }
     ;
 
 ExpressionList :: { [Expression] }
-    : NonterminatedExpression { [$1] }
-    | ExpressionList ',' NonterminatedExpression { $1 ++ [$3] }
+    : Expression { [$1] }
+    | ExpressionList ',' Expression { $1 ++ [$3] }
+    ;
+
+Expression :: { Expression }
+    : '(' Expression ')' { $2 }
+    | '{' ExpressionSequence '}' { ExpressionBlock $2 }
+    | Expression '(' ExpressionList ')' { ExpressionFunctionCall $1 $3 }
+    | pure Expression { SESetExpression True $2 }
+    | tainted Expression { SESetExpression False $2 }
+    | load Dotpath { ExpressionLoad (init $2) (last $2) }
+    | return Expression { ExpressionReturn $2 }
+    | new word { ExpressionNew $2 }
+    | ExpressionArith { $1 }
+    | ExpressionIf { $1 }
+    | ExpressionLookup { $1 }
+    | ExpressionLoop { $1 }
+    | ExpressionAssign { $1 }
+    | ExpressionDeclaration { $1 }
+    | ExpressionConstant { $1 }
+    | ExpressionComp { $1 }
     ;
 
 Condition :: { Expression }
-    : '(' NonterminatedExpression ')' { $2 }
+    : '(' Expression ')' { $2 }
     ;
 
 ExpressionIf :: { Expression }
-    : if Condition Block else Block { ExpressionIf $2 $3 $5 }
-    | if Condition Block            { ExpressionIf $2 $3 EmptyExpression }
+    : if Condition Expression else Expression { ExpressionIf $2 $3 $5 }
+    | if Condition Expression { ExpressionIf $2 $3 EmptyExpression }
     ;
 
-ExpressionWhile :: { Expression }
-    : while Condition Block { ExpressionWhile $2 $3 }
-    ;
+ExpressionLoop :: { Expression }
+    : while Condition Expression { ExpressionWhile $2 $3 }
 
 ExpressionArith :: { Expression }
-    : NonterminatedExpression '+' NonterminatedExpression  { ExpressionArithPlus $1 $3 }
-    | NonterminatedExpression '-' NonterminatedExpression  { ExpressionArithMinus $1 $3 }
-    | NonterminatedExpression '*' NonterminatedExpression  { ExpressionArithMul $1 $3 }
-    | NonterminatedExpression '/' NonterminatedExpression  { ExpressionArithDiv $1 $3 }
-    | NonterminatedExpression '%' NonterminatedExpression  { ExpressionArithMod $1 $3 }
-    | NonterminatedExpression "++"                         { ExpressionInc $1 }
-    | NonterminatedExpression "--"                         { ExpressionDec $1 }
-    | '!' NonterminatedExpression                          { ExpressionNot $2 }
-    | NonterminatedExpression "&&" NonterminatedExpression { ExpressionAnd $1 $3 }
-    | NonterminatedExpression "||" NonterminatedExpression { ExpressionOr $1 $3 }
+    : Expression '*' Expression { ExpressionArithMul $1 $3 }
+    | Expression '/' Expression { ExpressionArithDiv $1 $3 }
+    | Expression '+' Expression { ExpressionArithPlus $1 $3 }
+    | Expression '-' Expression { ExpressionArithMinus $1 $3 }
+    | Expression '%' Expression { ExpressionArithMod $1 $3 }
+    | Expression "++" { ExpressionInc $1 }
+    | Expression "--" { ExpressionDec $1 }
+    | '!' Expression { ExpressionNot $2 }
+    | Expression "&&" Expression { ExpressionAnd $1 $3 }
+    | Expression "||" Expression { ExpressionOr $1 $3 }
     ;
 
 ExpressionComp :: { Expression }
-    : NonterminatedExpression "==" NonterminatedExpression { ExpressionEq $1 $3 }
-    | NonterminatedExpression "!=" NonterminatedExpression { ExpressionNeq $1 $3 }
-    | NonterminatedExpression '<' NonterminatedExpression  { ExpressionLt $1 $3 }
-    | NonterminatedExpression "<=" NonterminatedExpression { ExpressionLeq $1 $3 }
-    | NonterminatedExpression '>' NonterminatedExpression  { ExpressionGt $1 $3 }
-    | NonterminatedExpression ">=" NonterminatedExpression { ExpressionGeq $1 $3 }
+    : Expression "==" Expression { ExpressionEq $1 $3 }
+    | Expression "!=" Expression { ExpressionNeq $1 $3 }
+    | Expression '<' Expression { ExpressionLt $1 $3 }
+    | Expression "<=" Expression { ExpressionLeq $1 $3 }
+    | Expression '>' Expression { ExpressionGt $1 $3 }
+    | Expression ">=" Expression { ExpressionGeq $1 $3 }
     ;
 
 ExpressionConstant :: { Expression }
-    : int       { ExpressionConstant $ ConstantInt $1 }
+    : int { ExpressionConstant $ ConstantInt $1 }
     | stringlit { ExpressionConstant $ ConstantString $1 }
     ;
 
+ExpressionAssign :: { Expression }
+    : Identifier '=' Expression { ExpressionAssign $1 $3 }
+
+ExpressionLookup :: { Expression }
+    : Identifier { ExpressionLookup $1 }
+    ;
+
+ExpressionDeclaration :: { Expression }
+    : var word { ExpressionVarDeclaration $2 }
+    | function word '(' WordList ')' Expression { ExpressionNamedFunctionDeclaration $2 $4 $6 }
+    | function '(' WordList ')' Expression { ExpressionAnonFunctionDeclaration $3 $5 }
+    | typedef word '{' DeclarationList '}' { ExpressionTypedefDeclaration $2 $4 }
+    ;
+
 DeclarationList :: { [Expression] }
-    : ExpressionDeclaration ';'                 { [$1] }
+    : ExpressionDeclaration ';' { [$1] }
     | DeclarationList ExpressionDeclaration ';' { $1 ++ [$2] }
     ;
 
 WordList :: { [String] }
-    : word              { [$1] }
+    : word { [$1] }
     | WordList ',' word { $1 ++ [$3] }
     ;
 
 Identifier :: { Identifier }
-    : word                                       { IdentifierName $1 }
-    | Identifier '.' word                        { IdentifierObjMember $1 $3 }
-    | Identifier '[' NonterminatedExpression ']' { IdentifierArray $1 $3 }
+    : word { IdentifierName $1 }
+    | Identifier '.' word { IdentifierObjMember $1 $3 }
+    | Identifier '[' Expression ']' { IdentifierArray $1 $3 }
     ;
 
-ExpressionLookup :: { Expression }
-    : Identifier    { ExpressionLookup $1 }
+Dotpath :: { [String] }
+    : word { [$1] }
+    | Dotpath '.' word { $1 ++ [$3] }
     ;
-
-ExpressionAssign :: { Expression }
-    : Identifier '=' NonterminatedExpression { ExpressionAssign $1 $3 }
-    ;
-
 {
 
 reportPos :: LexerPosition -> String
