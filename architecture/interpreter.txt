@@ -1,0 +1,12 @@
+
+The Compiler will create bytecode that contains explicit fork - join instructions.
+This bytecode is supposed to be executed in an interpreter that can create a lightweight context for
+each of these threadlets of execution, and map the threadlets on operating system threads.
+
+Synchronisation is done via those instructions in the bytecode and should ideally be something the programmer does not
+have to worry about.
+
+The programmer does have the option of expcicitly specifying wether an expression should be considered pure or impure
+by use of the pure and tained keywords. Tainted Expressions are never parallelised while pure expressions can be parallelised
+if they meet certain further criterias, like expected weight, or the number of pure expressions in a context exceed a certain
+number.

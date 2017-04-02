@@ -1,0 +1,12 @@
+
+This new language design will borrow heavily from haxe's 'everything is an expression' theme.
+
+As it was said on the tin, everything is an expression and can consequently be used in assignments, parameters
+and everything else.
+
+The only restriction is that some expressions will not return a value (void), because that would not make much sese.
+(What does a variable declaration return)
+
+The Language contains closures. They are used to determine which Expression should be viewed as tainted from where.
+
+The exact syntax can be taken from the Parser.y, but it should feel very similar to anyone familiar with haxe.

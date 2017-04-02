@@ -1,0 +1,12 @@
+
+Every expression has an associated taint level after taint checks.
+This level is either infinite, or it can be described using an integer.
+
+it can only become infinite if it is explicity tagged tainted by the programmer.
+
+An expression is consideret pure and therefore parallelizable if it has a taint level of 0.
+
+The taint level of any exrpession with a integral taint level describes the n'th parent context the expression modifies.
+
+Therefore the taint level of an expression can be calculated as the maximum of the write access to parent levels of itself
+and the taint levels of all subexpressions (in the case of blocks or arithmetic or anything of the likes)
