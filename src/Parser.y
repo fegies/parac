@@ -30,6 +30,7 @@ import Tokens
     '}'       { ( pos, TokenCBClose ) }
     '['       { ( pos, TokenSBOpen ) }
     ']'       { ( pos, TokenSBClose ) }
+    '\\'      { ( pos, TokenBackslash ) }
     '='       { ( pos, TokenAssign ) }
     "=="      { ( pos, TokenCompEq ) }
     "!="      { ( pos, TokenCompNeq ) }
@@ -54,6 +55,7 @@ import Tokens
     tainted   { ( pos, (TokenTainted ) ) }
     pure      { ( pos, (TokenPure) ) }
 
+%nonassoc '\\'
 %nonassoc pure tainted
 %nonassoc '{' '}'
 %nonassoc return
@@ -186,10 +188,15 @@ ExpressionVarDeclaration :: { Expression }
     : var Declarator { ExpressionVarDeclaration $2 EmptyExpression }
     ;
 
+ExpressionFunctionDeclaration :: { Expression }
+    : function word '(' DeclaratorList ')' Expression { ExpressionNamedFunctionDeclaration $2 $4 $6 }
+    | function '(' DeclaratorList ')' Expression { ExpressionAnonFunctionDeclaration $3 $5 }
+    | '\\' DeclaratorList "->" Expression { ExpressionAnonFunctionDeclaration $2 $4 }
+    ;
+
 ExpressionDeclaration :: { Expression }
     : ExpressionVarDeclaration { $1 }
-    | function word '(' DeclaratorList ')' Expression { ExpressionNamedFunctionDeclaration $2 $4 $6 }
-    | function '(' DeclaratorList ')' Expression { ExpressionAnonFunctionDeclaration $3 $5 }
+    | ExpressionFunctionDeclaration { $1 }
     | typedef word '{' DeclarationList '}' { ExpressionTypedefDeclaration $2 $4 }
     ;
 

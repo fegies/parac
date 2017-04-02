@@ -22,6 +22,7 @@ tokens :-
   "typedef"       { \p s -> ( toPos p , TokenTypedef ) }
   new             { \p s -> ( toPos p , TokenNew ) }
   load            { \p s -> ( toPos p , TokenLoad ) }
+  \\              { \p s -> ( toPos p , TokenBackslash ) }
   \;              { \p s -> ( toPos p , TokenSemicolon ) }
   \(              { \p s -> ( toPos p , TokenRBOpen ) }
   \)              { \p s -> ( toPos p , TokenRBClose ) }

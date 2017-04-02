@@ -18,6 +18,7 @@ data Token
     | TokenReturn
     | TokenNew
     | TokenLoad
+    | TokenBackslash
     | TokenSemicolon --Symbols
     | TokenColon
     | TokenComma
