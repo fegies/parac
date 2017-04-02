@@ -66,3 +66,34 @@ data Declarator
 getExpVarDecDecl :: Expression -> Declarator
 getExpVarDecDecl (ExpressionVarDeclaration a _) = a
 getExpVarDecDecl _ = error "this is supposed to be used inside the parser."
+
+
+--applys the function to the subexpressions of an expression, but NOT to the expression itself
+astApply :: Expression -> (Expression -> Expression) -> Expression
+astApply (ExpressionReturn e) f = ExpressionReturn $ f e
+astApply (ExpressionAssign i e) f = ExpressionAssign i $ f e
+astApply (ExpressionFunctionCall e l) f = ExpressionFunctionCall (f e) (map f l)
+astApply (ExpressionBlock b) f = ExpressionBlock $ map f b
+astApply (ExpressionVarDeclaration d e) f = ExpressionVarDeclaration d $ f e
+astApply (ExpressionNamedFunctionDeclaration s d1 d2 e) f = ExpressionNamedFunctionDeclaration s d1 d2 $ f e
+astApply (ExpressionAnonFunctionDeclaration d t e) f = ExpressionAnonFunctionDeclaration d t $ f e
+astApply (ExpressionIf e1 e2 e3) f = ExpressionIf (f e1) (f e2) (f e3)
+astApply (ExpressionWhile e1 e2) f = ExpressionWhile (f e1) (f e2)
+astApply (ExpressionArithPlus e1 e2) f = ExpressionArithPlus (f e1) (f e2)
+astApply (ExpressionArithMinus e1 e2) f = ExpressionArithMinus (f e1) (f e2)
+astApply (ExpressionArithMul e1 e2) f = ExpressionArithDiv (f e1) (f e2)
+astApply (ExpressionArithDiv e1 e2) f = ExpressionArithDiv (f e1) (f e2)
+astApply (ExpressionArithMod e1 e2) f = ExpressionArithMod (f e1) (f e2)
+astApply (ExpressionInc e) f = ExpressionInc $ f e
+astApply (ExpressionDec e) f = ExpressionDec $ f e
+astApply (ExpressionNot e) f = ExpressionNot $ f e
+astApply (ExpressionAnd e1 e2) f = ExpressionAnd (f e1) (f e2)
+astApply (ExpressionOr e1 e2) f = ExpressionOr (f e1) (f e2)
+astApply (ExpressionEq e1 e2) f = ExpressionEq (f e1) (f e2)
+astApply (ExpressionNeq e1 e2) f = ExpressionNeq (f e1) (f e2)
+astApply (ExpressionLeq e1 e2) f = ExpressionLeq (f e1) (f e2)
+astApply (ExpressionLt e1 e2) f = ExpressionLt (f e1) (f e2)
+astApply (ExpressionGt e1 e2) f = ExpressionGt (f e1) (f e2)
+astApply (ExpressionGeq e1 e2) f = ExpressionGeq (f e1) (f e2)
+astApply (SESetExpression p e) f = SESetExpression p $ f e
+astApply e _ = e
