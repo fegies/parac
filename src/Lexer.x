@@ -17,7 +17,7 @@ tokens :-
   else            { \p s -> ( toPos p , TokenElse ) }
   while           { \p s -> ( toPos p , TokenWhile ) }
   return          { \p s -> ( toPos p , TokenReturn ) }
-  var             { \p s -> ( toPos p , TokenVar s) }
+  var             { \p s -> ( toPos p , TokenVar) }
   function        { \p s -> ( toPos p , TokenFunction ) }
   "typedef"       { \p s -> ( toPos p , TokenTypedef ) }
   new             { \p s -> ( toPos p , TokenNew ) }
@@ -36,6 +36,7 @@ tokens :-
   "<="            { \p s -> ( toPos p , TokenCompLeq ) }
   "&&"            { \p s -> ( toPos p , TokenLogicAnd ) }
   "||"            { \p s -> ( toPos p , TokenLogicOr ) }
+  "->"            { \p s -> ( toPos p , TokenRightarrow ) }
   \>              { \p s -> ( toPos p , TokenCompGt ) }
   \<              { \p s -> ( toPos p , TokenCompLt ) }
   \+              { \p s -> ( toPos p , TokenArithPlus ) }
@@ -47,6 +48,7 @@ tokens :-
   "--"            { \p s -> ( toPos p , TokenArithDec ) }
   \,              { \p s -> ( toPos p , TokenComma ) }
   \.              { \p s -> ( toPos p , TokenDot ) }
+  \:              { \p s -> ( toPos p , TokenColon ) }
   \".+\"          { \p s -> ( toPos p , TokenStringLit $ reverse . tail . reverse . tail $ s ) }
   \!              { \p s -> ( toPos p , TokenLogicNot ) }
   pure            { \p s -> ( toPos p , TokenPure ) }

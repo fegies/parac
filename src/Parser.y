@@ -19,8 +19,9 @@ import Tokens
     load      { ( pos, TokenLoad ) }
     typedef   { ( pos, TokenTypedef ) }
     new       { ( pos, TokenNew ) }
-    var       { ( pos, TokenVar $$) }
+    var       { ( pos, TokenVar) }
     ';'       { ( pos, TokenSemicolon) }
+    ':'       { ( pos, TokenColon) }
     ','       { ( pos, TokenComma ) }
     '.'       { ( pos, TokenDot ) }
     '('       { ( pos, TokenRBOpen ) }
@@ -46,6 +47,7 @@ import Tokens
     "&&"      { ( pos, TokenLogicAnd ) }
     "||"      { ( pos, TokenLogicOr ) }
     '!'       { ( pos, TokenLogicNot ) }
+    "->"      { ( pos, TokenRightarrow ) }
     int       { ( pos, (TokenInt $$) ) }
     word      { ( pos, (TokenWord $$) ) }
     stringlit { ( pos, (TokenStringLit $$) ) }
@@ -164,26 +166,36 @@ ExpressionConstant :: { Expression }
 
 ExpressionAssign :: { Expression }
     : Identifier '=' Expression { ExpressionAssign $1 $3 }
+    | ExpressionVarDeclaration '=' Expression { ExpressionVarDeclaration (getExpVarDecDecl $1) $3 }
 
 ExpressionLookup :: { Expression }
     : Identifier { ExpressionLookup $1 }
     ;
 
+Declarator :: { Declarator }
+    : word { DeclaratorName $1 }
+    | word ':' word { DeclaratorTyped $1 $3 }
+    ;
+
+DeclaratorList :: { [Declarator] }
+    : Declarator { [$1] }
+    | DeclaratorList ',' Declarator { $1 ++ [$3] }
+    ;
+
+ExpressionVarDeclaration :: { Expression }
+    : var Declarator { ExpressionVarDeclaration $2 EmptyExpression }
+    ;
+
 ExpressionDeclaration :: { Expression }
-    : var word { ExpressionVarDeclaration $2 }
-    | function word '(' WordList ')' Expression { ExpressionNamedFunctionDeclaration $2 $4 $6 }
-    | function '(' WordList ')' Expression { ExpressionAnonFunctionDeclaration $3 $5 }
+    : ExpressionVarDeclaration { $1 }
+    | function word '(' DeclaratorList ')' Expression { ExpressionNamedFunctionDeclaration $2 $4 $6 }
+    | function '(' DeclaratorList ')' Expression { ExpressionAnonFunctionDeclaration $3 $5 }
     | typedef word '{' DeclarationList '}' { ExpressionTypedefDeclaration $2 $4 }
     ;
 
 DeclarationList :: { [Expression] }
     : ExpressionDeclaration ';' { [$1] }
     | DeclarationList ExpressionDeclaration ';' { $1 ++ [$2] }
-    ;
-
-WordList :: { [String] }
-    : word { [$1] }
-    | WordList ',' word { $1 ++ [$3] }
     ;
 
 Identifier :: { Identifier }

@@ -14,11 +14,12 @@ data Token
     | TokenWhile
     | TokenFunction
     | TokenTypedef
-    | TokenVar String
+    | TokenVar
     | TokenReturn
     | TokenNew
     | TokenLoad
     | TokenSemicolon --Symbols
+    | TokenColon
     | TokenComma
     | TokenRBOpen --round brace
     | TokenRBClose
@@ -26,6 +27,7 @@ data Token
     | TokenCBClose
     | TokenSBOpen --square brackets
     | TokenSBClose
+    | TokenRightarrow
     | TokenAssign
     | TokenDot
     | TokenInt Integer

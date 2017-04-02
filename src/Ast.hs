@@ -12,10 +12,11 @@ data Expression
 
     | ExpressionBlock [Expression]
 
-    | ExpressionVarDeclaration String
-    | ExpressionNamedFunctionDeclaration String [String] Expression
+    --the expression is the value to initialize it to
+    | ExpressionVarDeclaration Declarator Expression
+    | ExpressionNamedFunctionDeclaration String [Declarator] Expression
     | ExpressionTypedefDeclaration String [Expression]
-    | ExpressionAnonFunctionDeclaration [String] Expression
+    | ExpressionAnonFunctionDeclaration [Declarator] Expression
 
     | ExpressionIf Expression Expression Expression
     | ExpressionWhile Expression Expression
@@ -54,3 +55,12 @@ data Constant
     = ConstantInt Integer
     | ConstantString String
     deriving (Show)
+
+data Declarator
+    = DeclaratorName String
+    | DeclaratorTyped String String
+    deriving (Show)
+
+getExpVarDecDecl :: Expression -> Declarator
+getExpVarDecDecl (ExpressionVarDeclaration a _) = a
+getExpVarDecDecl _ = error "this is supposed to be used inside the parser."
