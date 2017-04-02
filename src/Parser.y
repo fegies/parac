@@ -55,7 +55,7 @@ import Tokens
     tainted   { ( pos, (TokenTainted ) ) }
     pure      { ( pos, (TokenPure) ) }
 
-%nonassoc '\\'
+%nonassoc BACKSLASHDECL
 %nonassoc pure tainted
 %nonassoc '{' '}'
 %nonassoc return
@@ -188,10 +188,15 @@ ExpressionVarDeclaration :: { Expression }
     : var Declarator { ExpressionVarDeclaration $2 EmptyExpression }
     ;
 
+FunctionTypeDeclarator :: { TypeDeclaration }
+    : {-- empty --} { [] }
+    | ':' word { $2 }
+    ;
+
 ExpressionFunctionDeclaration :: { Expression }
-    : function word '(' DeclaratorList ')' Expression { ExpressionNamedFunctionDeclaration $2 $4 $6 }
-    | function '(' DeclaratorList ')' Expression { ExpressionAnonFunctionDeclaration $3 $5 }
-    | '\\' DeclaratorList "->" Expression { ExpressionAnonFunctionDeclaration $2 $4 }
+    : function word '(' DeclaratorList ')' FunctionTypeDeclarator Expression { ExpressionNamedFunctionDeclaration $2 $4 $6 $7 }
+    | function '(' DeclaratorList ')' FunctionTypeDeclarator Expression { ExpressionAnonFunctionDeclaration $3 $5 $6 }
+    | '\\' '(' DeclaratorList ')' "->" Expression %prec BACKSLASHDECL{ ExpressionAnonFunctionDeclaration $3 [] $6 }
     ;
 
 ExpressionDeclaration :: { Expression }

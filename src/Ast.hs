@@ -14,9 +14,9 @@ data Expression
 
     --the expression is the value to initialize it to
     | ExpressionVarDeclaration Declarator Expression
-    | ExpressionNamedFunctionDeclaration String [Declarator] Expression
+    | ExpressionNamedFunctionDeclaration String [Declarator] TypeDeclaration Expression
     | ExpressionTypedefDeclaration String [Expression]
-    | ExpressionAnonFunctionDeclaration [Declarator] Expression
+    | ExpressionAnonFunctionDeclaration [Declarator] TypeDeclaration Expression
 
     | ExpressionIf Expression Expression Expression
     | ExpressionWhile Expression Expression
@@ -45,6 +45,8 @@ data Expression
     | SESetExpression Bool Expression
     deriving (Show)
 
+type TypeDeclaration = String
+
 data Identifier
     = IdentifierName String
     | IdentifierObjMember Identifier String
@@ -58,7 +60,7 @@ data Constant
 
 data Declarator
     = DeclaratorName String
-    | DeclaratorTyped String String
+    | DeclaratorTyped String TypeDeclaration
     deriving (Show)
 
 getExpVarDecDecl :: Expression -> Declarator
