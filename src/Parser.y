@@ -80,8 +80,15 @@ Program :: { Expression }
     ;
 
 ExpressionSequence :: { [Expression] }
-    : Expression ';'    { [$1] }
-    | ExpressionSequence Expression ';' { $1 ++ [$2] }
+    : OtherExpression ';'    { [$1] }
+    | ExpressionSequence OtherExpression ';' { $1 ++ [$2] }
+    | OptionalSemicolonExpression ExpressionTerminator { [$1] }
+    | ExpressionSequence OptionalSemicolonExpression ExpressionTerminator { $1 ++ [$2] }
+    ;
+
+ExpressionTerminator :: { () }
+    : ';'   { () }
+    | error { () }
     ;
 
 ExpressionList :: { [Expression] }
@@ -90,8 +97,18 @@ ExpressionList :: { [Expression] }
     ;
 
 Expression :: { Expression }
+    : OptionalSemicolonExpression { $1 }
+    | OtherExpression { $1 }
+    ;
+
+OptionalSemicolonExpression :: { Expression }
+    : '{' ExpressionSequence '}' { ExpressionBlock $2 }
+    | ExpressionIf { $1 }
+    | ExpressionLoop { $1 }
+    ;
+
+OtherExpression :: { Expression }
     : '(' Expression ')' { $2 }
-    | '{' ExpressionSequence '}' { ExpressionBlock $2 }
     | Expression '(' ExpressionList ')' { ExpressionFunctionCall $1 $3 }
     | pure Expression { SESetExpression True $2 }
     | tainted Expression { SESetExpression False $2 }
@@ -99,9 +116,7 @@ Expression :: { Expression }
     | return Expression { ExpressionReturn $2 }
     | new word { ExpressionNew $2 }
     | ExpressionArith { $1 }
-    | ExpressionIf { $1 }
     | ExpressionLookup { $1 }
-    | ExpressionLoop { $1 }
     | ExpressionAssign { $1 }
     | ExpressionDeclaration { $1 }
     | ExpressionConstant { $1 }
