@@ -1,4 +1,4 @@
-module Desugar(desugar) where
+module Normalise.Desugar(desugar) where
 
 import Ast
 

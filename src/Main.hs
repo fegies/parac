@@ -1,7 +1,7 @@
 module Main where
 import Lexer
 import Parser
-import Desugar
+import Normalise.Desugar
 import System.Environment
 import Hexdump
 import qualified Data.ByteString.Lazy as BL
