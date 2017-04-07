@@ -165,7 +165,7 @@ ExpressionComp :: { Expression }
     ;
 
 ExpressionConstant :: { Expression }
-    : int { (TypeName "String", UnknownPurity, ExpressionConstant $ ConstantInt $1) }
+    : int { (TypeName "Int", UnknownPurity, ExpressionConstant $ ConstantInt $1) }
     | stringlit { (TypeName "String", UnknownPurity, ExpressionConstant $ ConstantString $1) }
     | true { (TypeName "Bool", UnknownPurity, ExpressionConstant $ ConstantBool True) }
     | false { (TypeName "Bool", UnknownPurity, ExpressionConstant $ ConstantBool False) }
