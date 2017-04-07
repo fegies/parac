@@ -56,6 +56,7 @@ data Identifier
 data Constant
     = ConstantInt Integer
     | ConstantString String
+    | ConstantBool Bool
     deriving (Show)
 
 data Declarator
@@ -81,7 +82,7 @@ astApply (ExpressionIf e1 e2 e3) f = ExpressionIf (f e1) (f e2) (f e3)
 astApply (ExpressionWhile e1 e2) f = ExpressionWhile (f e1) (f e2)
 astApply (ExpressionArithPlus e1 e2) f = ExpressionArithPlus (f e1) (f e2)
 astApply (ExpressionArithMinus e1 e2) f = ExpressionArithMinus (f e1) (f e2)
-astApply (ExpressionArithMul e1 e2) f = ExpressionArithDiv (f e1) (f e2)
+astApply (ExpressionArithMul e1 e2) f = ExpressionArithMul (f e1) (f e2)
 astApply (ExpressionArithDiv e1 e2) f = ExpressionArithDiv (f e1) (f e2)
 astApply (ExpressionArithMod e1 e2) f = ExpressionArithMod (f e1) (f e2)
 astApply (ExpressionInc e) f = ExpressionInc $ f e
