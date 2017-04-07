@@ -17,6 +17,8 @@ tokens :-
   else            { \p s -> ( toPos p , TokenElse ) }
   while           { \p s -> ( toPos p , TokenWhile ) }
   return          { \p s -> ( toPos p , TokenReturn ) }
+  true            { \p s -> ( toPos p , TokenTrue ) }
+  false           { \p s -> ( toPos p , TokenFalse ) }
   var             { \p s -> ( toPos p , TokenVar) }
   function        { \p s -> ( toPos p , TokenFunction ) }
   "typedef"       { \p s -> ( toPos p , TokenTypedef ) }

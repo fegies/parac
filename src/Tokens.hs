@@ -11,6 +11,8 @@ type LexerPosition = (
 data Token
     = TokenIf -- Keywords
     | TokenElse
+    | TokenTrue
+    | TokenFalse
     | TokenWhile
     | TokenFunction
     | TokenTypedef

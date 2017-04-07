@@ -20,6 +20,8 @@ import Tokens
     typedef   { ( pos, TokenTypedef ) }
     new       { ( pos, TokenNew ) }
     var       { ( pos, TokenVar) }
+    true      { ( pos, TokenTrue) }
+    false     { ( pos, TokenFalse) }
     ';'       { ( pos, TokenSemicolon) }
     ':'       { ( pos, TokenColon) }
     ','       { ( pos, TokenComma ) }
@@ -164,6 +166,8 @@ ExpressionComp :: { Expression }
 ExpressionConstant :: { Expression }
     : int { ExpressionConstant $ ConstantInt $1 }
     | stringlit { ExpressionConstant $ ConstantString $1 }
+    | true { ExpressionConstant $ ConstantBool True }
+    | false { ExpressionConstant $ ConstantBool False }
     ;
 
 ExpressionAssign :: { Expression }
