@@ -203,7 +203,7 @@ FunctionTypeDeclarator :: { TypeDeclaration }
 ExpressionFunctionDeclaration :: { Expression }
     : function word '(' DeclaratorList ')' FunctionTypeDeclarator Expression { liftAst (ExpressionNamedFunctionDeclaration $2 $4 $6 $7) }
     | function '(' DeclaratorList ')' FunctionTypeDeclarator Expression { liftAst (ExpressionAnonFunctionDeclaration $3 $5 $6) }
-    | '\\' '(' DeclaratorList ')' "->" Expression %prec BACKSLASHDECL{ liftAst (ExpressionAnonFunctionDeclaration $3 [] $6) }
+    | '\\' DeclaratorList "->" Expression %prec BACKSLASHDECL{ liftAst (ExpressionAnonFunctionDeclaration $2 [] $4) }
     ;
 
 ExpressionDeclaration :: { Expression }

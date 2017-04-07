@@ -25,7 +25,7 @@ interpretFile f = do
     let tokens = lexer s
     let ast = parse tokens
     let desugaredAst = desugar ast
-    let normast = "normaliseAst ast"
+    let normast = "normaliseAst desugaredAst"
     let instr = "transformToInstructions normast"
     let bytecode = "toByecode instr"
 
