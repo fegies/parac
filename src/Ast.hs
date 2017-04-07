@@ -51,6 +51,7 @@ type TypeDeclaration = String
 
 data ExprType
     = UnknownType
+    | TypeVoid
     | TypeName String
     deriving (Show)
 

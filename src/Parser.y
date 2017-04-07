@@ -175,7 +175,7 @@ ExpressionConstant :: { Expression }
 ExpressionAssign :: { Expression }
     : Identifier '=' Expression { (UnknownType, UnknownPurity, ExpressionAssign $1 $3) }
     | ExpressionVarDeclaration '=' Expression { (\(_,_,ExpressionVarDeclaration d _) e
-        -> (TypeName "Void", UnknownPurity, ExpressionVarDeclaration d e))  $1 $3 }
+        -> (TypeVoid, UnknownPurity, ExpressionVarDeclaration d e))  $1 $3 }
 
 ExpressionLookup :: { Expression }
     : Identifier { (UnknownType, UnknownPurity, ExpressionLookup $1) }
@@ -192,7 +192,7 @@ DeclaratorList :: { [Declarator] }
     ;
 
 ExpressionVarDeclaration :: { Expression }
-    : var Declarator { (TypeName "Void", UnknownPurity, ExpressionVarDeclaration $2 emptyExpression) }
+    : var Declarator { (TypeVoid, UnknownPurity, ExpressionVarDeclaration $2 emptyExpression) }
     ;
 
 FunctionTypeDeclarator :: { TypeDeclaration }
