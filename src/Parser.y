@@ -83,7 +83,7 @@ import Tokens
 
 
 Program :: { Expression }
-    : ExpressionSequence { (UnknownType, UnknownPurity, ExpressionBlock $1) }
+    : ExpressionSequence { liftAst (ExpressionBlock $1) }
     ;
 
 ExpressionSequence :: { [Expression] }
@@ -109,19 +109,19 @@ Expression :: { Expression }
     ;
 
 OptionalSemicolonExpression :: { Expression }
-    : '{' ExpressionSequence '}' { (UnknownType, UnknownPurity, ExpressionBlock $2) }
+    : '{' ExpressionSequence '}' { liftAst (ExpressionBlock $2) }
     | ExpressionIf { $1 }
     | ExpressionLoop { $1 }
     ;
 
 OtherExpression :: { Expression }
     : '(' Expression ')' { $2 }
-    | Expression '(' ExpressionList ')' { (UnknownType, UnknownPurity, ExpressionFunctionCall $1 $3) }
+    | Expression '(' ExpressionList ')' { liftAst (ExpressionFunctionCall $1 $3) }
     | pure Expression { (\(t,_,e) -> (t, TaintLevel 0, e)) $2 }
     | tainted Expression { (\(t,_,e) -> (t, InfiniteTaint,e)) $2 }
-    | load Dotpath { (UnknownType, UnknownPurity, ExpressionLoad (init $2) (last $2)) }
-    | return Expression { (UnknownType, UnknownPurity, ExpressionReturn $2) }
-    | new word { (UnknownType, UnknownPurity, ExpressionNew $2) }
+    | load Dotpath { liftAst (ExpressionLoad (init $2) (last $2)) }
+    | return Expression { liftAst (ExpressionReturn $2) }
+    | new word { liftAst (ExpressionNew $2) }
     | ExpressionArith { $1 }
     | ExpressionLookup { $1 }
     | ExpressionAssign { $1 }
@@ -135,33 +135,33 @@ Condition :: { Expression }
     ;
 
 ExpressionIf :: { Expression }
-    : if Condition Expression else Expression { (UnknownType, UnknownPurity, ExpressionIf $2 $3 $5) }
-    | if Condition Expression { (UnknownType, UnknownPurity, ExpressionIf $2 $3 emptyExpression) }
+    : if Condition Expression else Expression { liftAst (ExpressionIf $2 $3 $5) }
+    | if Condition Expression { liftAst (ExpressionIf $2 $3 emptyExpression) }
     ;
 
 ExpressionLoop :: { Expression }
-    : while Condition Expression { (UnknownType, UnknownPurity, ExpressionWhile $2 $3) }
+    : while Condition Expression { liftAst (ExpressionWhile $2 $3) }
 
 ExpressionArith :: { Expression }
-    : Expression '*' Expression { (UnknownType, UnknownPurity, ExpressionArithMul $1 $3) }
-    | Expression '/' Expression { (UnknownType, UnknownPurity, ExpressionArithDiv $1 $3) }
-    | Expression '+' Expression { (UnknownType, UnknownPurity, ExpressionArithPlus $1 $3) }
-    | Expression '-' Expression { (UnknownType, UnknownPurity, ExpressionArithMinus $1 $3) }
-    | Expression '%' Expression { (UnknownType, UnknownPurity, ExpressionArithMod $1 $3) }
-    | Expression "++" { (UnknownType, UnknownPurity, ExpressionInc $1) }
-    | Expression "--" { (UnknownType, UnknownPurity, ExpressionDec $1) }
-    | '!' Expression { (UnknownType, UnknownPurity, ExpressionNot $2) }
-    | Expression "&&" Expression { (UnknownType, UnknownPurity, ExpressionAnd $1 $3) }
-    | Expression "||" Expression { (UnknownType, UnknownPurity, ExpressionOr $1 $3) }
+    : Expression '*' Expression { liftAst (ExpressionArithMul $1 $3) }
+    | Expression '/' Expression { liftAst (ExpressionArithDiv $1 $3) }
+    | Expression '+' Expression { liftAst (ExpressionArithPlus $1 $3) }
+    | Expression '-' Expression { liftAst (ExpressionArithMinus $1 $3) }
+    | Expression '%' Expression { liftAst (ExpressionArithMod $1 $3) }
+    | Expression "++" { liftAst (ExpressionInc $1) }
+    | Expression "--" { liftAst (ExpressionDec $1) }
+    | '!' Expression { liftAst (ExpressionNot $2) }
+    | Expression "&&" Expression { liftAst (ExpressionAnd $1 $3) }
+    | Expression "||" Expression { liftAst (ExpressionOr $1 $3) }
     ;
 
 ExpressionComp :: { Expression }
-    : Expression "==" Expression { (UnknownType, UnknownPurity, ExpressionEq $1 $3) }
-    | Expression "!=" Expression { (UnknownType, UnknownPurity, ExpressionNeq $1 $3) }
-    | Expression '<' Expression { (UnknownType, UnknownPurity, ExpressionLt $1 $3) }
-    | Expression "<=" Expression { (UnknownType, UnknownPurity, ExpressionLeq $1 $3) }
-    | Expression '>' Expression { (UnknownType, UnknownPurity, ExpressionGt $1 $3) }
-    | Expression ">=" Expression { (UnknownType, UnknownPurity, ExpressionGeq $1 $3) }
+    : Expression "==" Expression { liftAst (ExpressionEq $1 $3) }
+    | Expression "!=" Expression { liftAst (ExpressionNeq $1 $3) }
+    | Expression '<' Expression { liftAst (ExpressionLt $1 $3) }
+    | Expression "<=" Expression { liftAst (ExpressionLeq $1 $3) }
+    | Expression '>' Expression { liftAst (ExpressionGt $1 $3) }
+    | Expression ">=" Expression { liftAst (ExpressionGeq $1 $3) }
     ;
 
 ExpressionConstant :: { Expression }
@@ -173,12 +173,12 @@ ExpressionConstant :: { Expression }
     ;
 
 ExpressionAssign :: { Expression }
-    : Identifier '=' Expression { (UnknownType, UnknownPurity, ExpressionAssign $1 $3) }
+    : Identifier '=' Expression { liftAst (ExpressionAssign $1 $3) }
     | ExpressionVarDeclaration '=' Expression { (\(_,_,ExpressionVarDeclaration d _) e
         -> (TypeVoid, UnknownPurity, ExpressionVarDeclaration d e))  $1 $3 }
 
 ExpressionLookup :: { Expression }
-    : Identifier { (UnknownType, UnknownPurity, ExpressionLookup $1) }
+    : Identifier { liftAst (ExpressionLookup $1) }
     ;
 
 Declarator :: { Declarator }
@@ -201,15 +201,15 @@ FunctionTypeDeclarator :: { TypeDeclaration }
     ;
 
 ExpressionFunctionDeclaration :: { Expression }
-    : function word '(' DeclaratorList ')' FunctionTypeDeclarator Expression { (UnknownType, UnknownPurity, ExpressionNamedFunctionDeclaration $2 $4 $6 $7) }
-    | function '(' DeclaratorList ')' FunctionTypeDeclarator Expression { (UnknownType, UnknownPurity, ExpressionAnonFunctionDeclaration $3 $5 $6) }
-    | '\\' '(' DeclaratorList ')' "->" Expression %prec BACKSLASHDECL{ (UnknownType, UnknownPurity, ExpressionAnonFunctionDeclaration $3 [] $6) }
+    : function word '(' DeclaratorList ')' FunctionTypeDeclarator Expression { liftAst (ExpressionNamedFunctionDeclaration $2 $4 $6 $7) }
+    | function '(' DeclaratorList ')' FunctionTypeDeclarator Expression { liftAst (ExpressionAnonFunctionDeclaration $3 $5 $6) }
+    | '\\' '(' DeclaratorList ')' "->" Expression %prec BACKSLASHDECL{ liftAst (ExpressionAnonFunctionDeclaration $3 [] $6) }
     ;
 
 ExpressionDeclaration :: { Expression }
     : ExpressionVarDeclaration { $1 }
     | ExpressionFunctionDeclaration { $1 }
-    | typedef word '{' DeclarationList '}' { (UnknownType, UnknownPurity, ExpressionTypedefDeclaration $2 $4) }
+    | typedef word '{' DeclarationList '}' { liftAst (ExpressionTypedefDeclaration $2 $4) }
     ;
 
 DeclarationList :: { [Expression] }

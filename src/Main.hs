@@ -24,7 +24,7 @@ interpretFile f = do
     s <- readFile f
     let tokens = lexer s
     let ast = parse tokens
-    let desugaredAst = "optimiseAst ast"
+    let desugaredAst = desugar ast
     let normast = "normaliseAst ast"
     let instr = "transformToInstructions normast"
     let bytecode = "toByecode instr"

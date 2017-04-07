@@ -4,6 +4,9 @@ type Expression = (ExprType, Taint, ExpressionBase)
 
 emptyExpression = (TypeName "Void", TaintLevel 0, EmptyExpression)
 
+liftAst :: ExpressionBase -> Expression
+liftAst a = (UnknownType, UnknownPurity, a)
+
 data ExpressionBase
     = EmptyExpression
     | ExpressionReturn Expression
@@ -110,3 +113,6 @@ astApplyBase (ExpressionLt e1 e2) f = ExpressionLt (f e1) (f e2)
 astApplyBase (ExpressionGt e1 e2) f = ExpressionGt (f e1) (f e2)
 astApplyBase (ExpressionGeq e1 e2) f = ExpressionGeq (f e1) (f e2)
 astApplyBase e _ = e
+
+constantAstInt :: Integer -> Expression
+constantAstInt a = (TypeName "Int", TaintLevel 0, ExpressionConstant . ConstantInt $ a)

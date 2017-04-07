@@ -1,14 +1,7 @@
 
 
-//this is a comment
+a++;
 
-/*
-This is another,
-this time multiline,
-comment
-*/
+b--;
 
-
-35f;
-
-0x3535;
+a + b++;
