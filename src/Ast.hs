@@ -57,6 +57,7 @@ data Constant
     = ConstantInt Integer
     | ConstantString String
     | ConstantBool Bool
+    | ConstantFloat Double
     deriving (Show)
 
 data Declarator

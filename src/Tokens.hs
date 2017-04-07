@@ -34,6 +34,7 @@ data Token
     | TokenAssign
     | TokenDot
     | TokenInt Integer
+    | TokenFloat Double
     | TokenCompEq
     | TokenCompNeq
     | TokenCompLeq

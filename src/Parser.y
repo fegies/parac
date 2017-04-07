@@ -52,6 +52,7 @@ import Tokens
     '!'       { ( pos, TokenLogicNot ) }
     "->"      { ( pos, TokenRightarrow ) }
     int       { ( pos, (TokenInt $$) ) }
+    float     { ( pos, (TokenFloat $$) ) }
     word      { ( pos, (TokenWord $$) ) }
     stringlit { ( pos, (TokenStringLit $$) ) }
     tainted   { ( pos, (TokenTainted ) ) }
@@ -168,6 +169,7 @@ ExpressionConstant :: { Expression }
     | stringlit { ExpressionConstant $ ConstantString $1 }
     | true { ExpressionConstant $ ConstantBool True }
     | false { ExpressionConstant $ ConstantBool False }
+    | float { ExpressionConstant $ ConstantFloat $1 }
     ;
 
 ExpressionAssign :: { Expression }
