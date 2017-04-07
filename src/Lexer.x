@@ -13,7 +13,7 @@ $alpha = [a-zA-Z]   -- alphabetic characters
 tokens :-
 
   $white+                   ;
-  \/\/.*\n                  ;
+  \/\/.*                    ;
   \/\*[.\n]*\*\/            ;
   if                        { \p s -> ( toPos p , TokenIf ) }
   else                      { \p s -> ( toPos p , TokenElse ) }

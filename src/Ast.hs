@@ -1,6 +1,10 @@
 module Ast where
 
-data Expression
+type Expression = (ExprType, Taint, ExpressionBase)
+
+emptyExpression = (TypeName "Void", TaintLevel 0, EmptyExpression)
+
+data ExpressionBase
     = EmptyExpression
     | ExpressionReturn Expression
     --the list represents the packages, and the last entry is the file
@@ -41,11 +45,20 @@ data Expression
 
     | ExpressionConstant Constant
 
-    --the bool is true if the Expression is pure
-    | SESetExpression Bool Expression
     deriving (Show)
 
 type TypeDeclaration = String
+
+data ExprType
+    = UnknownType
+    | TypeName String
+    deriving (Show)
+
+data Taint
+    = UnknownPurity
+    | InfiniteTaint
+    | TaintLevel Integer
+    deriving(Show)
 
 data Identifier
     = IdentifierName String
@@ -65,37 +78,34 @@ data Declarator
     | DeclaratorTyped String TypeDeclaration
     deriving (Show)
 
-getExpVarDecDecl :: Expression -> Declarator
-getExpVarDecDecl (ExpressionVarDeclaration a _) = a
-getExpVarDecDecl _ = error "this is supposed to be used inside the parser."
-
+astApply :: Expression -> (Expression -> Expression) -> Expression
+astApply (a,b,e) f = (a,b,astApplyBase e f)
 
 --applys the function to the subexpressions of an expression, but NOT to the expression itself
-astApply :: Expression -> (Expression -> Expression) -> Expression
-astApply (ExpressionReturn e) f = ExpressionReturn $ f e
-astApply (ExpressionAssign i e) f = ExpressionAssign i $ f e
-astApply (ExpressionFunctionCall e l) f = ExpressionFunctionCall (f e) (map f l)
-astApply (ExpressionBlock b) f = ExpressionBlock $ map f b
-astApply (ExpressionVarDeclaration d e) f = ExpressionVarDeclaration d $ f e
-astApply (ExpressionNamedFunctionDeclaration s d1 d2 e) f = ExpressionNamedFunctionDeclaration s d1 d2 $ f e
-astApply (ExpressionAnonFunctionDeclaration d t e) f = ExpressionAnonFunctionDeclaration d t $ f e
-astApply (ExpressionIf e1 e2 e3) f = ExpressionIf (f e1) (f e2) (f e3)
-astApply (ExpressionWhile e1 e2) f = ExpressionWhile (f e1) (f e2)
-astApply (ExpressionArithPlus e1 e2) f = ExpressionArithPlus (f e1) (f e2)
-astApply (ExpressionArithMinus e1 e2) f = ExpressionArithMinus (f e1) (f e2)
-astApply (ExpressionArithMul e1 e2) f = ExpressionArithMul (f e1) (f e2)
-astApply (ExpressionArithDiv e1 e2) f = ExpressionArithDiv (f e1) (f e2)
-astApply (ExpressionArithMod e1 e2) f = ExpressionArithMod (f e1) (f e2)
-astApply (ExpressionInc e) f = ExpressionInc $ f e
-astApply (ExpressionDec e) f = ExpressionDec $ f e
-astApply (ExpressionNot e) f = ExpressionNot $ f e
-astApply (ExpressionAnd e1 e2) f = ExpressionAnd (f e1) (f e2)
-astApply (ExpressionOr e1 e2) f = ExpressionOr (f e1) (f e2)
-astApply (ExpressionEq e1 e2) f = ExpressionEq (f e1) (f e2)
-astApply (ExpressionNeq e1 e2) f = ExpressionNeq (f e1) (f e2)
-astApply (ExpressionLeq e1 e2) f = ExpressionLeq (f e1) (f e2)
-astApply (ExpressionLt e1 e2) f = ExpressionLt (f e1) (f e2)
-astApply (ExpressionGt e1 e2) f = ExpressionGt (f e1) (f e2)
-astApply (ExpressionGeq e1 e2) f = ExpressionGeq (f e1) (f e2)
-astApply (SESetExpression p e) f = SESetExpression p $ f e
-astApply e _ = e
+astApplyBase :: ExpressionBase -> (Expression -> Expression) -> ExpressionBase
+astApplyBase (ExpressionReturn e) f = ExpressionReturn $ f e
+astApplyBase (ExpressionAssign i e) f = ExpressionAssign i $ f e
+astApplyBase (ExpressionFunctionCall e l) f = ExpressionFunctionCall (f e) (map f l)
+astApplyBase (ExpressionBlock b) f = ExpressionBlock $ map f b
+astApplyBase (ExpressionVarDeclaration d e) f = ExpressionVarDeclaration d $ f e
+astApplyBase (ExpressionNamedFunctionDeclaration s d1 d2 e) f = ExpressionNamedFunctionDeclaration s d1 d2 $ f e
+astApplyBase (ExpressionAnonFunctionDeclaration d t e) f = ExpressionAnonFunctionDeclaration d t $ f e
+astApplyBase (ExpressionIf e1 e2 e3) f = ExpressionIf (f e1) (f e2) (f e3)
+astApplyBase (ExpressionWhile e1 e2) f = ExpressionWhile (f e1) (f e2)
+astApplyBase (ExpressionArithPlus e1 e2) f = ExpressionArithPlus (f e1) (f e2)
+astApplyBase (ExpressionArithMinus e1 e2) f = ExpressionArithMinus (f e1) (f e2)
+astApplyBase (ExpressionArithMul e1 e2) f = ExpressionArithMul (f e1) (f e2)
+astApplyBase (ExpressionArithDiv e1 e2) f = ExpressionArithDiv (f e1) (f e2)
+astApplyBase (ExpressionArithMod e1 e2) f = ExpressionArithMod (f e1) (f e2)
+astApplyBase (ExpressionInc e) f = ExpressionInc $ f e
+astApplyBase (ExpressionDec e) f = ExpressionDec $ f e
+astApplyBase (ExpressionNot e) f = ExpressionNot $ f e
+astApplyBase (ExpressionAnd e1 e2) f = ExpressionAnd (f e1) (f e2)
+astApplyBase (ExpressionOr e1 e2) f = ExpressionOr (f e1) (f e2)
+astApplyBase (ExpressionEq e1 e2) f = ExpressionEq (f e1) (f e2)
+astApplyBase (ExpressionNeq e1 e2) f = ExpressionNeq (f e1) (f e2)
+astApplyBase (ExpressionLeq e1 e2) f = ExpressionLeq (f e1) (f e2)
+astApplyBase (ExpressionLt e1 e2) f = ExpressionLt (f e1) (f e2)
+astApplyBase (ExpressionGt e1 e2) f = ExpressionGt (f e1) (f e2)
+astApplyBase (ExpressionGeq e1 e2) f = ExpressionGeq (f e1) (f e2)
+astApplyBase e _ = e
