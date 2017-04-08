@@ -21,10 +21,15 @@ tokens :-
   return                    { \p s -> ( toPos p , TokenReturn ) }
   true                      { \p s -> ( toPos p , TokenTrue ) }
   false                     { \p s -> ( toPos p , TokenFalse ) }
+  extends                   { \p s -> ( toPos p , TokenExtends ) }
   var                       { \p s -> ( toPos p , TokenVar) }
   function                  { \p s -> ( toPos p , TokenFunction ) }
   "typedef"                 { \p s -> ( toPos p , TokenTypedef ) }
   new                       { \p s -> ( toPos p , TokenNew ) }
+  String                    { \p s -> ( toPos p , TokenStringType ) }
+  Int                       { \p s -> ( toPos p , TokenIntType ) }
+  Bool                      { \p s -> ( toPos p , TokenBoolType ) }
+  Float                     { \p s -> ( toPos p , TokenFloatType ) }
   load                      { \p s -> ( toPos p , TokenLoad ) }
   \\                        { \p s -> ( toPos p , TokenBackslash ) }
   \;                        { \p s -> ( toPos p , TokenSemicolon ) }

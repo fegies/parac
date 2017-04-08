@@ -1,11 +1,18 @@
-module Ast where
+module Ast.Expression where
 
-type Expression = (ExprType, Taint, ExpressionBase)
+import qualified Data.Map as Map
+import Tokens(LexerPosition)
+import Ast.Type
 
-emptyExpression = (TypeName "Void", TaintLevel 0, EmptyExpression)
+type Expression = (ExprType, CompilerInfo, ExpressionBase,LexerPosition)
 
-liftAst :: ExpressionBase -> Expression
-liftAst a = (UnknownType, UnknownPurity, a)
+unknownLexPos = (-1,-1,-1)
+emptyExpression = (TypeVoid, (TaintLevel 0, []), EmptyExpression, unknownLexPos)
+
+defaultCompilerinfo = (UnknownPurity,[])
+
+liftExpression :: ExpressionBase -> LexerPosition -> Expression
+liftExpression a p = (UnknownType, (UnknownPurity,[]), a, p)
 
 data ExpressionBase
     = EmptyExpression
@@ -21,9 +28,9 @@ data ExpressionBase
 
     --the expression is the value to initialize it to
     | ExpressionVarDeclaration Declarator Expression
-    | ExpressionNamedFunctionDeclaration String [Declarator] TypeDeclaration Expression
+    | ExpressionNamedFunctionDeclaration String [Declarator] ExprType Expression
     | ExpressionTypedefDeclaration String [Expression]
-    | ExpressionAnonFunctionDeclaration [Declarator] TypeDeclaration Expression
+    | ExpressionAnonFunctionDeclaration [Declarator] ExprType Expression
 
     | ExpressionIf Expression Expression Expression
     | ExpressionWhile Expression Expression
@@ -50,13 +57,12 @@ data ExpressionBase
 
     deriving (Show)
 
-type TypeDeclaration = String
+type CompilerInfo = (Taint,[Context])
 
-data ExprType
-    = UnknownType
-    | TypeVoid
-    | TypeName String
-    deriving (Show)
+type Context = Map.Map String ContextVarInfo
+
+    --type of the var, number of references
+type ContextVarInfo = (ExprType,Integer)
 
 data Taint
     = UnknownPurity
@@ -78,12 +84,16 @@ data Constant
     deriving (Show)
 
 data Declarator
-    = DeclaratorName String
-    | DeclaratorTyped String TypeDeclaration
+    = Declarator String ExprType
     deriving (Show)
 
+identifierApply :: Identifier -> (Expression -> Expression) -> Identifier
+identifierApply (IdentifierObjMember i s) f = IdentifierObjMember (identifierApply i f) s
+identifierApply (IdentifierArray i e) f = IdentifierArray (identifierApply i f) (f e)
+identifierApply a _ = a
+
 astApply :: Expression -> (Expression -> Expression) -> Expression
-astApply (a,b,e) f = (a,b,astApplyBase e f)
+astApply (a,b,e,p) f = (a,b,astApplyBase e f,p)
 
 --applys the function to the subexpressions of an expression, but NOT to the expression itself
 astApplyBase :: ExpressionBase -> (Expression -> Expression) -> ExpressionBase
@@ -91,6 +101,7 @@ astApplyBase (ExpressionReturn e) f = ExpressionReturn $ f e
 astApplyBase (ExpressionAssign i e) f = ExpressionAssign i $ f e
 astApplyBase (ExpressionFunctionCall e l) f = ExpressionFunctionCall (f e) (map f l)
 astApplyBase (ExpressionBlock b) f = ExpressionBlock $ map f b
+astApplyBase (ExpressionLookup i) f = ExpressionLookup $ identifierApply i f
 astApplyBase (ExpressionVarDeclaration d e) f = ExpressionVarDeclaration d $ f e
 astApplyBase (ExpressionNamedFunctionDeclaration s d1 d2 e) f = ExpressionNamedFunctionDeclaration s d1 d2 $ f e
 astApplyBase (ExpressionAnonFunctionDeclaration d t e) f = ExpressionAnonFunctionDeclaration d t $ f e
@@ -114,5 +125,8 @@ astApplyBase (ExpressionGt e1 e2) f = ExpressionGt (f e1) (f e2)
 astApplyBase (ExpressionGeq e1 e2) f = ExpressionGeq (f e1) (f e2)
 astApplyBase e _ = e
 
-constantAstInt :: Integer -> Expression
-constantAstInt a = (TypeName "Int", TaintLevel 0, ExpressionConstant . ConstantInt $ a)
+astConstant :: ExprType -> Constant -> Expression
+astConstant t a = (t, (TaintLevel 0,[]), ExpressionConstant a, unknownLexPos)
+
+setType :: ExprType -> Expression -> Expression
+setType nt (t,i,e,p) = (nt,i,e,p)

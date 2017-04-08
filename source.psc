@@ -1,7 +1,3 @@
 
 
-a++;
-
-b--;
-
-a + b++;
+function a( a : String ) : String return a;

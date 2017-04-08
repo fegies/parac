@@ -17,10 +17,15 @@ data Token
     | TokenFunction
     | TokenTypedef
     | TokenVar
+    | TokenExtends
     | TokenReturn
     | TokenNew
     | TokenLoad
     | TokenBackslash
+    | TokenStringType
+    | TokenIntType
+    | TokenBoolType
+    | TokenFloatType
     | TokenSemicolon --Symbols
     | TokenColon
     | TokenComma

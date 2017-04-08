@@ -1,6 +1,8 @@
 {
 module Parser (parse) where
-import Ast
+import Ast.Expression
+import Ast.Type
+import qualified Data.Map as Map
 import Tokens
 }
 
@@ -22,6 +24,7 @@ import Tokens
     var       { ( pos, TokenVar) }
     true      { ( pos, TokenTrue) }
     false     { ( pos, TokenFalse) }
+    extends   { ( pos, TokenExtends ) }
     ';'       { ( pos, TokenSemicolon) }
     ':'       { ( pos, TokenColon) }
     ','       { ( pos, TokenComma ) }
@@ -51,12 +54,16 @@ import Tokens
     "||"      { ( pos, TokenLogicOr ) }
     '!'       { ( pos, TokenLogicNot ) }
     "->"      { ( pos, TokenRightarrow ) }
-    int       { ( pos, (TokenInt $$) ) }
-    float     { ( pos, (TokenFloat $$) ) }
-    word      { ( pos, (TokenWord $$) ) }
-    stringlit { ( pos, (TokenStringLit $$) ) }
-    tainted   { ( pos, (TokenTainted ) ) }
-    pure      { ( pos, (TokenPure) ) }
+    "String"  { ( pos, TokenStringType ) }
+    "Int"     { ( pos, TokenIntType ) }
+    "Float"   { ( pos, TokenFloatType ) }
+    "Bool"    { ( pos, TokenBoolType ) }
+    int       { tok @( pos, TokenInt $$) }
+    float     { tok @( pos, TokenFloat $$) }
+    word      { tok @( pos, TokenWord $$) }
+    stringlit { tok @( pos, TokenStringLit $$) }
+    tainted   { ( pos, TokenTainted ) }
+    pure      { ( pos, TokenPure ) }
 
 %nonassoc BACKSLASHDECL
 %nonassoc pure tainted
@@ -83,7 +90,7 @@ import Tokens
 
 
 Program :: { Expression }
-    : ExpressionSequence { liftAst (ExpressionBlock $1) }
+    : ExpressionSequence { liftExpression (ExpressionBlock $1) (0,0,0) }
     ;
 
 ExpressionSequence :: { [Expression] }
@@ -109,19 +116,19 @@ Expression :: { Expression }
     ;
 
 OptionalSemicolonExpression :: { Expression }
-    : '{' ExpressionSequence '}' { liftAst (ExpressionBlock $2) }
+    : '{' ExpressionSequence '}' { liftExpression (ExpressionBlock $2) (getTokPos $1) }
     | ExpressionIf { $1 }
     | ExpressionLoop { $1 }
     ;
 
 OtherExpression :: { Expression }
     : '(' Expression ')' { $2 }
-    | Expression '(' ExpressionList ')' { liftAst (ExpressionFunctionCall $1 $3) }
-    | pure Expression { (\(t,_,e) -> (t, TaintLevel 0, e)) $2 }
-    | tainted Expression { (\(t,_,e) -> (t, InfiniteTaint,e)) $2 }
-    | load Dotpath { liftAst (ExpressionLoad (init $2) (last $2)) }
-    | return Expression { liftAst (ExpressionReturn $2) }
-    | new word { liftAst (ExpressionNew $2) }
+    | Expression '(' ExpressionList ')' { liftExpression (ExpressionFunctionCall $1 $3) (getExpPos $1)}
+    | pure Expression { (\(t,(_,i),e,p) -> (t, (TaintLevel 0,i), e,p)) $2 }
+    | tainted Expression { (\(t,(_,i),e,p) -> (t, (InfiniteTaint,i),e,p)) $2 }
+    | load Dotpath { liftExpression (ExpressionLoad (init $2) (last $2)) (getTokPos $1) }
+    | return Expression { liftExpression (ExpressionReturn $2) (getTokPos $1) }
+    | new word { liftExpression (ExpressionNew $2) (getTokPos $1) }
     | ExpressionArith { $1 }
     | ExpressionLookup { $1 }
     | ExpressionAssign { $1 }
@@ -135,55 +142,71 @@ Condition :: { Expression }
     ;
 
 ExpressionIf :: { Expression }
-    : if Condition Expression else Expression { liftAst (ExpressionIf $2 $3 $5) }
-    | if Condition Expression { liftAst (ExpressionIf $2 $3 emptyExpression) }
+    : if Condition Expression else Expression { liftExpression (ExpressionIf $2 $3 $5) (getTokPos $1) }
+    | if Condition Expression { liftExpression (ExpressionIf $2 $3 emptyExpression) (getTokPos $1) }
     ;
 
 ExpressionLoop :: { Expression }
-    : while Condition Expression { liftAst (ExpressionWhile $2 $3) }
+    : while Condition Expression { liftExpression (ExpressionWhile $2 $3) (getTokPos $1) }
 
 ExpressionArith :: { Expression }
-    : Expression '*' Expression { liftAst (ExpressionArithMul $1 $3) }
-    | Expression '/' Expression { liftAst (ExpressionArithDiv $1 $3) }
-    | Expression '+' Expression { liftAst (ExpressionArithPlus $1 $3) }
-    | Expression '-' Expression { liftAst (ExpressionArithMinus $1 $3) }
-    | Expression '%' Expression { liftAst (ExpressionArithMod $1 $3) }
-    | Expression "++" { liftAst (ExpressionInc $1) }
-    | Expression "--" { liftAst (ExpressionDec $1) }
-    | '!' Expression { liftAst (ExpressionNot $2) }
-    | Expression "&&" Expression { liftAst (ExpressionAnd $1 $3) }
-    | Expression "||" Expression { liftAst (ExpressionOr $1 $3) }
+    : Expression '*' Expression { liftExpression (ExpressionArithMul $1 $3) (getTokPos $2) }
+    | Expression '/' Expression { liftExpression (ExpressionArithDiv $1 $3) (getTokPos $2) }
+    | Expression '+' Expression { liftExpression (ExpressionArithPlus $1 $3) (getTokPos $2) }
+    | Expression '-' Expression { liftExpression (ExpressionArithMinus $1 $3) (getTokPos $2) }
+    | Expression '%' Expression { liftExpression (ExpressionArithMod $1 $3) (getTokPos $2) }
+    | ExpressionLookup "++" { liftExpression (ExpressionInc $1) (getTokPos $2) }
+    | ExpressionLookup "--" { liftExpression (ExpressionDec $1) (getTokPos $2) }
+    | '!' Expression { liftExpression (ExpressionNot $2) (getTokPos $1) }
+    | Expression "&&" Expression { liftExpression (ExpressionAnd $1 $3) (getTokPos $2) }
+    | Expression "||" Expression { liftExpression (ExpressionOr $1 $3) (getTokPos $2) }
     ;
 
 ExpressionComp :: { Expression }
-    : Expression "==" Expression { liftAst (ExpressionEq $1 $3) }
-    | Expression "!=" Expression { liftAst (ExpressionNeq $1 $3) }
-    | Expression '<' Expression { liftAst (ExpressionLt $1 $3) }
-    | Expression "<=" Expression { liftAst (ExpressionLeq $1 $3) }
-    | Expression '>' Expression { liftAst (ExpressionGt $1 $3) }
-    | Expression ">=" Expression { liftAst (ExpressionGeq $1 $3) }
+    : Expression "==" Expression { liftExpression (ExpressionEq $1 $3) (getTokPos $2) }
+    | Expression "!=" Expression { liftExpression (ExpressionNeq $1 $3) (getTokPos $2) }
+    | Expression '<' Expression { liftExpression (ExpressionLt $1 $3) (getTokPos $2) }
+    | Expression "<=" Expression { liftExpression (ExpressionLeq $1 $3) (getTokPos $2) }
+    | Expression '>' Expression { liftExpression (ExpressionGt $1 $3) (getTokPos $2) }
+    | Expression ">=" Expression { liftExpression (ExpressionGeq $1 $3) (getTokPos $2) }
     ;
 
 ExpressionConstant :: { Expression }
-    : int { (TypeName "Int", UnknownPurity, ExpressionConstant $ ConstantInt $1) }
-    | stringlit { (TypeName "String", UnknownPurity, ExpressionConstant $ ConstantString $1) }
-    | true { (TypeName "Bool", UnknownPurity, ExpressionConstant $ ConstantBool True) }
-    | false { (TypeName "Bool", UnknownPurity, ExpressionConstant $ ConstantBool False) }
-    | float { (TypeName "Float", UnknownPurity, ExpressionConstant $ ConstantFloat $1) }
+    : int { astConstant TypeInt $ ConstantInt $1 }
+    | stringlit { astConstant TypeString $ ConstantString $1 }
+    | true { astConstant TypeBool $ ConstantBool True }
+    | false { astConstant TypeBool $ ConstantBool False }
+    | float { astConstant TypeFloat $ ConstantFloat $1 }
     ;
 
 ExpressionAssign :: { Expression }
-    : Identifier '=' Expression { liftAst (ExpressionAssign $1 $3) }
-    | ExpressionVarDeclaration '=' Expression { (\(_,_,ExpressionVarDeclaration d _) e
-        -> (TypeVoid, UnknownPurity, ExpressionVarDeclaration d e))  $1 $3 }
+    : Identifier '=' Expression { liftExpression (ExpressionAssign $1 $3) (getTokPos $2)}
+    | ExpressionVarDeclaration '=' Expression { (\(_,_,ExpressionVarDeclaration d _, p) e
+        -> (TypeVoid, defaultCompilerinfo, ExpressionVarDeclaration d e, p))  $1 $3 }
 
 ExpressionLookup :: { Expression }
-    : Identifier { liftAst (ExpressionLookup $1) }
+    : Identifier { liftExpression (ExpressionLookup $1) (unknownLexPos)}
+    ;
+
+TypeDeclaration :: { ExprType }
+    : "String" { TypeString }
+    | "Int" { TypeInt }
+    | "Float" { TypeFloat }
+    | "Bool" { TypeBool }
+    | '[' TypeDeclaration ']' { TypeArray $2 }
+    | '{' DeclaratorList '}' { TypeTypedef . decllistToMap $ $2 }
+    | '(' ArrowSeparetedList ')' { TypeFunction $2 }
+    | word { TypeUnresolved $1 }
+    ;
+
+ArrowSeparetedList :: { [ExprType] }
+    : TypeDeclaration { [$1] }
+    | ArrowSeparetedList "->" TypeDeclaration { $1 ++ [$3] }
     ;
 
 Declarator :: { Declarator }
-    : word { DeclaratorName $1 }
-    | word ':' word { DeclaratorTyped $1 $3 }
+    : word { Declarator $1 UnknownType }
+    | word ':' TypeDeclaration { Declarator $1 $3 }
     ;
 
 DeclaratorList :: { [Declarator] }
@@ -192,24 +215,33 @@ DeclaratorList :: { [Declarator] }
     ;
 
 ExpressionVarDeclaration :: { Expression }
-    : var Declarator { (TypeVoid, UnknownPurity, ExpressionVarDeclaration $2 emptyExpression) }
+    : var Declarator { (TypeVoid, defaultCompilerinfo, ExpressionVarDeclaration $2 emptyExpression, getTokPos $1) }
     ;
 
-FunctionTypeDeclarator :: { TypeDeclaration }
-    : {-- empty --} { [] }
-    | ':' word { $2 }
+FunctionTypeDeclarator :: { ExprType }
+    : {-- empty --} { UnknownType }
+    | ':' TypeDeclaration { $2 }
     ;
 
 ExpressionFunctionDeclaration :: { Expression }
-    : function word '(' DeclaratorList ')' FunctionTypeDeclarator Expression { liftAst (ExpressionNamedFunctionDeclaration $2 $4 $6 $7) }
-    | function '(' DeclaratorList ')' FunctionTypeDeclarator Expression { liftAst (ExpressionAnonFunctionDeclaration $3 $5 $6) }
-    | '\\' DeclaratorList "->" Expression %prec BACKSLASHDECL{ liftAst (ExpressionAnonFunctionDeclaration $2 [] $4) }
+    : function word '(' DeclaratorList ')' FunctionTypeDeclarator Expression
+        {
+        setType (TypeFunction $ decllistToExptypelist $4) $ liftExpression (ExpressionNamedFunctionDeclaration $2 $4 $6 $7) (getTokPos $1)
+        }
+    | function '(' DeclaratorList ')' FunctionTypeDeclarator Expression
+        {
+        setType (TypeFunction $ decllistToExptypelist $3) $ liftExpression (ExpressionAnonFunctionDeclaration $3 $5 $6) (getTokPos $1)
+        }
+    | '\\' DeclaratorList "->" Expression %prec BACKSLASHDECL
+        {
+        setType (TypeFunction $ decllistToExptypelist $2) $ liftExpression (ExpressionAnonFunctionDeclaration $2 UnknownType $4) (getTokPos $1)
+        }
     ;
 
 ExpressionDeclaration :: { Expression }
     : ExpressionVarDeclaration { $1 }
     | ExpressionFunctionDeclaration { $1 }
-    | typedef word '{' DeclarationList '}' { liftAst (ExpressionTypedefDeclaration $2 $4) }
+    | typedef word '{' DeclarationList '}' { liftExpression (ExpressionTypedefDeclaration $2 $4) (getTokPos $1) }
     ;
 
 DeclarationList :: { [Expression] }
@@ -231,6 +263,8 @@ Dotpath :: { [String] }
     ;
 {
 
+
+
 reportPos :: LexerPosition -> String
 reportPos (_, l, c) = "line "++ show l ++ ", column " ++ show c
 
@@ -242,5 +276,16 @@ parseError [] = error "parse error: unexpected eof, did you forget a closing bra
 parseError ((pos,tok):_) = error $ "parse Error at: "++ reportPos pos ++ "\n"
     ++ reportError tok
 
+getExpPos :: Expression -> LexerPosition
+getExpPos (_,_,_,p) = p
+
+getTokPos :: LexToken -> LexerPosition
+getTokPos (p,_) = p
+
+decllistToMap :: [Declarator] -> Map.Map String ExprType
+decllistToMap a = Map.fromList $ map (\(Declarator a b) -> (a,b)) a
+
+decllistToExptypelist :: [Declarator] -> [ExprType]
+decllistToExptypelist = map (\ (Declarator _ t) -> t)
 
 }
