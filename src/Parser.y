@@ -150,14 +150,14 @@ ExpressionLoop :: { Expression }
     : while Condition Expression { liftExpression (ExpressionWhile $2 $3) (getTokPos $1) }
 
 ExpressionArith :: { Expression }
-    : Expression '*' Expression { liftExpression (ExpressionArithMul $1 $3) (getTokPos $2) }
-    | Expression '/' Expression { liftExpression (ExpressionArithDiv $1 $3) (getTokPos $2) }
-    | Expression '+' Expression { liftExpression (ExpressionArithPlus $1 $3) (getTokPos $2) }
-    | Expression '-' Expression { liftExpression (ExpressionArithMinus $1 $3) (getTokPos $2) }
-    | Expression '%' Expression { liftExpression (ExpressionArithMod $1 $3) (getTokPos $2) }
-    | ExpressionLookup "++" { liftExpression (ExpressionInc $1) (getTokPos $2) }
-    | ExpressionLookup "--" { liftExpression (ExpressionDec $1) (getTokPos $2) }
-    | '!' Expression { liftExpression (ExpressionNot $2) (getTokPos $1) }
+    : Expression '*' Expression  { liftExpression (ExpressionArithMul $1 $3) (getTokPos $2) }
+    | Expression '/' Expression  { liftExpression (ExpressionArithDiv $1 $3) (getTokPos $2) }
+    | Expression '+' Expression  { liftExpression (ExpressionArithPlus $1 $3) (getTokPos $2) }
+    | Expression '-' Expression  { liftExpression (ExpressionArithMinus $1 $3) (getTokPos $2) }
+    | Expression '%' Expression  { liftExpression (ExpressionArithMod $1 $3) (getTokPos $2) }
+    | ExpressionLookup "++"      { liftExpression (ExpressionInc $1) (getTokPos $2) }
+    | ExpressionLookup "--"      { liftExpression (ExpressionDec $1) (getTokPos $2) }
+    | '!' Expression             { liftExpression (ExpressionNot $2) (getTokPos $1) }
     | Expression "&&" Expression { liftExpression (ExpressionAnd $1 $3) (getTokPos $2) }
     | Expression "||" Expression { liftExpression (ExpressionOr $1 $3) (getTokPos $2) }
     ;
@@ -165,18 +165,18 @@ ExpressionArith :: { Expression }
 ExpressionComp :: { Expression }
     : Expression "==" Expression { liftExpression (ExpressionEq $1 $3) (getTokPos $2) }
     | Expression "!=" Expression { liftExpression (ExpressionNeq $1 $3) (getTokPos $2) }
-    | Expression '<' Expression { liftExpression (ExpressionLt $1 $3) (getTokPos $2) }
+    | Expression '<' Expression  { liftExpression (ExpressionLt $1 $3) (getTokPos $2) }
     | Expression "<=" Expression { liftExpression (ExpressionLeq $1 $3) (getTokPos $2) }
-    | Expression '>' Expression { liftExpression (ExpressionGt $1 $3) (getTokPos $2) }
+    | Expression '>' Expression  { liftExpression (ExpressionGt $1 $3) (getTokPos $2) }
     | Expression ">=" Expression { liftExpression (ExpressionGeq $1 $3) (getTokPos $2) }
     ;
 
 ExpressionConstant :: { Expression }
-    : int { astConstant TypeInt $ ConstantInt $1 }
-    | stringlit { astConstant TypeString $ ConstantString $1 }
-    | true { astConstant TypeBool $ ConstantBool True }
-    | false { astConstant TypeBool $ ConstantBool False }
-    | float { astConstant TypeFloat $ ConstantFloat $1 }
+    : int       { setExpPos (getTokPos tok) (astConstant TypeInt $ ConstantInt $1) }
+    | stringlit { setExpPos (getTokPos tok) (astConstant TypeString $ ConstantString $1) }
+    | true      { setExpPos (getTokPos $1) (astConstant TypeBool $ ConstantBool True) }
+    | false     { setExpPos (getTokPos $1) (astConstant TypeBool $ ConstantBool False) }
+    | float     { setExpPos (getTokPos tok) (astConstant TypeFloat $ ConstantFloat $1) }
     ;
 
 ExpressionAssign :: { Expression }
@@ -275,6 +275,9 @@ parseError :: [LexToken] -> a
 parseError [] = error "parse error: unexpected eof, did you forget a closing brace or semicolon?"
 parseError ((pos,tok):_) = error $ "parse Error at: "++ reportPos pos ++ "\n"
     ++ reportError tok
+
+setExpPos :: LexerPosition -> Expression -> Expression
+setExpPos p (t,i,b,_) = (t,i,b,p)
 
 getExpPos :: Expression -> LexerPosition
 getExpPos (_,_,_,p) = p
