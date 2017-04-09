@@ -180,12 +180,12 @@ ExpressionConstant :: { Expression }
     ;
 
 ExpressionAssign :: { Expression }
-    : Identifier '=' Expression { liftExpression (ExpressionAssign $1 $3) (getTokPos $2)}
+    : Identifier '=' Expression { liftExpression (ExpressionAssign (fst $1) $3) (getTokPos $2)}
     | ExpressionVarDeclaration '=' Expression { (\(_,_,ExpressionVarDeclaration d _, p) e
         -> (TypeVoid, defaultCompilerinfo, ExpressionVarDeclaration d e, p))  $1 $3 }
 
 ExpressionLookup :: { Expression }
-    : Identifier { liftExpression (ExpressionLookup $1) (unknownLexPos)}
+    : Identifier { liftExpression (ExpressionLookup $ fst $1) (snd $1)}
     ;
 
 TypeDeclaration :: { ExprType }
@@ -249,10 +249,10 @@ DeclarationList :: { [Expression] }
     | DeclarationList ExpressionDeclaration ';' { $1 ++ [$2] }
     ;
 
-Identifier :: { Identifier }
-    : word { IdentifierName $1 }
-    | Identifier '.' word { IdentifierObjMember $1 $3 }
-    | Identifier '[' Expression ']' { IdentifierArray $1 $3 }
+Identifier :: { (Identifier,LexerPosition) }
+    : word { (IdentifierName $1, getTokPos tok) }
+    | Identifier '.' word { (IdentifierObjMember (fst $1) $3, snd $1) }
+    | Identifier '[' Expression ']' { (IdentifierArray (fst $1) $3, snd $1) }
     ;
 
 Dotpath :: { [String] }

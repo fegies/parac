@@ -20,7 +20,7 @@ dumpf (t,i,b,p) tabsnum =
         pbl a = "{\n" ++ concatMap ((tabsp1 ++) . dumpdecl) a ++ tabs ++ "}"
         dtp12 a b = dtp1 a ++ tabs ++ "With\n" ++ dtp1 b
     in
-    tabs ++ show p ++ " " ++
+    tabs ++ show p ++ " : " ++ dumptype t ++ " : " ++
     case b of
         EmptyExpression -> "EmptyExpression"
         ExpressionReturn e -> "Return\n" ++  dtp1 e

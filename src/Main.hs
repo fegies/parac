@@ -17,7 +17,8 @@ type CompilerFlags = Map.Map String String
 defaultFlags :: CompilerFlags
 defaultFlags = Map.fromList
     [
-        ("dump", "")
+        ("dump", ""),
+        ("output", "")
     ]
 
 main = getArgs >>= (\a -> if null a then usage >> return [] else return a) >>= flip parseArgs defaultFlags
@@ -44,6 +45,8 @@ interpretFile f flags = do
     unless (dumpdir == "") $
         writeFile (dumpdir ++ "/parsedAst.dump" ) $ dump ast
     let desugaredAst = desugar ast
+    unless (dumpdir == "") $
+        writeFile (dumpdir ++ "/desugaredAst.dump" ) $ dump desugaredAst
     let normast = "normaliseAst desugaredAst"
     let instr = "transformToInstructions normast"
     let bytecode = "toByecode instr"
