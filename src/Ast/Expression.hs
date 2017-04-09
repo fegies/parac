@@ -57,12 +57,10 @@ data ExpressionBase
 
     deriving (Show)
 
-type CompilerInfo = (Taint,[Context])
+type CompilerInfo = (Taint,[Metadata])
 
-type Context = Map.Map String ContextVarInfo
 
-    --type of the var, number of references
-type ContextVarInfo = (ExprType,Integer)
+type Metadata = (String,String)
 
 data Taint
     = UnknownPurity

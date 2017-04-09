@@ -2,3 +2,4 @@
 dist/**
 *.pscb
 cabal.sandbox.*
+dump/**

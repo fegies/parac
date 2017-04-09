@@ -1,3 +1,7 @@
 
 
-function a( a : String ) : String return a;
+var a : (String -> String);
+
+a = \ a -> a + "hi";
+
+a( "you" );
