@@ -13,57 +13,57 @@ import Tokens
 
 
 %token
-    if        { ( pos, TokenIf ) }
-    else      { ( pos, TokenElse ) }
-    while     { ( pos, TokenWhile ) }
-    function  { ( pos, TokenFunction ) }
-    return    { ( pos, TokenReturn ) }
-    load      { ( pos, TokenLoad ) }
-    typedef   { ( pos, TokenTypedef ) }
-    new       { ( pos, TokenNew ) }
-    var       { ( pos, TokenVar) }
-    true      { ( pos, TokenTrue) }
-    false     { ( pos, TokenFalse) }
-    extends   { ( pos, TokenExtends ) }
-    ';'       { ( pos, TokenSemicolon) }
-    ':'       { ( pos, TokenColon) }
-    ','       { ( pos, TokenComma ) }
-    '.'       { ( pos, TokenDot ) }
-    '('       { ( pos, TokenRBOpen ) }
-    ')'       { ( pos, TokenRBClose ) }
-    '{'       { ( pos, TokenCBOpen ) }
-    '}'       { ( pos, TokenCBClose ) }
-    '['       { ( pos, TokenSBOpen ) }
-    ']'       { ( pos, TokenSBClose ) }
-    '\\'      { ( pos, TokenBackslash ) }
-    '='       { ( pos, TokenAssign ) }
-    "=="      { ( pos, TokenCompEq ) }
-    "!="      { ( pos, TokenCompNeq ) }
-    '<'       { ( pos, TokenCompLt ) }
-    "<="      { ( pos, TokenCompLeq ) }
-    '>'       { ( pos, TokenCompGt ) }
-    ">="      { ( pos, TokenCompGeq ) }
-    '+'       { ( pos, TokenArithPlus ) }
-    '-'       { ( pos, TokenArithMinus ) }
-    '*'       { ( pos, TokenArithMul ) }
-    '/'       { ( pos, TokenArithDiv ) }
-    '%'       { ( pos, TokenArithMod ) }
-    "++"      { ( pos, TokenArithInc ) }
-    "--"      { ( pos, TokenArithDec ) }
-    "&&"      { ( pos, TokenLogicAnd ) }
-    "||"      { ( pos, TokenLogicOr ) }
-    '!'       { ( pos, TokenLogicNot ) }
-    "->"      { ( pos, TokenRightarrow ) }
-    "String"  { ( pos, TokenStringType ) }
-    "Int"     { ( pos, TokenIntType ) }
-    "Float"   { ( pos, TokenFloatType ) }
-    "Bool"    { ( pos, TokenBoolType ) }
-    int       { tok @( pos, TokenInt $$) }
-    float     { tok @( pos, TokenFloat $$) }
-    word      { tok @( pos, TokenWord $$) }
-    stringlit { tok @( pos, TokenStringLit $$) }
-    tainted   { ( pos, TokenTainted ) }
-    pure      { ( pos, TokenPure ) }
+    if        { ( _ , TokenIf ) }
+    else      { ( _ , TokenElse ) }
+    while     { ( _ , TokenWhile ) }
+    function  { ( _ , TokenFunction ) }
+    return    { ( _ , TokenReturn ) }
+    load      { ( _ , TokenLoad ) }
+    typedef   { ( _ , TokenTypedef ) }
+    new       { ( _ , TokenNew ) }
+    var       { ( _ , TokenVar) }
+    true      { ( _ , TokenTrue) }
+    false     { ( _ , TokenFalse) }
+    extends   { ( _ , TokenExtends ) }
+    ';'       { ( _ , TokenSemicolon) }
+    ':'       { ( _ , TokenColon) }
+    ','       { ( _ , TokenComma ) }
+    '.'       { ( _ , TokenDot ) }
+    '('       { ( _ , TokenRBOpen ) }
+    ')'       { ( _ , TokenRBClose ) }
+    '{'       { ( _ , TokenCBOpen ) }
+    '}'       { ( _ , TokenCBClose ) }
+    '['       { ( _ , TokenSBOpen ) }
+    ']'       { ( _ , TokenSBClose ) }
+    '\\'      { ( _ , TokenBackslash ) }
+    '='       { ( _ , TokenAssign ) }
+    "=="      { ( _ , TokenCompEq ) }
+    "!="      { ( _ , TokenCompNeq ) }
+    '<'       { ( _ , TokenCompLt ) }
+    "<="      { ( _ , TokenCompLeq ) }
+    '>'       { ( _ , TokenCompGt ) }
+    ">="      { ( _ , TokenCompGeq ) }
+    '+'       { ( _ , TokenArithPlus ) }
+    '-'       { ( _ , TokenArithMinus ) }
+    '*'       { ( _ , TokenArithMul ) }
+    '/'       { ( _ , TokenArithDiv ) }
+    '%'       { ( _ , TokenArithMod ) }
+    "++"      { ( _ , TokenArithInc ) }
+    "--"      { ( _ , TokenArithDec ) }
+    "&&"      { ( _ , TokenLogicAnd ) }
+    "||"      { ( _ , TokenLogicOr ) }
+    '!'       { ( _ , TokenLogicNot ) }
+    "->"      { ( _ , TokenRightarrow ) }
+    "String"  { ( _ , TokenStringType ) }
+    "Int"     { ( _ , TokenIntType ) }
+    "Float"   { ( _ , TokenFloatType ) }
+    "Bool"    { ( _ , TokenBoolType ) }
+    int       { tok @( _ , TokenInt $$) }
+    float     { tok @( _ , TokenFloat $$) }
+    word      { tok @( _ , TokenWord $$) }
+    stringlit { tok @( _ , TokenStringLit $$) }
+    tainted   { ( _ , TokenTainted ) }
+    pure      { ( _ , TokenPure ) }
 
 %nonassoc BACKSLASHDECL
 %nonassoc pure tainted
