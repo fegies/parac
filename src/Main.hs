@@ -1,6 +1,6 @@
 module Main where
-import Lexer
-import Parser
+import Parser.Lexer
+import Parser.Parser
 import Normalise.Desugar
 import System.Environment
 import Ast.Dump

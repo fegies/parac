@@ -1,4 +1,4 @@
-module HexMod( readHex ) where
+module Helpers.HexMod( readHex ) where
 
 import Data.Char
 
