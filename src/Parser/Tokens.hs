@@ -1,4 +1,4 @@
-module Tokens where
+module Parser.Tokens where
 
 type LexToken = (LexerPosition,Token)
 

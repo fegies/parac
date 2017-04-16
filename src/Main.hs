@@ -53,8 +53,8 @@ interpretFile f flags = do
 
     putStrLn $ "--source--\n\n" ++ s
     putStrLn $ "\n--tokens--\n\n" ++ show tokens
-    putStrLn $ "\n--ast--\n\n" ++ show ast
-    putStrLn $ "\n--desugared ast--\n" ++ show desugaredAst
+    putStrLn $ "\n--ast--\n\n" ++ dump ast
+    putStrLn $ "\n--desugared ast--\n" ++ dump desugaredAst
     putStrLn $ "\n--normalized ast--\n\n" ++ show normast
     putStrLn $ "\n--Instructions--\n\n" ++ show instr
     putStrLn "\n--Bytecode\n\n"

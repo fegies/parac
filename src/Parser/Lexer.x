@@ -1,8 +1,8 @@
 {
-module Lexer (lexer) where
+module Parser.Lexer (lexer) where
 
-import Tokens
-import HexMod
+import Parser.Tokens
+import Helpers.HexMod
 }
 
 %wrapper "posn"

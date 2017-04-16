@@ -1,7 +1,7 @@
 module Ast.Expression where
 
 import qualified Data.Map as Map
-import Tokens(LexerPosition)
+import Parser.Tokens(LexerPosition)
 import Ast.Type
 
 type ParserExpression = (ExprType, ExpressionBase,LexerPosition)
@@ -62,7 +62,8 @@ data Taint
 data Identifier
     = IdentifierName String
     | IdentifierObjMember Identifier String
-    | IdentifierArray Identifier Expression
+    --the lookup expression is on the tree leaf.
+    | IdentifierArray Identifier Identifier
     deriving (Show)
 
 data Constant

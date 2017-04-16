@@ -1,9 +1,10 @@
 {
-module Parser (parse) where
+module Parser.Parser (parse) where
 import Ast.Expression
 import Ast.Type
+import Ast.ExprTree
+import Parser.Tokens
 import qualified Data.Map as Map
-import Tokens
 }
 
 %name parse
@@ -89,11 +90,11 @@ import Tokens
 %%
 
 
-Program :: { Expression }
-    : ExpressionSequence { liftExpression (ExpressionBlock $1) (0,0,0) }
+Program :: { ExprTree ParserExpression }
+    : ExpressionSequence { ExprTree (UnknownType, ExpressionBlock, (0,0,0)) $1 }
     ;
 
-ExpressionSequence :: { [Expression] }
+ExpressionSequence :: { [ExprTree ParserExpression] }
     : OtherExpression ';'    { [$1] }
     | ExpressionSequence OtherExpression ';' { $1 ++ [$2] }
     | OptionalSemicolonExpression ExpressionTerminator { [$1] }
@@ -105,29 +106,30 @@ ExpressionTerminator :: { () }
     | error { () }
     ;
 
-ExpressionList :: { [Expression] }
+ExpressionList :: { [ExprTree ParserExpression] }
     : Expression { [$1] }
     | ExpressionList ',' Expression { $1 ++ [$3] }
     ;
 
-Expression :: { Expression }
+Expression :: { ExprTree ParserExpression }
     : OptionalSemicolonExpression { $1 }
     | OtherExpression { $1 }
     ;
 
-OptionalSemicolonExpression :: { Expression }
-    : '{' ExpressionSequence '}' { liftExpression (ExpressionBlock $2) (fst $1) }
+OptionalSemicolonExpression :: { ExprTree ParserExpression }
+    : '{' ExpressionSequence '}' { liftExpression ExpressionBlock (fst $1) }
     | ExpressionIf { $1 }
     | ExpressionLoop { $1 }
     ;
 
-OtherExpression :: { Expression }
+OtherExpression :: { ExprTree ParserExpression }
     : '(' Expression ')' { $2 }
-    | Expression '(' ExpressionList ')' { liftExpression (ExpressionFunctionCall $1 $3) (getExpPos $1)}
-    | pure Expression { (\(t,(_,i),e,p) -> (t, (TaintLevel 0,i), e,p)) $2 }
-    | tainted Expression { (\(t,(_,i),e,p) -> (t, (InfiniteTaint,i),e,p)) $2 }
+    | Expression '(' ExpressionList ')'
+        { ExprTree (UnknownType,ExpressionFunctionCall,getExpPos $1) ($1:$3) }
+    | pure Expression { ExprTree (UnknownType,ExpressionPure,fst $1) [$2] }
+    | tainted Expression { ExprTree (UnknownType,ExpressionPure,fst $1) [$2] }
     | load Dotpath { liftExpression (ExpressionLoad (init $2) (last $2)) (fst $1) }
-    | return Expression { liftExpression (ExpressionReturn $2) (fst $1) }
+    | return Expression { ExprTree (UnknownType,ExpressionReturn,fst $1) [$2] }
     | new word { liftExpression (ExpressionNew $2) (fst $1) }
     | ExpressionArith { $1 }
     | ExpressionLookup { $1 }
@@ -137,41 +139,42 @@ OtherExpression :: { Expression }
     | ExpressionComp { $1 }
     ;
 
-Condition :: { Expression }
+Condition :: { ExprTree ParserExpression }
     : '(' Expression ')' { $2 }
     ;
 
-ExpressionIf :: { Expression }
-    : if Condition Expression else Expression { liftExpression (ExpressionIf $2 $3 $5) (fst $1) }
-    | if Condition Expression { liftExpression (ExpressionIf $2 $3 emptyExpression) (fst $1) }
+ExpressionIf :: { ExprTree ParserExpression }
+    : if Condition Expression else Expression
+        { ExprTree (UnknownType,ExpressionIf,fst $1) [$2,$3,$5] }
+    | if Condition Expression { ExprTree (UnknownType,ExpressionIf,fst $1) [$2,$3] }
     ;
 
-ExpressionLoop :: { Expression }
-    : while Condition Expression { liftExpression (ExpressionWhile $2 $3) (fst $1) }
+ExpressionLoop :: { ExprTree ParserExpression }
+    : while Condition Expression { ExprTree (UnknownType,ExpressionIf,fst $1) [$2,$3] }
 
-ExpressionArith :: { Expression }
-    : Expression '*' Expression  { liftExpression (ExpressionArithMul $1 $3) (fst $2) }
-    | Expression '/' Expression  { liftExpression (ExpressionArithDiv $1 $3) (fst $2) }
-    | Expression '+' Expression  { liftExpression (ExpressionArithPlus $1 $3) (fst $2) }
-    | Expression '-' Expression  { liftExpression (ExpressionArithMinus $1 $3) (fst $2) }
-    | Expression '%' Expression  { liftExpression (ExpressionArithMod $1 $3) (fst $2) }
-    | ExpressionLookup "++"      { liftExpression (ExpressionInc $1) (fst $2) }
-    | ExpressionLookup "--"      { liftExpression (ExpressionDec $1) (fst $2) }
-    | '!' Expression             { liftExpression (ExpressionNot $2) (fst $1) }
-    | Expression "&&" Expression { liftExpression (ExpressionAnd $1 $3) (fst $2) }
-    | Expression "||" Expression { liftExpression (ExpressionOr $1 $3) (fst $2) }
+ExpressionArith :: { ExprTree ParserExpression }
+    : Expression '*' Expression  { ExprTree (UnknownType,ExpressionArithMul,fst $2) [$1,$3] }
+    | Expression '/' Expression  { ExprTree (UnknownType,ExpressionArithDiv,fst $2) [$1,$3] }
+    | Expression '+' Expression  { ExprTree (UnknownType,ExpressionArithPlus,fst $2) [$1,$3] }
+    | Expression '-' Expression  { ExprTree (UnknownType,ExpressionArithMinus,fst $2) [$1,$3] }
+    | Expression '%' Expression  { ExprTree (UnknownType,ExpressionArithMod,fst $2) [$1,$3] }
+    | ExpressionLookup "++"      { ExprTree (UnknownType,ExpressionInc,fst $2) [$1] }
+    | ExpressionLookup "--"      { ExprTree (UnknownType,ExpressionDec,fst $2) [$1] }
+    | '!' Expression             { ExprTree (UnknownType,ExpressionNot,fst $1) [$2] }
+    | Expression "&&" Expression { ExprTree (UnknownType,ExpressionAnd,fst $2) [$1,$3] }
+    | Expression "||" Expression { ExprTree (UnknownType,ExpressionOr,fst $2) [$1,$3] }
     ;
 
-ExpressionComp :: { Expression }
-    : Expression "==" Expression { liftExpression (ExpressionEq $1 $3) (fst $2) }
-    | Expression "!=" Expression { liftExpression (ExpressionNeq $1 $3) (fst $2) }
-    | Expression '<' Expression  { liftExpression (ExpressionLt $1 $3) (fst $2) }
-    | Expression "<=" Expression { liftExpression (ExpressionLeq $1 $3) (fst $2) }
-    | Expression '>' Expression  { liftExpression (ExpressionGt $1 $3) (fst $2) }
-    | Expression ">=" Expression { liftExpression (ExpressionGeq $1 $3) (fst $2) }
+ExpressionComp :: { ExprTree ParserExpression }
+    : Expression "==" Expression { ExprTree (UnknownType,ExpressionEq,fst $2) [$1,$3] }
+    | Expression "!=" Expression { ExprTree (UnknownType,ExpressionNeq,fst $2) [$1,$3] }
+    | Expression '<' Expression  { ExprTree (UnknownType,ExpressionLt,fst $2) [$1,$3] }
+    | Expression "<=" Expression { ExprTree (UnknownType,ExpressionLeq,fst $2) [$1,$3] }
+    | Expression '>' Expression  { ExprTree (UnknownType,ExpressionGt,fst $2) [$1,$3] }
+    | Expression ">=" Expression { ExprTree (UnknownType,ExpressionGeq,fst $2) [$1,$3] }
     ;
 
-ExpressionConstant :: { Expression }
+ExpressionConstant :: { ExprTree ParserExpression }
     : int       { setExpPos (fst tok) (astConstant TypeInt $ ConstantInt $1) }
     | stringlit { setExpPos (fst tok) (astConstant TypeString $ ConstantString $1) }
     | true      { setExpPos (fst $1) (astConstant TypeBool $ ConstantBool True) }
@@ -179,12 +182,12 @@ ExpressionConstant :: { Expression }
     | float     { setExpPos (fst tok) (astConstant TypeFloat $ ConstantFloat $1) }
     ;
 
-ExpressionAssign :: { Expression }
-    : Identifier '=' Expression { liftExpression (ExpressionAssign (fst $1) $3) (fst $2)}
-    | ExpressionVarDeclaration '=' Expression { (\(_,_,ExpressionVarDeclaration d _, p) e
-        -> (TypeVoid, defaultCompilerinfo, ExpressionVarDeclaration d e, p))  $1 $3 }
+ExpressionAssign :: { ExprTree ParserExpression }
+    : Identifier '=' Expression { ExprTree (UnknownType,ExpressionAssign $ fst $1,fst $2) [$3] }
+    | ExpressionVarDeclaration '=' Expression
+        { (\(ExprTree p s) e -> ExprTree p $ s ++ [e]) $1 $3 }
 
-ExpressionLookup :: { Expression }
+ExpressionLookup :: { ExprTree ParserExpression }
     : Identifier { liftExpression (ExpressionLookup $ fst $1) (snd $1)}
     ;
 
@@ -195,13 +198,13 @@ TypeDeclaration :: { ExprType }
     | "Bool" { TypeBool }
     | '[' TypeDeclaration ']' { TypeArray $2 }
     | '{' DeclaratorList '}' { TypeTypedef . decllistToMap $ $2 }
-    | '(' ArrowSeparetedList ')' { TypeFunction $2 }
+    | '(' ArrowSeparatedList ')' { TypeFunction $2 }
     | word { TypeUnresolved $1 }
     ;
 
-ArrowSeparetedList :: { [ExprType] }
+ArrowSeparatedList :: { [ExprType] }
     : TypeDeclaration { [$1] }
-    | ArrowSeparetedList "->" TypeDeclaration { $1 ++ [$3] }
+    | ArrowSeparatedList "->" TypeDeclaration { $1 ++ [$3] }
     ;
 
 Declarator :: { Declarator }
@@ -214,8 +217,9 @@ DeclaratorList :: { [Declarator] }
     | DeclaratorList ',' Declarator { $1 ++ [$3] }
     ;
 
-ExpressionVarDeclaration :: { Expression }
-    : var Declarator { (TypeVoid, defaultCompilerinfo, ExpressionVarDeclaration $2 emptyExpression, fst $1) }
+ExpressionVarDeclaration :: { ExprTree ParserExpression }
+    : var Declarator
+        { ExprTree (TypeVoid,ExpressionVarDeclaration $2,fst $1) [] }
     ;
 
 FunctionTypeDeclarator :: { ExprType }
@@ -223,28 +227,29 @@ FunctionTypeDeclarator :: { ExprType }
     | ':' TypeDeclaration { $2 }
     ;
 
-ExpressionFunctionDeclaration :: { Expression }
+ExpressionFunctionDeclaration :: { ExprTree ParserExpression }
     : function word '(' DeclaratorList ')' FunctionTypeDeclarator Expression
-        {
-        setType (TypeFunction $ decllistToExptypelist $4) $ liftExpression (ExpressionNamedFunctionDeclaration $2 $4 $6 $7) (fst $1)
-        }
+        { ExprTree (TypeFunction $ decllistToExptypelist $4,
+            ExpressionNamedFunctionDeclaration $2 $4 $6,
+            fst $1) [$7]}
     | function '(' DeclaratorList ')' FunctionTypeDeclarator Expression
-        {
-        setType (TypeFunction $ decllistToExptypelist $3) $ liftExpression (ExpressionAnonFunctionDeclaration $3 $5 $6) (fst $1)
-        }
+        { ExprTree (TypeFunction $ decllistToExptypelist $3,
+            ExpressionAnonFunctionDeclaration $3 $5,
+            fst $1) [$6] }
     | '\\' DeclaratorList "->" Expression %prec BACKSLASHDECL
-        {
-        setType (TypeFunction $ decllistToExptypelist $2) $ liftExpression (ExpressionAnonFunctionDeclaration $2 UnknownType $4) (fst $1)
-        }
+        { ExprTree (TypeFunction $ decllistToExptypelist $2,
+            ExpressionAnonFunctionDeclaration $2 UnknownType,
+            fst $1) [$4] }
     ;
 
-ExpressionDeclaration :: { Expression }
+ExpressionDeclaration :: { ExprTree ParserExpression }
     : ExpressionVarDeclaration { $1 }
     | ExpressionFunctionDeclaration { $1 }
-    | typedef word '{' DeclarationList '}' { liftExpression (ExpressionTypedefDeclaration $2 $4) (fst $1) }
+    | typedef word '{' DeclarationList '}'
+        { ExprTree (TypeVoid,ExpressionTypedefDeclaration $2, fst $1) $4 }
     ;
 
-DeclarationList :: { [Expression] }
+DeclarationList :: { [ExprTree ParserExpression] }
     : ExpressionDeclaration ';' { [$1] }
     | DeclarationList ExpressionDeclaration ';' { $1 ++ [$2] }
     ;
@@ -252,7 +257,7 @@ DeclarationList :: { [Expression] }
 Identifier :: { (Identifier,LexerPosition) }
     : word { (IdentifierName $1, fst tok) }
     | Identifier '.' word { (IdentifierObjMember (fst $1) $3, snd $1) }
-    | Identifier '[' Expression ']' { (IdentifierArray (fst $1) $3, snd $1) }
+    | Identifier '[' Identifier ']' { (IdentifierArray (fst $1) (fst $3), snd $1) }
     ;
 
 Dotpath :: { [String] }
@@ -263,7 +268,8 @@ Dotpath :: { [String] }
     ;
 {
 
-
+liftExpression :: ExpressionBase -> LexerPosition -> ExprTree ParserExpression
+liftExpression a b = ExprTree (UnknownType,a,b) []
 
 reportPos :: LexerPosition -> String
 reportPos (_, l, c) = "line "++ show l ++ ", column " ++ show c
@@ -276,12 +282,14 @@ parseError [] = error "parse error: unexpected eof, did you forget a closing bra
 parseError ((pos,tok):_) = error $ "parse Error at: "++ reportPos pos ++ "\n"
     ++ reportError tok
 
-setExpPos :: LexerPosition -> Expression -> Expression
-setExpPos p (t,i,b,_) = (t,i,b,p)
+setExpPos :: LexerPosition -> ExprTree ParserExpression -> ExprTree ParserExpression
+setExpPos p (ExprTree (t,b,_) s) = ExprTree (t,b,p) s
 
-getExpPos :: Expression -> LexerPosition
-getExpPos (_,_,_,p) = p
+getExpPos :: ExprTree ParserExpression -> LexerPosition
+getExpPos (ExprTree (_,_,p) _) = p
 
+astConstant :: ExprType -> Constant -> ExprTree ParserExpression
+astConstant t c = ExprTree (t,ExpressionConstant c,(-1,-1,-1)) []
 
 decllistToMap :: [Declarator] -> Map.Map String ExprType
 decllistToMap a = Map.fromList $ map (\(Declarator a b) -> (a,b)) a
