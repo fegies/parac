@@ -13,8 +13,8 @@ data ExpressionBase
     --the list represents the packages, and the last entry is the file
     | ExpressionLoad [String] String
     | ExpressionNew String
-    | ExpressionLookup Identifier
-    | ExpressionAssign Identifier
+    | ExpressionLookup String
+    | ExpressionAssign
     | ExpressionFunctionCall
 
     | ExpressionBlock
@@ -24,6 +24,9 @@ data ExpressionBase
     | ExpressionNamedFunctionDeclaration String [Declarator] ExprType
     | ExpressionTypedefDeclaration String
     | ExpressionAnonFunctionDeclaration [Declarator] ExprType
+
+    | ExpressionArrayAccess
+    | ExpressionMemberAccess String
 
     | ExpressionIf
     | ExpressionWhile
@@ -63,7 +66,6 @@ data Identifier
     = IdentifierName String
     | IdentifierObjMember Identifier String
     --the lookup expression is on the tree leaf.
-    | IdentifierArray Identifier Identifier
     deriving (Show)
 
 data Constant

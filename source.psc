@@ -1,13 +1,7 @@
 
+var b =34;
 
-var a : (String -> String);
-
-a = \ a -> a + "hi";
-
-a( "you" );
-
-
-if ( true )
-    1
-else
-    2
+function a () {
+var a = 5;
+o + var el;
+};

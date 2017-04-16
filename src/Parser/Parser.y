@@ -117,7 +117,7 @@ Expression :: { ExprTree ParserExpression }
     ;
 
 OptionalSemicolonExpression :: { ExprTree ParserExpression }
-    : '{' ExpressionSequence '}' { liftExpression ExpressionBlock (fst $1) }
+    : '{' ExpressionSequence '}' { ExprTree (UnknownType,ExpressionBlock,fst $1) $2 }
     | ExpressionIf { $1 }
     | ExpressionLoop { $1 }
     ;
@@ -132,7 +132,7 @@ OtherExpression :: { ExprTree ParserExpression }
     | return Expression { ExprTree (UnknownType,ExpressionReturn,fst $1) [$2] }
     | new word { liftExpression (ExpressionNew $2) (fst $1) }
     | ExpressionArith { $1 }
-    | ExpressionLookup { $1 }
+    | FieldAccessExpression { $1 }
     | ExpressionAssign { $1 }
     | ExpressionDeclaration { $1 }
     | ExpressionConstant { $1 }
@@ -182,13 +182,27 @@ ExpressionConstant :: { ExprTree ParserExpression }
     | float     { setExpPos (fst tok) (astConstant TypeFloat $ ConstantFloat $1) }
     ;
 
+FieldAccessExpression :: { ExprTree ParserExpression }
+    : ExpressionLookup { $1 }
+    | ExpressionArrayAccess { $1 }
+    | ExpressionMemberAccess { $1 }
+    ;
+
+ExpressionMemberAccess :: { ExprTree ParserExpression }
+    : Expression '.' word { ExprTree (UnknownType,ExpressionMemberAccess $3, fst $2) [$1] }
+    ;
+
+ExpressionArrayAccess :: { ExprTree ParserExpression }
+    : Expression '[' Expression ']' { ExprTree (UnknownType,ExpressionArrayAccess,fst $2) [$1,$3] }
+
 ExpressionAssign :: { ExprTree ParserExpression }
-    : Identifier '=' Expression { ExprTree (UnknownType,ExpressionAssign $ fst $1,fst $2) [$3] }
+    : FieldAccessExpression '=' Expression
+        { ExprTree (UnknownType,ExpressionAssign,fst $2) [$1,$3] }
     | ExpressionVarDeclaration '=' Expression
         { (\(ExprTree p s) e -> ExprTree p $ s ++ [e]) $1 $3 }
 
 ExpressionLookup :: { ExprTree ParserExpression }
-    : Identifier { liftExpression (ExpressionLookup $ fst $1) (snd $1)}
+    : word { liftExpression (ExpressionLookup $1) (fst tok)}
     ;
 
 TypeDeclaration :: { ExprType }
@@ -213,7 +227,8 @@ Declarator :: { Declarator }
     ;
 
 DeclaratorList :: { [Declarator] }
-    : Declarator { [$1] }
+    : {- empty -} { [] }
+    | Declarator { [$1] }
     | DeclaratorList ',' Declarator { $1 ++ [$3] }
     ;
 
@@ -252,12 +267,6 @@ ExpressionDeclaration :: { ExprTree ParserExpression }
 DeclarationList :: { [ExprTree ParserExpression] }
     : ExpressionDeclaration ';' { [$1] }
     | DeclarationList ExpressionDeclaration ';' { $1 ++ [$2] }
-    ;
-
-Identifier :: { (Identifier,LexerPosition) }
-    : word { (IdentifierName $1, fst tok) }
-    | Identifier '.' word { (IdentifierObjMember (fst $1) $3, snd $1) }
-    | Identifier '[' Identifier ']' { (IdentifierArray (fst $1) (fst $3), snd $1) }
     ;
 
 Dotpath :: { [String] }
