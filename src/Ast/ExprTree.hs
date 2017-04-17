@@ -40,5 +40,12 @@ statefulTreeApplyBottomUp f s (ExprTree a l) =
     let (nl,s1) = statefulMap (statefulTreeApplyBottomUp f) l s
     in f a nl s1
 
+--first applys the first function on the way down, then the second one on the way up
+statefulTreeApplyTopDownBottomUp :: (ExprTree a -> s -> (b,[ExprTree a],s)) -> (ExprTree b -> s -> (ExprTree b,s)) -> s -> ExprTree a -> (ExprTree b,s)
+statefulTreeApplyTopDownBottomUp fd fu s1 a =
+    let (b,l1,s2) = fd a s1
+        (l2,s3) = statefulMap (statefulTreeApplyTopDownBottomUp fd fu) l1 s2
+    in fu (ExprTree b l2) s3
+
 treeReturn :: a -> ExprTree a
 treeReturn a = ExprTree a []

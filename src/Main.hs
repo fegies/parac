@@ -1,7 +1,7 @@
 module Main where
 import Parser.Lexer
 import Parser.Parser
-import Normalise.Desugar
+import Normalize
 import System.Environment
 import Ast.Dump
 import Data.String
@@ -44,7 +44,7 @@ interpretFile f flags = do
     let ast = parse tokens
     unless (dumpdir == "") $
         writeFile (dumpdir ++ "/parsedAst.dump" ) $ dump ast
-    let desugaredAst = desugar ast
+    let desugaredAst = normalize ast
     unless (dumpdir == "") $
         writeFile (dumpdir ++ "/desugaredAst.dump" ) $ dump desugaredAst
     let normast = "normaliseAst desugaredAst"

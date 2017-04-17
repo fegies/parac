@@ -1,35 +1,13 @@
-module Normalise.Desugar(desugar) where
+module Normalize.FoldConstants(foldConstants) where
 
-import Ast.Expression
 import Ast.ExprTree
+import Ast.Expression
 import Ast.Type
 import Parser.Tokens
-import Data.Tuple
-import Data.Fixed
 import Helpers.ErrorReport
+import Data.Fixed
 
-desugar :: ExprTree ParserExpression -> ExprTree ParserExpression
-desugar = foldConstants . desugarInitialisations
-
-desugarInitialisations = fst . recursivelyStatefulTreeApplyTopDown desugarInitialisationsf False
 foldConstants = treeApplyBottomUp (\a l -> foldConstf $ ExprTree a l)
-
-desugarInitialisationsf :: ParserExpression -> [ExprTree ParserExpression] -> Bool
-    -> (ParserExpression,[ExprTree ParserExpression],Bool)
-desugarInitialisationsf p@(_,ExpressionBlock,_) l _ = (p,concatMap desugarInitialisationsff l,True)
-desugarInitialisationsf (_,ExpressionVarDeclaration _,p) _ False =
-    error $ reportPos p ++ "Variable Declarations only allowed in Block."
-desugarInitialisationsf p l _ = (p,l,False)
-
-desugarInitialisationsff :: ExprTree ParserExpression -> [ExprTree ParserExpression]
-desugarInitialisationsff (ExprTree (_,ExpressionVarDeclaration d@(Declarator n t),p) [e]) =
-    [
-        ExprTree (TypeVoid,ExpressionVarDeclaration d,p) [],
-        ExprTree (t,ExpressionAssign,p) [
-            ExprTree (UnknownType,ExpressionLookup n,p) [],
-            e
-    ]]
-desugarInitialisationsff a = [a]
 
 --takes the lexer position for error reporting.
 constJoin :: Constant -> Constant -> ExpressionBase -> LexerPosition -> (Constant,ExprType)
