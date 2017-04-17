@@ -80,3 +80,37 @@ data Constant
 data Declarator
     = Declarator String ExprType
     deriving (Show)
+
+isArithOp a = case a of
+    ExpressionArithPlus -> True
+    ExpressionArithMinus -> True
+    ExpressionArithMul -> True
+    ExpressionArithDiv -> True
+    ExpressionArithMod -> True
+    ExpressionXor -> True
+    _ -> False
+
+isSingleOp a = case a of
+    ExpressionInc -> True
+    ExpressionDec -> True
+    ExpressionNot -> True
+    _ -> False
+
+isLogicOp a = case a of
+    ExpressionAnd -> True
+    ExpressionOr -> True
+    _ -> False
+
+isEqOp a = case a of
+    ExpressionEq -> True
+    ExpressionNeq -> True
+    _ -> False
+
+isCompOp a = case a of
+    ExpressionLeq -> True
+    ExpressionLt -> True
+    ExpressionGt -> True
+    ExpressionGeq -> True
+    _ -> False
+    
+isOperation a = any (\f -> f a) [isArithOp,isSingleOp,isLogicOp,isEqOp,isCompOp]
