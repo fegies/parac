@@ -16,4 +16,4 @@ data ExprType
     --the type of the array elements
     | TypeArray ExprType
     | TypeUnresolved String
-    deriving (Show)
+    deriving (Show,Eq)

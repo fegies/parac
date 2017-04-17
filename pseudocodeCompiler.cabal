@@ -20,7 +20,7 @@ executable pseudocodeCompiler
   other-modules:       Parser.Parser, Parser.Lexer
   -- other-extensions:
   build-depends:       base >=4.9 && <4.10, bytestring >=0.10 && <0.11, binary >=0.8 && <0.9,
-    array, pretty-hex, containers, directory
+    array, pretty-hex, containers >=0.5, directory
   hs-source-dirs:      src
   build-tools:         alex, happy
   default-language:    Haskell2010

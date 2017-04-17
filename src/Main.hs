@@ -4,6 +4,7 @@ import Parser.Parser
 import Normalize
 import System.Environment
 import Ast.Dump
+import Typecheck.Typecheck
 import Data.String
 import Hexdump
 import Control.Monad
@@ -44,18 +45,20 @@ interpretFile f flags = do
     let ast = parse tokens
     unless (dumpdir == "") $
         writeFile (dumpdir ++ "/parsedAst.dump" ) $ dump ast
-    let desugaredAst = normalize ast
+    let normast = normalize ast
     unless (dumpdir == "") $
-        writeFile (dumpdir ++ "/desugaredAst.dump" ) $ dump desugaredAst
-    let normast = "normaliseAst desugaredAst"
+        writeFile (dumpdir ++ "/normalizedAst.dump" ) $ dump normast
+    let typedast = typecheck normast
+    unless (dumpdir == "") $
+        writeFile (dumpdir ++ "/typedAst.dump") $ dump typedast
     let instr = "transformToInstructions normast"
     let bytecode = "toByecode instr"
 
     putStrLn $ "--source--\n\n" ++ s
     putStrLn $ "\n--tokens--\n\n" ++ show tokens
     putStrLn $ "\n--ast--\n\n" ++ dump ast
-    putStrLn $ "\n--desugared ast--\n" ++ dump desugaredAst
-    putStrLn $ "\n--normalized ast--\n\n" ++ show normast
+    putStrLn $ "\n--normalized ast--\n\n" ++ dump normast
+    putStrLn $ "\n--typed ast--\n\n" ++ dump typedast
     putStrLn $ "\n--Instructions--\n\n" ++ show instr
     putStrLn "\n--Bytecode\n\n"
     putStrLn ". prettyHex . BL.toStrict $ bytecode"
