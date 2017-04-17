@@ -40,9 +40,8 @@ data ExpressionBase
     | ExpressionDec
     | ExpressionNot
     | ExpressionAnd
-    | ExpressionPure
-    | ExpressionTainted
     | ExpressionOr
+    | ExpressionXor
 
     | ExpressionEq
     | ExpressionNeq
@@ -50,6 +49,9 @@ data ExpressionBase
     | ExpressionLt
     | ExpressionGt
     | ExpressionGeq
+
+    | ExpressionPure
+    | ExpressionTainted
 
     | ExpressionConstant Constant
     deriving (Show)
