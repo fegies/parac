@@ -40,9 +40,7 @@ constJoin lc rc b pos = case lc of
             ExpressionOr -> (ConstantBool $ lb || rb,TypeBool)
             ExpressionXor -> (ConstantBool $ lb `xor` rb,TypeBool)
             _ -> invalidop
-        ConstantString rs -> case b of
-            ExpressionArithPlus -> (ConstantString $ show lb ++ rs,TypeString)
-            _ -> invalidop
+        ConstantString rs -> strop (bool2str lb) rs
         _ -> typeerror
     ConstantInt li -> case rc of
         ConstantInt ri
@@ -51,29 +49,32 @@ constJoin lc rc b pos = case lc of
             | isCompOp b -> compop li ri
             | otherwise -> invalidop
         ConstantFloat rf -> fop (fromIntegral li) rf
-        ConstantString rs -> case b of
-            ExpressionArithPlus -> (ConstantString $ show li ++ rs,TypeString)
-            _ -> invalidop
+        ConstantString rs -> strop (show li) rs
         _ -> typeerror
     ConstantFloat lf -> case rc of
         ConstantInt ri -> fop lf $ fromIntegral ri
         ConstantFloat rf -> fop lf rf
-        ConstantString rs -> (ConstantString $ show lf ++ rs, TypeString)
+        ConstantString rs -> strop (show lf) rs
         _ -> typeerror
     ConstantString ls -> case rc of
-        ConstantString rs -> case b of
-            ExpressionArithPlus -> (ConstantString $ ls ++ rs, TypeString)
-            _ -> invalidop
-        _ -> typeerror
+        ConstantBool rb -> strop ls $ bool2str rb
+        ConstantInt ri -> strop ls $ show ri
+        ConstantFloat rf -> strop ls $ show rf
+        ConstantString rs -> strop ls rs
     where typeerror = error $ reportPos pos ++ "incopatible types : " ++ show lc ++ " and " ++ show rc
           invalidop = error $ reportPos pos ++ "invalid operation on : " ++ show lc ++ " and " ++ show rc ++ " : " ++ show b
           a `xor` b = (a || b) && not (a && b)
+          bool2str a = if a then "true" else "false"
           fop l r = case () of
             _
                 | isArithOp b -> floatop l r
                 | isEqOp b -> eqop l r
                 | isCompOp b -> compop l r
                 | otherwise -> invalidop
+          strop l r = (ConstantString $ case b of
+              ExpressionArithPlus -> l ++ r
+              _ -> invalidop,
+            TypeString)
           eqop l r = (ConstantBool $ case b of
               ExpressionEq -> l == r
               ExpressionNeq ->  l /= r
