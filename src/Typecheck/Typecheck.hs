@@ -5,6 +5,7 @@ import Ast.Type
 import Ast.Expression
 import Ast.ExprTree
 import Parser.Tokens
+import Helpers.ErrorReport
 
 type Context = Map.Map String ExprType
 
@@ -12,24 +13,32 @@ type ContextStack = [Context]
 
 type ContextfulExpression = (ExprType,ExpressionBase,LexerPosition,Context)
 
-typecheck = fst . statefulTreeApplyTopDownBottomUp typecheckDown typecheckUp []
+typecheck = fst . statefulTreeApplyTopDownBottomUp typecheckDown typecheckUp [Map.empty]
 
 typecheckDown :: ExprTree ParserExpression -> ContextStack -> (ContextfulExpression,[ExprTree ParserExpression],ContextStack)
-typecheckDown a s = undefined
+typecheckDown (ExprTree (t,b,p) l) (sh:st) = const undefined $
+    case b of
+        ExpressionBlock -> ac
+        ExpressionAnonFunctionDeclaration _ _ -> ac
+        ExpressionVarDeclaration (Declarator n t) -> let nc = Map.insert n t sh
+            in ((t,b,p,nc),l,nc:st)
+        _ -> ((t,b,p,sh),l,sh:st)
+        where ac = ((t,b,p,sh),l,Map.empty:sh:st)
 
 typecheckUp :: ExprTree ContextfulExpression -> ContextStack -> (ExprTree ContextfulExpression,ContextStack)
-typecheckUp a s = undefined
+typecheckUp (ExprTree (t,b,p,c) l) (st:sr) = case b of
+    ExpressionBlock -> ubl
+    ExpressionAnonFunctionDeclaration _ _ -> ubl
+    _ -> (ExprTree (t,b,p,unifiedContext) l,unifiedContext:sr)
+    where unifiedContext = unifyContexts c st p
+          ubl = (ExprTree (t,b,p,unifiedContext) l,sr)
 
-unifyContexts :: Context -> Context -> Maybe Context
-unifyContexts = undefined
+unifyContexts :: Context -> Context -> LexerPosition -> Context
+unifyContexts l r p = Map.unionWith (unifyTypes p) l r
 
-mergeMapWithMaybe :: (a -> a -> Maybe a) -> Map.Map k a -> Map.Map k a -> Maybe (Map.Map k a)
-mergeMapWithMaybe f lm rm = Map.traverseWithKey (const (>>=)) $
-   Map.unionWith (\(Just l) (Just r) -> f l r) (Map.map return lm) (Map.map return rm)
-
-unifyTypes :: ExprType -> ExprType -> Maybe ExprType
-unifyTypes UnknownType b = Just b
-unifyTypes a UnknownType = Just a
-unifyTypes a b
-    | a == b = Just a
-    | otherwise = Nothing
+unifyTypes :: LexerPosition -> ExprType -> ExprType -> ExprType
+unifyTypes _ UnknownType b = b
+unifyTypes _ a UnknownType = a
+unifyTypes  p a b
+    | a == b = a
+    | otherwise = error $ reportPos p ++ "Unification error. Found " ++ show a ++ ", expected " ++ show b
