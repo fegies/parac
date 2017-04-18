@@ -23,6 +23,10 @@ typecheckUp a s = undefined
 unifyContexts :: Context -> Context -> Maybe Context
 unifyContexts = undefined
 
+mergeMapWithMaybe :: (a -> a -> Maybe a) -> Map.Map k a -> Map.Map k a -> Maybe (Map.Map k a)
+mergeMapWithMaybe f lm rm = Map.traverseWithKey (const (>>=)) $
+   Map.unionWith (\(Just l) (Just r) -> f l r) (Map.map return lm) (Map.map return rm)
+
 unifyTypes :: ExprType -> ExprType -> Maybe ExprType
 unifyTypes UnknownType b = Just b
 unifyTypes a UnknownType = Just a
