@@ -3,3 +3,4 @@ dist/**
 *.pscb
 cabal.sandbox.*
 dump/**
+.stack-work/**

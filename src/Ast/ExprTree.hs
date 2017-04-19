@@ -1,6 +1,8 @@
 module Ast.ExprTree where
 
 import Debug.Trace
+import Control.Applicative
+import Control.Monad
 
 data ExprTree a = ExprTree a [ExprTree a]
 
@@ -49,3 +51,11 @@ statefulTreeApplyTopDownBottomUp fd fu s1 a =
 
 treeReturn :: a -> ExprTree a
 treeReturn a = ExprTree a []
+
+instance Functor ExprTree where
+    fmap f (ExprTree p l) = ExprTree (f p) (map (fmap f) l)
+
+instance Foldable ExprTree where
+    foldr f b (ExprTree a l) = f a $ case l of
+        [] -> b
+        _ -> foldr (flip $ foldr f) b l
