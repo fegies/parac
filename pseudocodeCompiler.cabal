@@ -17,7 +17,8 @@ cabal-version:       >=1.10
 
 executable pseudocodeCompiler
   main-is:             Main.hs
-  other-modules:       Parser.Parser, Parser.Lexer
+  other-modules:       Parser.Parser, Parser.Lexer, Ast.Dump, Ast.ExprTree, Ast.Expression, Ast.Type, Helpers.ErrorReport,
+    Helpers.HexMod, Normalize, Normalize.Desugar, Normalize.FoldConstants, Parser.Tokens, Typecheck.Typecheck
   -- other-extensions:
   build-depends:       base >=4.9 && <4.10, bytestring >=0.10 && <0.11, binary >=0.8 && <0.9,
     array, pretty-hex, containers >=0.5, directory

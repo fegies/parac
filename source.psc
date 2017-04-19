@@ -1,5 +1,4 @@
 
-var a : String;
-{
-var b = a;
-}
+function a ( input : String ) {
+var b : String = 0;
+};

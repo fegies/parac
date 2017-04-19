@@ -112,5 +112,11 @@ isCompOp a = case a of
     ExpressionGt -> True
     ExpressionGeq -> True
     _ -> False
-    
+
 isOperation a = any (\f -> f a) [isArithOp,isSingleOp,isLogicOp,isEqOp,isCompOp]
+
+isSubcontextExp a = case a of
+    ExpressionBlock -> True
+    ExpressionAnonFunctionDeclaration {} -> True
+    ExpressionNamedFunctionDeclaration {} -> True
+    _ -> False

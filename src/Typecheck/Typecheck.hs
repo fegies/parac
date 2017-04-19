@@ -16,22 +16,24 @@ type ContextfulExpression = (ExprType,ExpressionBase,LexerPosition,Context)
 typecheck = fst . statefulTreeApplyTopDownBottomUp typecheckDown typecheckUp [Map.empty]
 
 typecheckDown :: ExprTree ParserExpression -> ContextStack -> (ContextfulExpression,[ExprTree ParserExpression],ContextStack)
-typecheckDown (ExprTree (t,b,p) l) (sh:st) =
-    case b of
-        ExpressionBlock -> ac
-        ExpressionAnonFunctionDeclaration _ _ -> ac
-        ExpressionVarDeclaration (Declarator n t) -> let nc = Map.insert n t sh
-            in ((t,b,p,nc),l,nc:st)
-        _ -> ((t,b,p,sh),l,sh:st)
-        where ac = ((t,b,p,sh),l,Map.empty:sh:st)
+typecheckDown (ExprTree (t,b,p) l) (sh:st) = ((t,b,p,newContext),l,newStack)
+    where newStack = if isSubcontextExp b then newSubContext : newContext : st else newContext : st
+          newContext = case b of
+              ExpressionVarDeclaration (Declarator n t) -> Map.insert n t sh
+              ExpressionNamedFunctionDeclaration n _ t -> Map.insert n t sh
+              _ -> sh
+          newSubContext = case b of
+              ExpressionNamedFunctionDeclaration _ d _ -> Map.fromList $ map (\(Declarator a b) -> (a,b)) d
+              _ -> Map.empty
 
 typecheckUp :: ExprTree ContextfulExpression -> ContextStack -> (ExprTree ContextfulExpression,ContextStack)
-typecheckUp (ExprTree (t,b,p,c) l) (st:sr) = case b of
-    ExpressionBlock -> (ExprTree (getExprType $ last l,b,p,unifiedContext) l,sr)
-    ExpressionAnonFunctionDeclaration _ _ -> ubl
-    _ -> (ExprTree (t,b,p,unifiedContext) l,unifiedContext:sr)
-    where unifiedContext = unifyContexts c st p
-          ubl = (ExprTree (t,b,p,unifiedContext) l,sr)
+typecheckUp (ExprTree (t,b,p,c) l) (sh:st) = (ExprTree (newType,newBase,p,newContext) l,newStack)
+    where
+    newType = t
+    newBase = b
+    newContext = unifyContexts c sh p
+    newStack = if isSubcontextExp b then st else newContext : st
+
 
 unifyContexts :: Context -> Context -> LexerPosition -> Context
 unifyContexts l r p = Map.unionWith (unifyTypes p) l r

@@ -122,9 +122,14 @@ OptionalSemicolonExpression :: { ExprTree ParserExpression }
     | ExpressionLoop { $1 }
     ;
 
+FunctionArgs :: { [ExprTree ParserExpression] }
+    : {- empty -} { [] }
+    | ExpressionList { $1 }
+    ;
+
 OtherExpression :: { ExprTree ParserExpression }
     : '(' Expression ')' { $2 }
-    | Expression '(' ExpressionList ')'
+    | Expression '(' FunctionArgs ')'
         { ExprTree (UnknownType,ExpressionFunctionCall,getExpPos $1) ($1:$3) }
     | pure Expression { ExprTree (UnknownType,ExpressionPure,fst $1) [$2] }
     | tainted Expression { ExprTree (UnknownType,ExpressionPure,fst $1) [$2] }
