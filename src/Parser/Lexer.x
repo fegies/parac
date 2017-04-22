@@ -30,6 +30,7 @@ tokens :-
   Int                       { \p s -> ( toPos p , TokenIntType ) }
   Bool                      { \p s -> ( toPos p , TokenBoolType ) }
   Float                     { \p s -> ( toPos p , TokenFloatType ) }
+  Void                      { \p s -> ( toPos p , TokenVoid ) }
   load                      { \p s -> ( toPos p , TokenLoad ) }
   \\                        { \p s -> ( toPos p , TokenBackslash ) }
   \;                        { \p s -> ( toPos p , TokenSemicolon ) }

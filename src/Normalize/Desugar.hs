@@ -12,10 +12,13 @@ desugarInitialisations = fst . recursivelyStatefulTreeApplyTopDown desugarInitia
 
 desugarInitialisationsf :: ParserExpression -> [ExprTree ParserExpression] -> Bool
     -> (ParserExpression,[ExprTree ParserExpression],Bool)
-desugarInitialisationsf p@(_,ExpressionBlock,_) l _ = (p,concatMap desugarInitialisationsff l,True)
-desugarInitialisationsf (_,ExpressionVarDeclaration _,p) _ False =
-    error $ reportPos p ++ "Variable Declarations only allowed in Block."
-desugarInitialisationsf p l _ = (p,l,False)
+desugarInitialisationsf e@(_,ExpressionBlock,_) l _ = (e,concatMap desugarInitialisationsff l,True)
+desugarInitialisationsf e@(_,ExpressionTypedefDeclaration _,_) l _ = (e,l,True)
+desugarInitialisationsf e l False = case e of
+    (_,ExpressionVarDeclaration _,p) -> error $ reportPos p ++ "Variable Delarations disallowed here"
+    (_,ExpressionNamedFunctionDeclaration {},p) -> error $ reportPos p ++ "Function Declarations disallowed here"
+    _ -> (e,l,False)
+desugarInitialisationsf e l _ = (e,l,False)
 
 desugarInitialisationsff :: ExprTree ParserExpression -> [ExprTree ParserExpression]
 desugarInitialisationsff (ExprTree (_,ExpressionVarDeclaration d@(Declarator n t),p) [e]) =

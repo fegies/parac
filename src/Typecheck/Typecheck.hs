@@ -29,7 +29,8 @@ typecheckDown (ExprTree (t,b,p) l) (sh:st) = ((t,b,p,newContext),l,newStack)
 typecheckUp :: ExprTree ContextfulExpression -> ContextStack -> (ExprTree ContextfulExpression,ContextStack)
 typecheckUp (ExprTree (t,b,p,c) l) (sh:st) = (ExprTree (newType,newBase,p,newContext) l,newStack)
     where
-    newType = t
+    newType = case b of
+        _ -> t
     newBase = b
     newContext = unifyContexts c sh p
     newStack = if isSubcontextExp b then st else newContext : st

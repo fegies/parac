@@ -59,6 +59,7 @@ import qualified Data.Map as Map
     "Int"     { ( _ , TokenIntType ) }
     "Float"   { ( _ , TokenFloatType ) }
     "Bool"    { ( _ , TokenBoolType ) }
+    "Void"    { ( _ , TokenVoid ) }
     int       { tok @( _ , TokenInt $$) }
     float     { tok @( _ , TokenFloat $$) }
     word      { tok @( _ , TokenWord $$) }
@@ -215,6 +216,7 @@ TypeDeclaration :: { ExprType }
     | "Int" { TypeInt }
     | "Float" { TypeFloat }
     | "Bool" { TypeBool }
+    | "Void" { TypeVoid }
     | '[' TypeDeclaration ']' { TypeArray $2 }
     | '{' DeclaratorList '}' { TypeTypedef . decllistToMap $ $2 }
     | '(' ArrowSeparatedList ')' { TypeFunction $2 }

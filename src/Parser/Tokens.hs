@@ -14,6 +14,7 @@ data Token
     | TokenTrue
     | TokenFalse
     | TokenWhile
+    | TokenVoid
     | TokenFunction
     | TokenTypedef
     | TokenVar
