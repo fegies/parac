@@ -1,0 +1,6 @@
+module ab.euc.Main
+
+import Io as Somealias
+
+function main(args)
+	printLn("hi from para");
