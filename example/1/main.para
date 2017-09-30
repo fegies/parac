@@ -1,6 +1,4 @@
-module ab.euc.Main
+module ab.euc.Main(foobaen,ue)
 
-import Io as Somealias
+import Io (println) as Foo //some comment
 
-function main(args)
-	printLn("hi from para");

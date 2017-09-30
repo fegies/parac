@@ -18,46 +18,47 @@ parseModule filename content =
 moduleParser :: Parsec String ParserState Module
 moduleParser = do
     whitespace
-    modulename <- moduleDeclaration
+    (signature, exports) <- moduleDeclaration
     whitespace
     importlist <- importListParser
     input <- getInput
-    pos <- getPosition
-    return $ Module modulename importlist []
+    eof
+    return $ Module signature exports importlist []
 
-importListParser :: Parsec String ParserState [(String, Either String Module ,String)]
+moduleDeclaration :: Parsec String ParserState (String, Maybe [String])
+moduleDeclaration = do
+    whitespace
+    string "module"
+    many1 space
+    signature <- qualifiedName
+    whitespace
+    exportlist <- optionMaybe . try $ bracedList
+    statementEnd
+    return (signature, exportlist)
+
+importListParser :: Parsec String ParserState [(String, Maybe [String], String)]
 importListParser = many $ do
+    whitespace
     string "import"
-    nonewlineWhitespace
-    importname <- qualifiedName
-    qualifier <- optionMaybe $ do
-        nonewlineWhitespace
-        string "as"
-        nonewlineWhitespace
-        uppercasedWord
-    optional nonewlineWhitespace
-    optionalSemicolon
-    return $ case qualifier of
-        Just qual -> (importname, Left importname, qual)
-        Nothing -> (importname, Left importname, "")
+    many1 space
+    pack <- qualifiedName
+    qualifiers <- optionMaybe . try $ many1 space >> bracedList
+    alias <- (try $ many1 space >> string "as" >> many1 space >> uppercasedWord) <|> return pack
+    statementEnd
+    whitespace
+    return (pack, qualifiers, alias)
 
 qualifiedName :: Parsec String ParserState String
 qualifiedName = do
-    optional nonewlineWhitespace
     packages <- lowercasedWord `endBy` char '.'
     modulename <- uppercasedWord
     return $ intercalate "." $ packages ++ [modulename]
 
-moduleDeclaration :: Parsec String ParserState String
-moduleDeclaration = do
-    whitespace
-    string "module"
-    (try $ optional nonewlineWhitespace >> optionalSemicolon >> return "") <|> qualifiedName
+bracedList :: Parsec String ParserState [String]
+bracedList = between (char '(') (char ')') $ (nonewlinewhite >> many1 letter >>= (\a -> nonewlinewhite >> return a)) `sepBy` (char ',')
 
-optionalSemicolon :: Parsec String ParserState ()
-optionalSemicolon = (endOfLine <|> char ';') >> return ()
-
-nonewlineWhitespace = many1 $ satisfy (\c -> isSpace c && c /= '\n')
+statementEnd :: Parsec String ParserState ()
+statementEnd = nonewlinewhite >> (endOfLine <|> char ';' <|> (lineComment >> return '\n')) >> return ()
 
 uppercasedWord :: Parsec String ParserState String
 uppercasedWord = do
@@ -70,9 +71,15 @@ lowercasedWord = do
     rest <- many letter
     return $ firstLetter : rest
 
+nonewlinewhite :: Parsec String ParserState ()
+nonewlinewhite = optional . many . satisfy $ \c -> c /= '\n' && isSpace c
+
+lineComment :: Parsec String ParserState ()
+lineComment = nonewlinewhite >> (try $ string "//" >> anyChar `manyTill` endOfLine) >> return ()
+
 whitespace :: Parsec String ParserState ()
-whitespace = do
-    skipMany $ try $ space `manyTill` endOfLine
-    skipMany $ satisfy (\c -> isSpace c && c /= '\t' )
-    skipMany $ string "//" >> anyChar `manyTill` endOfLine
-    skipMany $ string "/*" >> anyChar `manyTill` string "*/"
+whitespace = skipMany $
+    try (space `manyTill` endOfLine >> return ())
+    <|> (try $ satisfy (\c -> isSpace c && c /= '\t' ) >> return ())
+    <|> lineComment
+    <|> (try $ string "/*" >> anyChar `manyTill` string "*/" >> return ())

@@ -4,9 +4,10 @@ module Ast.Ast where
 import Text.Parsec(SourcePos)
 import qualified Data.Map as Map
 
-data Ast = Ast { modules :: Map.Map String Module, mainModule :: String } deriving(Show)
+data Ast = Ast { modules :: Map.Map ModuleSignature Module, mainModule :: ModuleSignature } deriving(Show)
 
-data Module = Module { moduleName :: String, importList :: [(String, Either String Module, String)], body :: [Expression] } deriving(Show)
+type ModuleSignature = String
+data Module = Module { moduleSignature :: ModuleSignature , exportList :: Maybe [String],  importList :: [(String, Maybe [String], String)], body :: [Expression] } deriving(Show)
 
 data Expression = Expression ExprBody SourcePos ExprType
     deriving(Show)
