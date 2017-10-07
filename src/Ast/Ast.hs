@@ -1,17 +1,26 @@
-
 module Ast.Ast where
 
 import Text.Parsec(SourcePos)
 import qualified Data.Map as Map
+import Parser.ParserAst
 
-data Ast = Ast { modules :: Map.Map ModuleSignature Module, mainModule :: ModuleSignature } deriving(Show)
+--data Ast = Ast { modules :: Map.Map ModuleSignature Module, mainModule :: ModuleSignature } deriving(Show)
+type Ast = Module
+
+{-
 
 type ModuleSignature = String
-data Module = Module { moduleSignature :: ModuleSignature , exportList :: Maybe [String],  importList :: [(String, Maybe [String], String)], body :: [Expression] } deriving(Show)
+data Module = Module { moduleSignature :: ModuleSignature , exportList :: Maybe [String],  importList :: [(String, Maybe [String], String)], body :: [Statement] } deriving(Show)
 
 data Expression = Expression ExprBody SourcePos ExprType
     deriving(Show)
 
+data Statement
+    = TypeDeclaration String (Either ExprType [(String, ExprType)])
+    | ClassDeclaration String [String] 
+    | FunctionDefinition
+    | InstanceDefinition
+    deriving(Show)
 
 data ExprBody
     = ExprImport { modulePath :: String , qualifiedAs :: String }
@@ -22,6 +31,7 @@ data ExprBody
 data ExprType
     = Void
     | Function { argumentTypes :: [ExprType], returnType :: ExprType}
+    | ExprTypeStringForm String
     deriving(Show)
 
 data Binop
@@ -31,3 +41,5 @@ data Binop
     | Divide
     | Modulo
     deriving(Show)
+
+-}

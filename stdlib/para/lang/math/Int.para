@@ -1,0 +1,19 @@
+module para.lang.math.Int;
+
+import Classes;
+
+primitiveType Int;
+
+instance Group( Int ) {
+    native (+)(a,b) : Int,
+    native (-)(a,b) : Int,
+    native neg(a) : Int
+}
+
+instance Modulo( Int ) {
+    native (+)(a,b) : Int
+}
+
+instance IntegerDivision( a ) {
+    native (/)(a,b) : Int
+}

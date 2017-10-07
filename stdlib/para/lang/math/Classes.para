@@ -1,0 +1,42 @@
+module para.lang.math.Classes;
+
+/**
+    Mathematical Group.
+    Properties of the operations are not enforced for your instances, but hold for all standart library instances
+*/
+class Group( Plus a => a ) {
+    neg(a:a) : a,
+    (-)(a:a, b:a) : a {
+        a + neg(a)
+    }
+}
+
+/**
+    A mathematical Ring.
+    Properties of the operations are not enforced for your instances, but hold for all standart library instances
+*/
+class Ring( Group a => a ) {
+	(*)(a:a, b:a) : a,
+	invDiv(a:a) : a,
+	(/)(a:a, b:a) : a {
+		a * invDiv(b)
+	}
+}
+
+class Plus( a ) {
+    (+)(a+a, b:a) : a
+}
+
+/**
+    Modulo operation
+*/
+class Modulo( a ) {
+    (%)(a:a, b:a) : a
+}
+
+/**
+    The rounding Integer Division as it is known in most common languages
+*/
+class IntegerDivision( a ) {
+    (/)(a:a, b:a) : a
+}

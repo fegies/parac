@@ -1,1 +1,0 @@
-stack build --file-watch --exec "parac example/1/main.para -"

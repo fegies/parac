@@ -1,0 +1,4 @@
+- pattern: src/(.*)\.hs|stdlib/(.*)\.para|example/(.*)\.para
+  commands:
+  - stack build
+  - stack exec parac -- example/1/Main.para -

@@ -6,80 +6,83 @@ import Text.Parsec.Char
 import Ast.Ast
 import Control.Monad
 import Data.List
+import Parser.ParaDef
+import qualified Text.Parsec.Token as P
+import Text.Parsec.Expr
+import Data.List.Split(splitOn)
+import Parser.ParserAst
+import Control.Applicative(liftA,(<**>))
 
-data ParserState = ParserState { tabDepath :: Int, inComment :: Bool }
+type ParserState = ()
 
-initialParserState = ParserState 0 False
+initialParserState = ()
 
 parseModule :: String -> String -> Either ParseError Module
 parseModule filename content =
     runParser moduleParser initialParserState filename content
 
-moduleParser :: Parsec String ParserState Module
+-- dummyParser = fail "not implemented yet"
+
+lowerWord = (:) <$> lower <*> many letter
+upperWord = (:) <$> upper <*> many letter
+word = many letter
+
+moduleIdentifierToModulename :: String -> String
+moduleIdentifierToModulename = last . splitOn "."
+
 moduleParser = do
-    whitespace
-    (signature, exports) <- moduleDeclaration
-    whitespace
-    importlist <- importListParser
-    input <- getInput
+    whiteSpace
+    reserved "module"
+    modsig <- moduleSignatureParser
+    exportlist <- optionMaybe . try . parens . commaSep1 $ identifier
+    semi
+    imports <- many $ do
+        reserved "import"
+        modsig <- moduleSignatureParser
+        qualifiers <- optionMaybe . try . parens . commaSep1 $ identifier
+        alias <- (symbol "as" >> lexeme upperWord) <|> (pure $ moduleName modsig)
+        semi
+        return $ ImportStatement modsig qualifiers alias
+    body <- many statementParser
     eof
-    return $ Module signature exports importlist []
+    return $ Module modsig exportlist imports body
 
-moduleDeclaration :: Parsec String ParserState (String, Maybe [String])
-moduleDeclaration = do
-    whitespace
-    string "module"
-    many1 space
-    signature <- qualifiedName
-    whitespace
-    exportlist <- optionMaybe . try $ bracedList
-    statementEnd
-    return (signature, exportlist)
+moduleSignatureParser = lexeme $ ModuleSignature <$> (lowerWord `endBy` char '.') <*> upperWord
 
-importListParser :: Parsec String ParserState [(String, Maybe [String], String)]
-importListParser = many $ do
-    whitespace
-    string "import"
-    many1 space
-    pack <- qualifiedName
-    qualifiers <- optionMaybe . try $ many1 space >> bracedList
-    alias <- (try $ many1 space >> string "as" >> many1 space >> uppercasedWord) <|> return pack
-    statementEnd
-    whitespace
-    return (pack, qualifiers, alias)
+statementParser = typeDeclarationParser <|> enumDeclarationParser
 
-qualifiedName :: Parsec String ParserState String
-qualifiedName = do
-    packages <- lowercasedWord `endBy` char '.'
-    modulename <- uppercasedWord
-    return $ intercalate "." $ packages ++ [modulename]
+typeVarsParser = (try . parens $ 
+    (,) <$> (emptytoNothing <$> (many $ (,) <$> lexeme upperWord <*> lexeme lowerWord))
+    <* reservedOp "=>"
+    <*> (emptytoNothing <$> many (lexeme lowerWord))
+    ) <|> pure (Nothing,Nothing)
 
-bracedList :: Parsec String ParserState [String]
-bracedList = between (char '(') (char ')') $ (nonewlinewhite >> many1 letter >>= (\a -> nonewlinewhite >> return a)) `sepBy` (char ',')
 
-statementEnd :: Parsec String ParserState ()
-statementEnd = nonewlinewhite >> (endOfLine <|> char ';' <|> (lineComment >> return '\n')) >> return ()
+dataDeclarationBodyParser constructor = do
+    name <- lexeme upperWord
+    (constraints, vars) <- typeVarsParser
+    fields <- fieldsParser
+    return $ constructor name constraints vars fields
+typeDeclarationParser = reserved "data" >> dataDeclarationBodyParser DataDeclaration
+enumDeclarationParser = reserved "enum" >> dataDeclarationBodyParser EnumDeclaration
 
-uppercasedWord :: Parsec String ParserState String
-uppercasedWord = do
-    firstLetter <- upper
-    rest <- many letter
-    return $ firstLetter : rest
-lowercasedWord :: Parsec String ParserState String
-lowercasedWord = do
-    firstLetter <- lower
-    rest <- many letter
-    return $ firstLetter : rest
+fieldsParser = braces . commaSep1 $ (,) <$> identifier <* colon <*> lexeme word
 
-nonewlinewhite :: Parsec String ParserState ()
-nonewlinewhite = optional . many . satisfy $ \c -> c /= '\n' && isSpace c
+emptytoNothing :: [a] -> Maybe [a]
+emptytoNothing [] = Nothing
+emptytoNothing a = Just a
 
-lineComment :: Parsec String ParserState ()
-lineComment = nonewlinewhite >> (try $ string "//" >> anyChar `manyTill` endOfLine) >> return ()
-
-whitespace :: Parsec String ParserState ()
-whitespace = skipMany $
-    try (space `manyTill` endOfLine >> return ())
-    <|> (try $ satisfy (\c -> isSpace c && c /= '\t' ) >> return ())
-    <|> lineComment
-    <|> (try $ string "/*" >> anyChar `manyTill` string "*/" >> return ())
+-- token parser definitions
+lexer = P.makeTokenParser paraDef
+lexeme = P.lexeme lexer
+reserved = P.reserved lexer
+whiteSpace = P.whiteSpace lexer
+parens = P.parens lexer
+identifier = P.identifier lexer
+commaSep1 = P.commaSep1 lexer
+commaSep = P.commaSep lexer
+semi = P.semi lexer
+symbol = P.symbol lexer
+braces = P.braces lexer
+reservedOp = P.reservedOp lexer
+colon = P.colon lexer

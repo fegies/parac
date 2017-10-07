@@ -1,0 +1,8 @@
+module para.lang.String
+
+import para.lang.Macro;
+primitive String;
+
+instance Plus(String) {
+    native (+)(a:String, b : String) : String
+}

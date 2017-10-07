@@ -1,0 +1,65 @@
+module Main(foobaen,ue);
+
+import Io (println) as Foo; //some comment
+
+/*
+Typeclasses are basically traits
+*/
+
+import Int;
+
+
+
+data Complex (Ring a => a) {
+	x : a,
+	y : a
+}
+
+
+enum En {
+	str : String,
+	nu : Complex
+}
+/*
+instance Ring( Complex a ) {
+	(+)(a, b) {
+		{
+			x : a.x + b.x
+			y : a.y + b.y
+		}
+	},
+	neg(a) {
+		{
+			x : neg(a.x)
+			y : a.y.neg()
+		}
+	}
+	(*)(a,b) {
+		return {
+			x : a.x * b.x - a.y * b.y,
+			y : a.x * a.y + a.y * b.x
+		}
+	}
+}
+instance ToString( Complex a ){}
+
+main( args ) {
+	var n1 : Complex = {
+		x : 0f,
+		y : -42f //this will automatically resolve the type constraint of Ring in Complex to Int
+	};
+	var n2 = Complex( 5, 2);
+
+	4.Stdint.add();
+
+	var e = En.nu( n2 );
+
+	(n1 - n2).print();
+	
+	switch e {
+		case str(a) => a.print();
+		case nu(n) => n.print();
+	}
+}
+
+*/

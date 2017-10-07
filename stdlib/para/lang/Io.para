@@ -1,4 +1,4 @@
 
-module Io : printLn;
+module Io(println);
 
 impure ffi function printLn(line : String) : ();

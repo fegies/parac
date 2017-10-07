@@ -1,4 +1,0 @@
-module ab.euc.Main(foobaen,ue)
-
-import Io (println) as Foo //some comment
-

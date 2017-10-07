@@ -1,0 +1,8 @@
+
+
+Scope based memory Management.
+
+This should work because there is no global state to worry about.
+
+Variables are either deallocated as soon as they leave the current scope or
+passed to the next upper scope who then has to worry about them

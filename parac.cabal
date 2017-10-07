@@ -17,9 +17,9 @@ cabal-version:       >=1.10
 
 executable parac
   main-is:             Main.hs
-  other-modules:       Parser, Parser.ModuleParser, Ast.Ast
+  other-modules:       Parser, Parser.ModuleParser, Parser.ParaDef, Ast.Ast, Parser.ParserAst
   -- other-extensions:
-  build-depends:       base >=4.9 && <4.10, parsec, mtl, containers, system-filepath, split, text
+  build-depends:       base >=4.9 && <4.10, parsec, mtl, containers, system-filepath, split, text, pretty-show
   hs-source-dirs:      src
   build-tools:         alex
   default-language:    Haskell2010
