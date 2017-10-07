@@ -11,8 +11,8 @@ paraDef = emptyDef
                 commentEnd = "*/",
                 commentLine = "//",
                 nestedComments = True,
-                identStart = letter,
-                identLetter = letter <|> char '_',
+                identStart = lower,
+                identLetter = letter <|> char '_' <|> digit,
                 reservedOpNames = ["->", "=>"],
                 reservedNames = ["module", "import", "function", "while", "for", "return", "if", "else", "type", "class", "instance", "data", "enum"]
             }

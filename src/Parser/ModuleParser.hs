@@ -49,11 +49,11 @@ moduleParser = do
 
 moduleSignatureParser = lexeme $ ModuleSignature <$> (lowerWord `endBy` char '.') <*> upperWord
 
-statementParser = typeDeclarationParser <|> enumDeclarationParser
+statementParser = typeDeclarationParser <|> enumDeclarationParser <|> classDeclarationParser
 
 typeVarsParser = (try . parens $ 
-    (,) <$> (emptytoNothing <$> (many $ (,) <$> lexeme upperWord <*> lexeme lowerWord))
-    <* reservedOp "=>"
+    (,) <$> (optionMaybe . try  $ ((many $ (,) <$> lexeme upperWord <*> lexeme lowerWord))
+    <* reservedOp "=>")
     <*> (emptytoNothing <$> many (lexeme lowerWord))
     ) <|> pure (Nothing,Nothing)
 
@@ -63,10 +63,28 @@ dataDeclarationBodyParser constructor = do
     (constraints, vars) <- typeVarsParser
     fields <- fieldsParser
     return $ constructor name constraints vars fields
+    where
+        fieldsParser = braces . commaSep1 $ (,) <$> identifier <* colon <*> lexeme word
 typeDeclarationParser = reserved "data" >> dataDeclarationBodyParser DataDeclaration
 enumDeclarationParser = reserved "enum" >> dataDeclarationBodyParser EnumDeclaration
 
-fieldsParser = braces . commaSep1 $ (,) <$> identifier <* colon <*> lexeme word
+classDeclarationParser = do
+    reserved "class"
+    name <- lexeme upperWord
+    (constraints, vars) <- typeVarsParser
+    fields <- braces . commaSep1 $ stripArgNames <$> functionSignatureParser
+    return $ ClassDeclaration name constraints vars fields
+    where stripArgNames (n,l,r) = (n,map snd l,r)
+
+functionSignatureParser = do
+    name <- lexeme lowerWord
+    args <- parens . commaSep $ (,) <$> identifier <* colon <*> lexeme typeAnnotation
+    colon
+    rettype <- lexeme typeAnnotation
+    return (name,args,rettype)
+
+typeAnnotation = (try . lexeme $ upperWord) <|> lexeme lowerWord
+
 
 emptytoNothing :: [a] -> Maybe [a]
 emptytoNothing [] = Nothing

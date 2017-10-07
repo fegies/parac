@@ -16,9 +16,8 @@ data Complex (Ring a => a) {
 }
 
 
-enum En {
-	str : String,
-	nu : Complex
+class Functor ( a ) {
+	fmap( a1 : a(b), f : (b->c) ) : a(c)  
 }
 /*
 instance Ring( Complex a ) {

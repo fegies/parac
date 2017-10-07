@@ -22,6 +22,9 @@ type FieldName = String
 type FieldType = String
 type ClassName = String
 type VarName = String
+type FunctionName = String
+type TypeAnnotation = String
+type FunctionSignature = (FunctionName,[TypeAnnotation], TypeAnnotation)
 
 data Statement
     = DataDeclaration {
@@ -35,5 +38,11 @@ data Statement
         enumDeclarationConstraints :: Maybe [(ClassName, VarName)],
         enumDeclarationVariables :: Maybe [VarName],
         enumDeclarationFields :: [(FieldName, FieldType)]
+    }
+    | ClassDeclaration {
+        classDeclarationName :: String,
+        classDeclarationConstraints :: Maybe [(ClassName,VarName)],
+        classDeclarationVariables :: Maybe [VarName],
+        classDeclarationFields :: [FunctionSignature]
     }
     deriving(Show)
