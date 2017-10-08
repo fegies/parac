@@ -15,12 +15,44 @@ data Complex (Ring a => a) {
 	y : a
 }
 
+data Box( a ) {
+	content : a
+}
+
+enum Maybe( a ) {
+	just : a,
+	nothing : ()
+}
 
 class Functor ( a ) {
 	fmap( a1 : a(b), f : (b->c) ) : a(c)  
 }
+
 /*
-instance Ring( Complex a ) {
+main( args )  {
+	var n1 : Complex = {
+		x : 0,
+		y : -42 //this will automatically resolve the type constraint of Ring in Complex to Int
+	};
+	/*
+	var n2 = Complex( 5, 2);
+	/*
+	4.Stdint.add();
+	/*
+	var e = En.nu( n2 );
+	/*
+	(n1 - n2).print();
+	/*
+	switch e {
+		case str(a) => a.print();
+		case nu(n) => n.print();
+	}
+} 
+*/
+
+
+/*
+instance Ring( Complex a => a ) {
 	(+)(a, b) {
 		{
 			x : a.x + b.x
@@ -42,23 +74,6 @@ instance Ring( Complex a ) {
 }
 instance ToString( Complex a ){}
 
-main( args ) {
-	var n1 : Complex = {
-		x : 0f,
-		y : -42f //this will automatically resolve the type constraint of Ring in Complex to Int
-	};
-	var n2 = Complex( 5, 2);
 
-	4.Stdint.add();
-
-	var e = En.nu( n2 );
-
-	(n1 - n2).print();
-	
-	switch e {
-		case str(a) => a.print();
-		case nu(n) => n.print();
-	}
-}
 
 */

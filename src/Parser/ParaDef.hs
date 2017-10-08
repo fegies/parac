@@ -10,9 +10,9 @@ paraDef = emptyDef
                 commentStart = "/*",
                 commentEnd = "*/",
                 commentLine = "//",
-                nestedComments = True,
+                nestedComments = False,
                 identStart = lower,
                 identLetter = letter <|> char '_' <|> digit,
                 reservedOpNames = ["->", "=>"],
-                reservedNames = ["module", "import", "function", "while", "for", "return", "if", "else", "type", "class", "instance", "data", "enum"]
+                reservedNames = ["module", "import", "function", "while", "for", "return", "if", "else", "type", "class", "instance", "data", "enum", "var"]
             }
