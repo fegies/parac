@@ -73,9 +73,34 @@ data Literal
 data Expression
     = ExpressionLiteral Literal
     | ExpressionStructConstruction [(FieldName,Expression)]
-    | ExpressionNegate Expression
-    | ExpressionDotOperator Expression Expression
+    | ExpressionArrayConstruction [Expression]
+    | ExpressionMonop Operation Expression
+    | ExpressionBinop Operation Expression Expression
     | ExpressionIdentifier String
+    | ExpressionFunctionCall Expression [Expression] --expression body followed by arguments
+    | ExpressionDotOperator Expression String --structure followed by identifier
+    deriving(Show)
+
+data Operation
+    = ArithMul
+    | ArithDiv
+    | ArithMod
+    | ArithPlus
+    | ArithMinus
+    | Negate
+    | OpNot
+    | OpAnd
+    | OpOr
+    | Increment
+    | Decrement
+    | ArrayAccess
+    | CompareLt
+    | CompareLeq
+    | CompareGt
+    | CompareGeq
+    | CompareEq
+    | CompareNeq
+    | Assign
     deriving(Show)
 
 data Statement

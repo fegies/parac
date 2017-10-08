@@ -115,7 +115,12 @@ varDeclarationParser = VariableDeclaration
     <*  semi
 
 expressionParser =
-    let expressionParser' = parens expressionParser <|> structConstructionExpressionParser <|> literalExpressionParser <|> fmap ExpressionIdentifier identifier
+    let expressionParser'
+            =   parens expressionParser
+            <|> literalExpressionParser
+            <|> structConstructionExpressionParser
+            <|> (brackets . fmap ExpressionArrayConstruction $ commaSep expressionParser)
+            <|> fmap ExpressionIdentifier identifier
     in buildExpressionParser exprtable expressionParser'
 
 structConstructionExpressionParser = braces $ ExpressionStructConstruction <$> commaSep1 ((,) <$> identifier <* colon <*> expressionParser)
@@ -128,8 +133,21 @@ literalExpressionParser = fmap ExpressionLiteral $
 
 --epression parser table
 exprtable = [
-        [Prefix (ExpressionNegate <$ reservedOp "-")]
+    [Postfix $ ExpressionMonop Increment <$ reservedOp "++", Postfix $ ExpressionMonop Decrement <$ reservedOp "--"],
+    [Postfix $ flip ExpressionDotOperator <$ dot <*> identifier], -- TODO : support multiple postfix array access and dot operators
+    [Postfix $ flip ExpressionFunctionCall <$> (parens . commaSep) expressionParser ],
+    [Postfix $ flip (ExpressionBinop ArrayAccess) <$> brackets expressionParser],
+    [Prefix $ ExpressionMonop Negate <$ reservedOp "-"],
+    [Prefix $ ExpressionMonop OpNot <$ reservedOp "!"],
+    leftassocBinop [(ArithMul,"*"), (ArithDiv, "/"), (ArithMod, "%")],
+    leftassocBinop [(ArithPlus, "+"), (ArithMinus, "-")],
+    leftassocBinop [(CompareLt,"<"),(CompareLeq, "<="),(CompareGt,">"),(CompareGeq,">=")],
+    leftassocBinop [(CompareEq, "=="), (CompareNeq, "!=") ],
+    leftassocBinop [(OpAnd, "&&"), (OpOr, "||")],
+    [Infix (ExpressionBinop Assign <$ reservedOp "=") AssocRight ]
     ]
+    where
+        leftassocBinop = map $ uncurry (\a b -> Infix (ExpressionBinop a <$ reservedOp b) AssocLeft)
 
 -- token parser definitions
 lexer = P.makeTokenParser paraDef
@@ -148,3 +166,5 @@ reservedOp = P.reservedOp lexer
 colon = P.colon lexer
 natural = P.natural lexer
 float = P.float lexer
+brackets = P.brackets lexer
+dot = P.dot lexer
