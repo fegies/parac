@@ -66,29 +66,23 @@ main( args )  {
 
 
 
-/*
-instance Ring( Complex a => a ) {
-	(+)(a, b) {
+instance Ring( Complex(a) ) {
+	plus(a, b) {
 		{
-			x : a.x + b.x
+			x : a.x + b.x,
 			y : a.y + b.y
-		}
+		};
 	},
 	neg(a) {
 		{
-			x : neg(a.x)
+			x : neg(a.x),
 			y : a.y.neg()
-		}
-	}
-	(*)(a,b) {
-		return {
+		};
+	},
+	mul(a,b) {
+		{
 			x : a.x * b.x - a.y * b.y,
 			y : a.x * a.y + a.y * b.x
-		}
+		};
 	}
 }
-instance ToString( Complex a ){}
-
-
-
-*/
