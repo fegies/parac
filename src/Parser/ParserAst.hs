@@ -60,14 +60,22 @@ data ModuleBodyStatement
         classDeclarationVariables :: Maybe [VarName],
         classDeclarationFields :: [(FunctionSignature, Maybe ([(FieldName,TypeAnnotation)],[Statement]) )]
     }
-    | FunctionDeclaration {
-        functionDeclaraitonPos :: SourcePos,
-        functionDeclarationName :: String,
-        functionDeclarationArgs :: [(FieldName,TypeAnnotation)],
-        functionDeclarationReturn :: TypeAnnotation,
-        functionDeclarationBody :: [Statement]
+    | ModuleFunctionDeclaration FunctionDeclaration
+    | InstanceDeclaration {
+        instanceDeclarationPos :: SourcePos,
+        instanceDeclarationName :: String,
+        instanceDeclarationArg :: TypeAnnotation,
+        instanceDeclarationFields :: [FunctionDeclaration]
     }
     deriving(Show)
+
+data FunctionDeclaration = FunctionDeclaration {
+    functionDeclarationPos :: SourcePos,
+    functionDeclarationName :: String,
+    functionDeclarationArgs :: [(FieldName,TypeAnnotation)],
+    functionDeclarationReturn :: TypeAnnotation,
+    functionDeclarationBody :: [Statement]
+} deriving(Show)
 
 data Literal
     = LiteralString String
@@ -85,7 +93,19 @@ data Expression
     | ExpressionIdentifier SourcePos String
     | ExpressionFunctionCall SourcePos Expression [Expression] --expression body followed by arguments
     | ExpressionDotOperator SourcePos Expression String --structure followed by identifier
+    | ExpressionConstructor SourcePos String
+    | ExpressionSwitch {
+        expressionSwitchPos :: SourcePos,
+        expressionSwitchSwitchExpr :: Expression,
+        expressionSwitchCases :: [SwitchCase]
+    } --SourcePos Expression [(String,[VarName],Expression)]
     deriving(Show)
+
+data SwitchCase = SwitchCase {
+    switchCaseEnumConstructor :: String,
+    switchCaseCaptureVars :: [VarName],
+    switchCaseExpr :: Expression
+} deriving(Show)
 
 data Operation
     = ArithMul

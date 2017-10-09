@@ -13,6 +13,6 @@ paraDef = emptyDef
                 nestedComments = False,
                 identStart = lower,
                 identLetter = letter <|> char '_' <|> digit,
-                reservedOpNames = ["->", "=>"],
-                reservedNames = ["module", "import", "function", "while", "for", "return", "if", "else", "type", "class", "instance", "data", "enum", "var"]
+                reservedOpNames = ["->", "=>", "+", "-", "++", "--"],
+                reservedNames = ["module", "import", "function", "while", "for", "return", "if", "else", "type", "class", "instance", "data", "enum", "var", "switch", "instance"]
             }

@@ -29,6 +29,22 @@ class Functor ( a ) {
 }
 
 
+instance Functor( Box(a) ) {
+	fmap( a, f ) {
+		a.f();
+	}
+}
+
+instance Functor( Maybe(a) ) {
+	fmap( a, f ) {
+		switch( a ) {
+			just(a) -> a.f().just(),
+			nothing -> nothing
+		};
+	}
+}
+
+
 main( args )  {
 	var n1 : Complex = {
 		x : 0++,
@@ -36,7 +52,6 @@ main( args )  {
 	};
 	5 * 5 % 3 / 1;
 	5.add(6).add(3).add(60,e.call());
-	/*
 	var n2 = Complex( 5, 2);
 	
 	var e = En.nu( n2 );
@@ -44,10 +59,9 @@ main( args )  {
 	(n1 - n2).print();
 	
 	switch e {
-		case str(a) => a.print();
-		case nu(n) => n.print();
-	}
-	*/
+		str(a) -> a.print(),
+		nu(n) -> n.print()
+	};
 } 
 
 

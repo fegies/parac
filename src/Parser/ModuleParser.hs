@@ -26,6 +26,7 @@ parseModule filename content =
 lowerWord = (:) <$> lower <*> many letter
 upperWord = (:) <$> upper <*> many letter
 
+
 moduleIdentifierToModulename :: String -> String
 moduleIdentifierToModulename = last . splitOn "."
 
@@ -45,78 +46,88 @@ moduleParser = do
     body <- many moduleBodyStatementParser
     eof
     return $ Module modsig exportlist imports body
-
-moduleSignatureParser = lexeme $ ModuleSignature <$> (lowerWord `endBy` char '.') <*> upperWord
-
-moduleBodyStatementParser = typeDeclarationParser <|> enumDeclarationParser <|> classDeclarationParser <|> functionDeclarationParser
-
-typeVarsParser = (try . parens $ 
-    (,) <$> (optionMaybe . try  $ many ((,) <$> lexeme upperWord <*> lexeme lowerWord)
-    <* reservedOp "=>")
-    <*> (emptytoNothing <$> many (lexeme lowerWord))
-    ) <|> pure (Nothing,Nothing)
     where
-        emptytoNothing [] = Nothing
-        emptytoNothing a = Just a
+        moduleSignatureParser = lexeme $ ModuleSignature <$> (lowerWord `endBy` char '.') <*> upperWord
 
-functionDeclarationParser = do
-    pos <- getPosition
-    (name, args, rettype) <- functionSignatureParser
-    body <- braces . many1 $ statementParser
-    return $ FunctionDeclaration pos name args rettype body
-
-dataDeclarationBodyParser constructor = do
-    pos <- getPosition
-    name <- lexeme upperWord
-    (constraints, vars) <- typeVarsParser
-    fields <- fieldsParser
-    return $ constructor pos name constraints vars fields
+moduleBodyStatementParser
+    =   typeDeclarationParser
+    <|> enumDeclarationParser
+    <|> classDeclarationParser
+    <|> instanceDeclararationParser
+    <|> fmap ModuleFunctionDeclaration functionDeclarationParser
     where
-        fieldsParser = braces . commaSep1 $ (,) <$> identifier <*> typeAnnotationParser
-typeDeclarationParser = reserved "data" >> dataDeclarationBodyParser DataDeclaration
-enumDeclarationParser = reserved "enum" >> dataDeclarationBodyParser EnumDeclaration
+        dataDeclarationBodyParser constructor = do
+            pos <- getPosition
+            name <- lexeme upperWord
+            (constraints, vars) <- typeVarsParser
+            fields <- fieldsParser
+            return $ constructor pos name constraints vars fields
+            where
+                fieldsParser = braces . commaSep1 $ (,) <$> identifier <*> typeAnnotationParser
+        typeDeclarationParser = reserved "data" >> dataDeclarationBodyParser DataDeclaration
+        enumDeclarationParser = reserved "enum" >> dataDeclarationBodyParser EnumDeclaration
+        functionDeclarationParser = do
+            pos <- getPosition
+            (name, args, rettype) <- functionSignatureParser
+            body <- braces . many1 $ statementParser
+            return $ FunctionDeclaration pos name args rettype body
+        classDeclarationParser = do
+            reserved "class"
+            pos <- getPosition
+            name <- lexeme upperWord
+            (constraints, vars) <- typeVarsParser
+            fields <- braces . commaSep1 $ do
+                signature <- functionSignatureParser
+                definition <- optionMaybe . braces . many1 $ statementParser
+                return (stripArgNames signature, fmap ((,) $ getFullArgs signature) definition)
+            return $ ClassDeclaration pos name constraints vars fields
+            where 
+                stripArgNames (n,l,r) = (n,map snd l,r)
+                getFullArgs (_,l,_) = l
+        instanceDeclararationParser = InstanceDeclaration
+            <$ reserved "instance"
+            <*> getPosition
+            <*> lexeme upperWord
+            <*> parens typeParser
+            <*> braces (commaSep1 functionDeclarationParser)
+        functionSignatureParser = (,,)
+            <$> lexeme lowerWord
+            <*> (parens . commaSep $ (,) <$> identifier <*> typeAnnotationParser)
+            <*> typeAnnotationParser
+        typeVarsParser = (try . parens $ 
+            (,) <$> (optionMaybe . try  $ many ((,) <$> lexeme upperWord <*> lexeme lowerWord)
+            <* reservedOp "=>")
+            <*> (emptytoNothing <$> many (lexeme lowerWord))
+            ) <|> pure (Nothing,Nothing)
+                where
+                    emptytoNothing [] = Nothing
+                    emptytoNothing a = Just a
+                
 
-classDeclarationParser = do
-    reserved "class"
-    pos <- getPosition
-    name <- lexeme upperWord
-    (constraints, vars) <- typeVarsParser
-    fields <- braces . commaSep1 $ do
-        signature <- functionSignatureParser
-        definition <- optionMaybe . braces . many1 $ statementParser
-        return (stripArgNames signature, fmap ((,) $ getFullArgs signature) definition)
-    return $ ClassDeclaration pos name constraints vars fields
-    where 
-        stripArgNames (n,l,r) = (n,map snd l,r)
-        getFullArgs (_,l,_) = l
 
-functionSignatureParser = do
-    name <- lexeme lowerWord
-    args <- parens . commaSep $ (,) <$> identifier <*> typeAnnotationParser
-    rettype <- typeAnnotationParser
-    return (name,args,rettype)
 
-typeAnnotationParser = (colon >> lexeme typeAnnotationParser') <|> pure TypeAnnotationMonomorph
-    where
-    typeAnnotationParser' = (TypeAnnotationLiteral "()" Nothing <$ reservedOp "()")
-        <|> parens (
-            do
-                list <- sepBy1 typeAnnotationParser' $ reservedOp "->"
-                return $ TypeAnnotationFunction (init list) (last list)
-            )
-        <|> (TypeAnnotationLiteral <$> word <*> (optionMaybe . parens . commaSep1 $ word) )
-    word = many1 (letter <|> digit)
+typeAnnotationParser = (colon >> lexeme typeParser) <|> pure TypeAnnotationMonomorph
+typeParser = (TypeAnnotationLiteral "()" Nothing <$ reservedOp "()")
+    <|> parens (
+        do
+            list <- sepBy1 typeParser $ reservedOp "->"
+            return $ TypeAnnotationFunction (init list) (last list)
+        )
+    <|> (TypeAnnotationLiteral <$> word <*> (optionMaybe . parens . commaSep1 $ word) )
+word = many1 (letter <|> digit)
+
 
 
 statementParser = varDeclarationParser <|> (StatementExpression <$> getPosition <*> expressionParser <* semi)
+                where
+                    varDeclarationParser = VariableDeclaration
+                        <$  reserved "var"
+                        <*> getPosition
+                        <*> identifier
+                        <*> typeAnnotationParser
+                        <*> optionMaybe (reservedOp "=" >> expressionParser)
+                        <*  semi
 
-varDeclarationParser = VariableDeclaration
-    <$  reserved "var"
-    <*> getPosition
-    <*> identifier
-    <*> typeAnnotationParser
-    <*> optionMaybe (reservedOp "=" >> expressionParser)
-    <*  semi
 
 expressionParser =
     let expressionParser'
@@ -125,16 +136,20 @@ expressionParser =
             <|> structConstructionExpressionParser
             <|> brackets (ExpressionArrayConstruction <$> getPosition <*> commaSep expressionParser)
             <|> (ExpressionIdentifier <$> getPosition <*> identifier)
+            <|> (ExpressionConstructor <$> getPosition <*> upperWord)
+            <|> switchParser
     in buildPrattParser exprtable expressionParser'
-
-structConstructionExpressionParser = braces $ ExpressionStructConstruction <$> getPosition <*> commaSep1 ((,) <$> identifier <* colon <*> expressionParser)
-
-literalExpressionParser = ExpressionLiteral <$> getPosition <*> (
-    (reservedOp "()" >> pure LiteralEmptyTuple)
-    <|> fmap LiteralInt natural
-    <|> fmap LiteralFloat float
-  --  <|> fmap (LiteralFloat . fromIntegral) (natural <* char 'f')
-    )
+    where
+        structConstructionExpressionParser = braces $ ExpressionStructConstruction <$> getPosition <*> commaSep1 ((,) <$> identifier <* colon <*> expressionParser)
+        literalExpressionParser = ExpressionLiteral <$> getPosition <*> (
+            (reservedOp "()" >> pure LiteralEmptyTuple)
+            <|> fmap LiteralInt natural
+            <|> fmap LiteralFloat float
+        --  <|> fmap (LiteralFloat . fromIntegral) (natural <* char 'f')
+            )
+        switchParser =
+            let caseParser = SwitchCase <$> identifier <*> (parens (commaSep1 identifier) <|> pure []) <* reservedOp "->" <*> expressionParser
+            in ExpressionSwitch <$ reserved "switch" <*> getPosition <*> expressionParser <*> braces (commaSep1 caseParser)
 
 --epression parser table
 exprtable = [
