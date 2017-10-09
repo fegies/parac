@@ -1,5 +1,7 @@
 module Parser.ParserAst where
 
+import Text.Parsec(SourcePos)
+
 data ModuleSignature = ModuleSignature { 
     packages :: [String],
     moduleName :: String
@@ -38,24 +40,28 @@ data TypeAnnotation
 
 data ModuleBodyStatement
     = DataDeclaration {
+        dataDeclarationPosition :: SourcePos,
         dataDeclarationName :: String,
         dataDeclarationConstraints :: Maybe [(ClassName, VarName)],
         dataDeclarationVariables :: Maybe [VarName],
         dataDeclarationFields :: [(FieldName,TypeAnnotation)]
     }
     | EnumDeclaration {
+        enumDeclarationPosition :: SourcePos,
         emumDeclarationName :: String,
         enumDeclarationConstraints :: Maybe [(ClassName, VarName)],
         enumDeclarationVariables :: Maybe [VarName],
         enumDeclarationFields :: [(FieldName, TypeAnnotation)]
     }
     | ClassDeclaration {
+        classDeclarationPos :: SourcePos,
         classDeclarationName :: String,
         classDeclarationConstraints :: Maybe [(ClassName,VarName)],
         classDeclarationVariables :: Maybe [VarName],
         classDeclarationFields :: [(FunctionSignature, Maybe ([(FieldName,TypeAnnotation)],[Statement]) )]
     }
     | FunctionDeclaration {
+        functionDeclaraitonPos :: SourcePos,
         functionDeclarationName :: String,
         functionDeclarationArgs :: [(FieldName,TypeAnnotation)],
         functionDeclarationReturn :: TypeAnnotation,
@@ -71,14 +77,14 @@ data Literal
     deriving(Show)
 
 data Expression
-    = ExpressionLiteral Literal
-    | ExpressionStructConstruction [(FieldName,Expression)]
-    | ExpressionArrayConstruction [Expression]
-    | ExpressionMonop Operation Expression
-    | ExpressionBinop Operation Expression Expression
-    | ExpressionIdentifier String
-    | ExpressionFunctionCall Expression [Expression] --expression body followed by arguments
-    | ExpressionDotOperator Expression String --structure followed by identifier
+    = ExpressionLiteral SourcePos Literal
+    | ExpressionStructConstruction SourcePos [(FieldName,Expression)]
+    | ExpressionArrayConstruction SourcePos [Expression]
+    | ExpressionMonop SourcePos Operation Expression
+    | ExpressionBinop SourcePos Operation Expression Expression
+    | ExpressionIdentifier SourcePos String
+    | ExpressionFunctionCall SourcePos Expression [Expression] --expression body followed by arguments
+    | ExpressionDotOperator SourcePos Expression String --structure followed by identifier
     deriving(Show)
 
 data Operation
@@ -105,9 +111,10 @@ data Operation
 
 data Statement
     = VariableDeclaration {
+        variableDeclarationPos :: SourcePos,
         variableDeclarationName :: String,
         variableDeclarationType :: TypeAnnotation,
         variableDeclarationExpression :: Maybe Expression
     }
-    | StatementExpression Expression
+    | StatementExpression SourcePos Expression
     deriving(Show)

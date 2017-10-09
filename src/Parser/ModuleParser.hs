@@ -60,15 +60,17 @@ typeVarsParser = (try . parens $
         emptytoNothing a = Just a
 
 functionDeclarationParser = do
+    pos <- getPosition
     (name, args, rettype) <- functionSignatureParser
     body <- braces . many1 $ statementParser
-    return $ FunctionDeclaration name args rettype body
+    return $ FunctionDeclaration pos name args rettype body
 
 dataDeclarationBodyParser constructor = do
+    pos <- getPosition
     name <- lexeme upperWord
     (constraints, vars) <- typeVarsParser
     fields <- fieldsParser
-    return $ constructor name constraints vars fields
+    return $ constructor pos name constraints vars fields
     where
         fieldsParser = braces . commaSep1 $ (,) <$> identifier <*> typeAnnotationParser
 typeDeclarationParser = reserved "data" >> dataDeclarationBodyParser DataDeclaration
@@ -76,13 +78,14 @@ enumDeclarationParser = reserved "enum" >> dataDeclarationBodyParser EnumDeclara
 
 classDeclarationParser = do
     reserved "class"
+    pos <- getPosition
     name <- lexeme upperWord
     (constraints, vars) <- typeVarsParser
     fields <- braces . commaSep1 $ do
         signature <- functionSignatureParser
         definition <- optionMaybe . braces . many1 $ statementParser
         return (stripArgNames signature, fmap ((,) $ getFullArgs signature) definition)
-    return $ ClassDeclaration name constraints vars fields
+    return $ ClassDeclaration pos name constraints vars fields
     where 
         stripArgNames (n,l,r) = (n,map snd l,r)
         getFullArgs (_,l,_) = l
@@ -105,10 +108,11 @@ typeAnnotationParser = (colon >> lexeme typeAnnotationParser') <|> pure TypeAnno
     word = many1 (letter <|> digit)
 
 
-statementParser = varDeclarationParser <|> fmap StatementExpression (expressionParser <* semi)
+statementParser = varDeclarationParser <|> (StatementExpression <$> getPosition <*> expressionParser <* semi)
 
 varDeclarationParser = VariableDeclaration
     <$  reserved "var"
+    <*> getPosition
     <*> identifier
     <*> typeAnnotationParser
     <*> optionMaybe (reservedOp "=" >> expressionParser)
@@ -119,35 +123,36 @@ expressionParser =
             =   parens expressionParser
             <|> literalExpressionParser
             <|> structConstructionExpressionParser
-            <|> (brackets . fmap ExpressionArrayConstruction $ commaSep expressionParser)
-            <|> fmap ExpressionIdentifier identifier
-    in buildExpressionParser exprtable expressionParser'
+            <|> brackets (ExpressionArrayConstruction <$> getPosition <*> commaSep expressionParser)
+            <|> (ExpressionIdentifier <$> getPosition <*> identifier)
+    in buildPrattParser exprtable expressionParser'
 
-structConstructionExpressionParser = braces $ ExpressionStructConstruction <$> commaSep1 ((,) <$> identifier <* colon <*> expressionParser)
+structConstructionExpressionParser = braces $ ExpressionStructConstruction <$> getPosition <*> commaSep1 ((,) <$> identifier <* colon <*> expressionParser)
 
-literalExpressionParser = fmap ExpressionLiteral $
+literalExpressionParser = ExpressionLiteral <$> getPosition <*> (
     (reservedOp "()" >> pure LiteralEmptyTuple)
     <|> fmap LiteralInt natural
     <|> fmap LiteralFloat float
   --  <|> fmap (LiteralFloat . fromIntegral) (natural <* char 'f')
+    )
 
 --epression parser table
 exprtable = [
-    [Postfix $ ExpressionMonop Increment <$ reservedOp "++", Postfix $ ExpressionMonop Decrement <$ reservedOp "--"],
-    [Postfix $ flip ExpressionDotOperator <$ dot <*> identifier], -- TODO : support multiple postfix array access and dot operators
-    [Postfix $ flip ExpressionFunctionCall <$> (parens . commaSep) expressionParser ],
-    [Postfix $ flip (ExpressionBinop ArrayAccess) <$> brackets expressionParser],
-    [Prefix $ ExpressionMonop Negate <$ reservedOp "-"],
-    [Prefix $ ExpressionMonop OpNot <$ reservedOp "!"],
+    [Postfix $ ExpressionMonop <$> getPosition <*> pure Increment <* reservedOp "++", Postfix $ ExpressionMonop <$> getPosition <*> pure Decrement <* reservedOp "--"],
+    [Postfix $ flip <$> fmap ExpressionDotOperator getPosition <* dot <*> identifier],
+    [Postfix $ flip <$> fmap ExpressionFunctionCall getPosition <*> (parens . commaSep) expressionParser ],
+    [Postfix $ (flip <$> (ExpressionBinop <$> getPosition <*> pure ArrayAccess)) <*> brackets expressionParser],
+    [Prefix $ ExpressionMonop <$> getPosition <*> pure Negate <* reservedOp "-"],
+    [Prefix $ ExpressionMonop <$> getPosition <*> pure OpNot <* reservedOp "!"],
     leftassocBinop [(ArithMul,"*"), (ArithDiv, "/"), (ArithMod, "%")],
     leftassocBinop [(ArithPlus, "+"), (ArithMinus, "-")],
     leftassocBinop [(CompareLt,"<"),(CompareLeq, "<="),(CompareGt,">"),(CompareGeq,">=")],
     leftassocBinop [(CompareEq, "=="), (CompareNeq, "!=") ],
     leftassocBinop [(OpAnd, "&&"), (OpOr, "||")],
-    [Infix (ExpressionBinop Assign <$ reservedOp "=") AssocRight ]
+    [Infix (ExpressionBinop <$> getPosition <*> pure Assign <* reservedOp "=") AssocRight ]
     ]
     where
-        leftassocBinop = map $ uncurry (\a b -> Infix (ExpressionBinop a <$ reservedOp b) AssocLeft)
+        leftassocBinop = map $ uncurry (\a b -> Infix (ExpressionBinop <$> getPosition <*> pure a <* reservedOp b) AssocLeft)
 
 -- token parser definitions
 lexer = P.makeTokenParser paraDef
@@ -168,3 +173,34 @@ natural = P.natural lexer
 float = P.float lexer
 brackets = P.brackets lexer
 dot = P.dot lexer
+
+-- Pratt Expression Parser by stackoverflow user Pat
+-- https://stackoverflow.com/questions/33214163/parsec-expr-repeated-prefix-with-different-priority/33534426#33534426
+buildPrattParser table termP = parser precs where
+    
+      precs = reverse table
+    
+      prefixP = choice prefixPs <|> termP where
+        prefixPs = do
+          precsR@(ops:_) <- tails precs 
+          Prefix opP <- ops
+          return $ opP <*> parser precsR
+    
+      infixP precs lhs = choice infixPs <|> pure lhs where
+        infixPs = do
+          precsR@(ops:precsL) <- tails precs
+          op <- ops
+          p <- case op of
+            Infix opP assoc -> do
+              let p precs = opP <*> pure lhs <*> parser precs
+              return $ case assoc of
+                AssocNone  -> error "Non associative operators are not supported"
+                AssocLeft  -> p precsL
+                AssocRight -> p precsR
+            Postfix opP ->
+              return $ opP <*> pure lhs
+            Prefix _ -> mzero
+          return $ p >>= infixP precs
+    
+      parser precs = prefixP >>= infixP precs
+    
